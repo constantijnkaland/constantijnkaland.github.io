@@ -45,7 +45,10 @@
   <b>Cite as:</b><br>
   Kaland, C.C.L. (2021). Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>.<br><br>
   <hr style="width:100%;text-align:center;margin-left:0"><br>
-  Contact author for feedback, suggestions and requests for new versions:<br>
+  
+  <a id="myLink" title=""
+ href="" onclick="MyFunction();return false;">Contact</a> author for feedback, suggestions and requests for new versions:<br>
+  <div id="myDIV">
   <form
   action="https://formspree.io/f/mzbkndbd"
   method="POST"
@@ -61,6 +64,19 @@
 
   <button type="submit">Send</button>
 </form>
+    </div>
+  
+  <script>
+function myFunction() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>
+  
 </body> 
   
 </html>
