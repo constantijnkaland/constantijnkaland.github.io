@@ -5,13 +5,14 @@
 # Usage guidelines are given in the accompanying manual.
 #
 # Developed and tested using package versions:
-# dplyr_1.0.2
+# dplyr_1.0.7
 # reshape2_1.4.4
 # reshape_0.8.8
-# ggplot2_3.3.2
-# shiny_1.5.0 
+# ggplot2_3.3.5
+# shiny_1.6.0
+# ggdendro 0.1.22
 #
-# Constantijn Kaland, March 2021.
+# Constantijn Kaland, August 2021.
 # https://constantijnkaland.github.io/contourclustering/
 
 
@@ -20,6 +21,7 @@ library(reshape)
 library(reshape2)
 library(dplyr)
 library(shiny)
+library(ggdendro)
 
 ui <- fluidPage(
     sidebarLayout(
@@ -37,6 +39,7 @@ ui <- fluidPage(
         textOutput("choose"),
         tags$hr(),
         uiOutput("rem_empty"),
+        uiOutput("semitone_conv"),
         uiOutput("jump_header"),
         uiOutput("jump_margin"),
         uiOutput("spkdiff_header"),
@@ -53,9 +56,10 @@ ui <- fluidPage(
         uiOutput("subset"),
         uiOutput("dosubset"),
         tags$hr(),
-        uiOutput("textgrid"),
-        tags$hr(),
-        uiOutput("keepfiles")
+        fluidRow(
+          column(width = 6, align = "center", uiOutput("savecurrent")),
+          column(width = 6, align = "center", uiOutput("textgrid"))
+        )
       ),
       mainPanel(
         tabsetPanel(id = "outputs", type = "tabs",
@@ -80,7 +84,7 @@ server <- function(input, output, session) {
   output$choose <- reactive({
     if(is.null(input$file_input))
     {
-      "Before uploading: select correct file properties above."
+      "! Before uploading: select correct file properties above."
     }
     else
     {
@@ -143,6 +147,12 @@ server <- function(input, output, session) {
     checkboxInput("rem_empty", "clean data (remove NA and f0 errors)", FALSE)
   })
   
+  output$semitone_conv<-renderUI({
+    if (is.null(input$file_input))
+      return(NULL)
+    tags$div(title="Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87", checkboxInput("semitone_conv", label = "convert f0 Hertz values to semitones", value = T))
+  })
+  
   output$jump_header<-renderUI({
     if (is.null(input$file_input))
       return(NULL)
@@ -164,13 +174,14 @@ server <- function(input, output, session) {
   output$spkdiff<-renderUI({
     if (is.null(input$file_input))
       return(NULL)
-    tags$div(title="Only apply when number of speakers is correctly detected. 1 = none, 2 = f0–mean(f0.spk), 3 = f0–mean(f0.spk) / sd(f0.spk), 4 = f0–min(f0.spk) / max(f0.spk)–min(f0.spk), 5 = f0–median(f0.spk) / 75q(f0.spk)–25q(f0.spk)", 
+    tags$div(title="Only apply when number of speakers is correctly detected. 1 = none, 2 = f0–mean(f0.spk), 3 = f0–mean(f0.spk) / sd(f0.spk), 4 = f0–min(f0.spk) / max(f0.spk)–min(f0.spk), 5 = f0–median(f0.spk) / 75q(f0.spk)–25q(f0.spk), 6 = log2(f0.spk/media(f0.spk))", 
              selectInput("spkdiff", label = NULL, 
                           choices = list("1: none" = 1,
                                          "2: subtract mean" = 2,
                                          "3: standardise" = 3,
                                          "4: min-max normalize" = 4,
-                                         "5: robust scaler" = 5),
+                                         "5: robust scaler" = 5,
+                                         "6: octave-median scaled" = 6),
                          selected = 1,multiple = F,width = "75%"))
   })
   
@@ -187,16 +198,16 @@ server <- function(input, output, session) {
     actionButton("getdendro", "Dendrogram")
   })
 
-  output$keepfiles<-renderUI({
-    if (is.null(input$file_input))
-      return(NULL)
-    tags$div(title="Check this box if the generated datafiles, plot, and textgrids should not be deleted from the working directory after exiting the app.", checkboxInput("keepfiles", "Keep files after exit",value = F))
-  })
-      
+
 # observers ####
   
   observeEvent(input$file_input, {   
     output$summary <- renderText({
+      hideTab(inputId = "outputs", target = "Data (long)")
+      hideTab(inputId = "outputs", target = "Dendrogram")
+      hideTab(inputId = "outputs", target = "Table")
+      hideTab(inputId = "outputs", target = "Plot")
+      hideTab(inputId = "outputs", target = "Data (wide)")
       readdata()
     })
   })
@@ -204,6 +215,7 @@ server <- function(input, output, session) {
   observeEvent(input$prep_data, {
     data <- as.data.frame(read.csv("data_long.csv",sep=",", header = T,row.names = NULL,stringsAsFactors = F))
     gsub(pattern = ":;",replacement = ",",x = as.character(data$interval_label)) -> data$interval_label
+    "(Hz)" ->> ysc
     if (input$rem_empty==T){
       subset(data, data$filename !="")-> data
       subset(data, data$interval_label !="")-> data
@@ -211,12 +223,17 @@ server <- function(input, output, session) {
       subset(data, !grepl("--undefined--", data$f0))-> data
       subset(data, data$f0 !="")-> data
     }
-    subset(data, between(as.numeric(data$jumpkilleffect),left = (1-(input$jump_margin/100)),right = (1+(input$jump_margin/100)))) -> data
+    if (input$semitone_conv==T){
+      log10((as.numeric(as.character(data$f0))/50))*39.87 -> data$f0
+      "(ST)" ->> ysc
+    }
+    
+    subset(data, between(as.numeric(as.character(data$jumpkilleffect)),left = (1-(input$jump_margin/100)),right = (1+(input$jump_margin/100)))) -> data
     if (input$spkdiff==1){
-      "f0 (Hz)" ->> ylb
+      paste("f0 ",ysc,sep="") ->> ylb
     }
     if (input$spkdiff==2){
-      "Speaker mean corrected f0 (Hz)" ->> ylb
+      paste("Speaker mean corrected f0 ",ysc,sep="") ->> ylb
       for (spk in levels(as.factor(data$filename))) {
         mean(as.numeric(as.character(data$f0[data$filename==spk]))) -> m
         (as.numeric(as.character(data$f0[data$filename==spk]))-m) -> data$f0[data$filename==spk]
@@ -248,6 +265,13 @@ server <- function(input, output, session) {
         (as.numeric(as.character(data$f0[data$filename==spk]))-md)/(q75-q25) -> data$f0[data$filename==spk]
       }
     }
+    if (input$spkdiff==6){
+      "Octave-median scaled f0" ->> ylb
+      for (spk in levels(as.factor(data$filename))) {
+        median(as.numeric(as.character(data$f0[data$filename==spk]))) -> md
+        log2(as.numeric(as.character(data$f0[data$filename==spk]))/md) -> data$f0[data$filename==spk]
+      }
+    }
     write.table(data, "data_long.csv",sep = ",",row.names = F)
     stepsN <<- length(levels(as.factor(data$stepnumber)))
     dcast(data,filename+interval_label+start+end~stepnumber,value.var="f0") -> datacast
@@ -259,13 +283,15 @@ server <- function(input, output, session) {
     output$data_wide <- renderTable({
       datacast
     })
+    showTab(inputId = "outputs", target = "Data (long)")
+    showTab(inputId = "outputs", target = "Data (wide)")
     updateTabsetPanel(session, inputId = "outputs", selected = "summary")
     output$summary <- renderText({readdata()})
   })
   
   observeEvent(input$getdendro, {
     output$nclust<-renderUI({
-      sliderInput("nclust", "Number of clusters",min = 2,max = 50,value = 8,step = 1)
+      sliderInput("nclust", "Number of clusters",min = 2,max = 50,value = numbclust,step = 1)
     })
     output$gettab<-renderUI({
       actionButton("gettab", "Table")
@@ -275,8 +301,9 @@ server <- function(input, output, session) {
     })
     output$dendro<-renderPlot({
       clustprep()
-      plot(hclust_avg)
+      plot(dendro)
     })
+    showTab(inputId = "outputs", target = "Dendrogram")
     updateTabsetPanel(session, inputId = "outputs", selected = "Dendrogram")
   })
     
@@ -285,6 +312,7 @@ server <- function(input, output, session) {
       clustprep()
       clusttab()
     },rownames = T)
+    showTab(inputId = "outputs", target = "Table")
     updateTabsetPanel(session, inputId = "outputs", selected = "Table")
   })
   
@@ -294,6 +322,7 @@ server <- function(input, output, session) {
       clusttab()
       clustplot()
     },height = ht)
+    showTab(inputId = "outputs", target = "Plot")
     updateTabsetPanel(session, inputId = "outputs", selected = "Plot")
   })
   
@@ -354,14 +383,15 @@ server <- function(input, output, session) {
     }
   })
   
+  observeEvent(input$savecurrent, {
+    save_current()
+  })
+  
   observeEvent(input$textgrid, {
     gen_textgrid()
   })
+
   
-  observeEvent(input$keepfiles, {
-    input$keepfiles ->> keepfiles
-  })
-    
 
 # functions ####
   
@@ -369,6 +399,11 @@ clustprep <- function(){
   datacast <- as.data.frame(read.csv("data_wide.csv",sep=",", header = T,row.names = NULL,stringsAsFactors = F))
   distance_matrix <- dist(datacast[,stepone:((stepone-1)+stepsN)], method = 'euclidean')
   hclust_avg <<- hclust(distance_matrix, method = 'complete')
+  if (file.exists("dendro.png")){
+  }else{
+    ggdendrogram(hclust_avg, theme_dendro = T, labels = F) ->> dendro
+    ggsave("dendro.png", dendro)
+  }
 }
 
 clusttab <- function(){
@@ -391,6 +426,11 @@ clusttab <- function(){
       return(NULL)
     datacast <- as.data.frame(read.csv("data_wide.csv",sep=",", header = T,row.names = NULL,stringsAsFactors = F))
     datacast <- subset(datacast, select=c(0:(stepone-1),cluster,stepone:(stepone+(stepsN-1))))
+  })
+  output$savecurrent<-renderUI({
+    if (is.null(input$file_input))
+      return(NULL)
+    tags$div(title="Save plot and data of analysis with currently chosen number (N) of clusters (filenames: dendrogram.png, data_long_N.csv, data_wide_N.csv, table_N.csv, plot_N.png)", actionButton("savecurrent", paste("Save this (",numbclust," clusters)", sep="")))
   })
   output$textgrid<-renderUI({
     if (is.null(input$file_input))
@@ -423,6 +463,7 @@ clusttab <- function(){
   output$subset<-renderUI({
     selclust()
   })
+  write.csv(table, "table.csv")
   table
 }
 
@@ -451,9 +492,11 @@ readdata <- function(){
   if (is.null(input$file_input))
     return(NULL)
   data <- as.data.frame(read.csv("data_long.csv",sep=",", header = T,row.names = NULL,stringsAsFactors = F))
-  filesave <- ifelse(input$prep_data==T, paste("cleaned datafile saved to 'data_long.csv' in ", getwd(), sep = ""),paste("datafile saved to 'data_long.csv' in ", getwd(), sep = ""))
-  filesave <- ifelse(file.exists("data_wide.csv"),paste(filesave,"\n\n","wide datafile with clusters annotated saved to 'data_wide.csv' in ", getwd(), sep=""),filesave)
-  filesave <- ifelse(file.exists("plot.png"),paste(filesave,"\n\n","plot saved to 'plot.png' in ", getwd(), sep=""),filesave)
+  filesave <- ifelse(input$prep_data==T, paste(Sys.time(),": cleaned datafile saved to 'data_long.csv' in ", getwd(), sep = ""),paste(Sys.time(),": datafile saved to 'data_long.csv' in ", getwd(), sep = ""))
+  filesave <- ifelse(file.exists("dendrogram.png"),paste(filesave,"\n\n",Sys.time(),": dendrogram saved to 'dendrogram.png' in ", getwd(), sep=""),filesave)
+  filesave <- ifelse(file.exists("table.csv"),paste(filesave,"\n\n",Sys.time(),": table saved to 'table.csv' in ", getwd(), sep=""),filesave)
+  filesave <- ifelse(file.exists("plot.png"),paste(filesave,"\n\n",Sys.time(),": plot saved to 'plot.png' in ", getwd(), sep=""),filesave)
+  filesave <- ifelse(file.exists("data_wide.csv"),paste(filesave,"\n\n",Sys.time(),": wide datafile with clusters annotated saved to 'data_wide.csv' in ", getwd(), sep=""),filesave)
   dashedline <- "--------------------------------------------"
   stepsN <- length(levels(as.factor(data$stepnumber)))
   steps <- paste(stepsN, " measurement points per contour", sep = "")
@@ -481,6 +524,15 @@ selclust <- function(){
   if (exists('rem_clust')){
     checkboxGroupInput("subset", "Remove these clusters:", choices = 1:numbclust,selected = rem_clust, inline = T)
   }
+}
+
+save_current <- function(){
+    clustplot()
+    file.copy("plot.png",paste("plot_",numbclust,".png",sep=""),overwrite = T)
+    file.copy("data_long.csv",paste("data_long_",numbclust,".csv",sep=""),overwrite = T)
+    file.copy("data_wide.csv",paste("data_wide_",numbclust,".csv",sep=""),overwrite = T)
+    ggsave("dendrogram.png", dendro)
+    file.copy("table.csv",paste("table_",numbclust,".csv",sep=""),overwrite = T)
 }
   
 gen_textgrid <- function(){
@@ -539,17 +591,23 @@ gen_textgrid <- function(){
   
 shinyApp(ui, server, 
          onStart = function() {
+           8 ->> numbclust
+           c("data_long.csv", "data_wide.csv", "dendro.png", "plot.png", "table.csv") -> remfiles
+           for (f in remfiles){
+             if (file.exists(f)){
+               file.remove(f)
+               cat(paste("Removing old ", f,"\n", sep=""))
+             }
+           }
            cat("Starting contour clustering app\n")
-           
-           onStop(function() {
-             if (keepfiles==F){
-               file.remove("data_long.csv")
-               file.remove("data_wide.csv")
-               file.remove("plot.png")
-               if (exists("filenames")){
-                 for (spk in filenames) {
-                   file.remove(paste(spk,".TextGrid",sep = ""))
-                 }}
-               cat("Stopping contour clustering app\n")
-            }})
+        onStop(function() {
+          for (f in remfiles){
+            if (file.exists(f)){
+              file.remove(f)
+              cat(paste("Removing ", f,"\n", sep=""))
+            }
+          }
+          cat("Stopping contour clustering app.\n")
+          rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
           })
+        })

@@ -1,0 +1,49 @@
+Changelog to version 2021-08:
+------------------
+
+> Added speaker normalisation method "Octave-median scaled" (De Looze & Hirst, 2014).
+
+Applies to:
+- contour_clustering.R
+- contour_clustering_gui.R
+- manual.pdf
+
+------------------
+
+> Added option to convert f0 in Hertz to semitones.
+
+Applies to:
+- contour_clustering.R
+- contour_clustering_gui.R
+- manual.pdf
+
+------------------
+
+> Added button to save files of current analysis all at once with filenames indicating the number of clusters (dendrogram, data files, table, plot). Provides more intuitive use and files can be stored for further analysis.
+
+Applies to:
+- contour_clustering_gui.R
+- manual.pdf
+
+------------------
+
+> Objects and values in the R global environment are now cleaned upon stopping the app.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Tabpanels appearance changed: now depends on whether there is content available for display. For example, the tabpanel "Dendrogram" only appears when user has clicked the button "Dendrogram". This avoids showing empty Tabpanels and guides user input.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Status window: time-stamps added to info lines.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------

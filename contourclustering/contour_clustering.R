@@ -5,13 +5,13 @@
 # Additional in-line comments are given after single "#"
 # Code-block headings are commented by final "####" to indicate the script's structure in R studio
 # Developed and tested using package versions:
-# dplyr_1.0.2
+# dplyr_1.0.7
 # reshape2_1.4.4
 # reshape_0.8.8
-# ggplot2_3.3.2
-# shiny_1.5.0 
+# ggplot2_3.3.5
+# shiny_1.6.0 
 #
-# Constantijn Kaland, March 2021.
+# Constantijn Kaland, August 2021.
 # https://constantijnkaland.github.io/contourclustering/
 #
 # 1: set variables ####
@@ -24,7 +24,7 @@
 # working directory can be specified manually ["P:/ath/to/working/dir/"]
 ## Manual 2.2.
 workdir = "AUTO"
-datafile = "abc123.csv"
+datafile = "pmy_scripted_noun_phrases.csv"
 
 # number of measurements per contour (as set in the Praat script) 
 # use "AUTO" for automatic detection based on number of columns in the datafile (change to manual value in case of errors) [a number] / ["AUTO"]
@@ -72,7 +72,7 @@ library(dplyr)
 # any datafile generated differently or altered manually might require different variable names and/or different ways of reading
 # consider using additional arguments such as 'stringsAsFactors = T/F', 'skipNul = T' or 'fileEncoding = "latin1"' for ortographically challenging textgrids.
 ## Manual 2.2.1.
-as.data.frame(read.csv(datafile,sep="\t", header = T,row.names = NULL,stringsAsFactors = T)) -> data
+as.data.frame(read.csv(datafile,sep=",", header = T,row.names = NULL,stringsAsFactors = T)) -> data
 
 
 # 4: select and prepare data for analysis ####
@@ -88,7 +88,10 @@ subset(data, !grepl("--undefined--", data$f0))->data
 subset(data, data$f0 !="")->data
 # remove contours where octave jump killing changed mean F0 of contour with more than XX%
 killprop = killperc/100
-subset(data, between(as.numeric(data$jumpkilleffect),left = (1-killprop),right = (1+killprop))) -> data
+subset(data, between(as.numeric(as.character(data$jumpkilleffect)),left = (1-killprop),right = (1+killprop))) -> data
+# set Y-label for plots to Hertz
+"(Hz)" ->> ysc
+paste("f0 ",ysc,sep="") ->> ylb
 # read number of F0 measurements either automatically or manually depending on variable setting 'nmsr'
 if (nmsr == "AUTO") {
   length(levels(as.factor(data$stepnumber))) -> steps
@@ -97,14 +100,17 @@ if (nmsr == "AUTO") {
 }
 # replace :; with commas (Praat script uses :; for every comma in the textgrid annotations, to ensure comma-separated file reading compatibility with this script)
 gsub(pattern = ":;",replacement = ",",x = as.character(data$interval_label)) -> data$interval_label
-
+# convert to semitones and change Y-label in plots accordingly
+log10((as.numeric(as.character(data$f0))/50))*39.87 -> data$f0
+"(ST)" ->> ysc
+paste("f0 ",ysc,sep="") ->> ylb
 
 # 5: control for speaker differences ####
 ## Manual 2.2.3.
 
 # 1: subtract mean
 # f0(spk)-mean.f0(spk)
-"Speaker mean corrected f0 (Hz)" ->> ylb
+paste("Speaker mean corrected f0 ",ysc,sep="") ->> ylb
 for (spk in levels(as.factor(data$filename))) {
   mean(as.numeric(as.character(data$f0[data$filename==spk]))) -> m
   (as.numeric(as.character(data$f0[data$filename==spk]))-m) -> data$f0[data$filename==spk]
@@ -140,7 +146,13 @@ for (spk in levels(as.factor(data$filename))) {
   (as.numeric(as.character(data$f0[data$filename==spk]))-md)/(q75-q25) -> data$f0[data$filename==spk]
 }
 
-
+# 5: Octave-Median scaling
+# log2(f0(spk)/median.f0(spk))
+"Octave-Median scaled f0" ->> ylb
+for (spk in levels(as.factor(data$filename))) {
+  median(as.numeric(as.character(data$f0[data$filename==spk]))) -> md
+  log2(as.numeric(as.character(data$f0[data$filename==spk]))/md) -> data$f0[data$filename==spk]
+}
 
 # 6: prepare data for cluster analysis / subsetting ####
 
@@ -226,6 +238,12 @@ cut_avg <- cutree(hclust_avg, k = numbclust)
 # write the cluster number back to the data 
 datacast <- mutate(datacast, cluster = cut_avg)
 
+###########################################################################################
+for (i in 1:8){
+  mean(datacast$1[datacast$cluster==1,])
+}
+
+
 # create a table with the cluster sizes (N) and
 # mean standard errors over all measurement points per cluster (M se)
 sevt = c()
@@ -274,7 +292,7 @@ as.numeric(dataplot$variable) -> dataplot$variable
 brks = c((steps*0.25),(steps*0.5),(steps*(0.75)),steps)
 
 # prepare panel labels
-panel_text <- data.frame(label = paste("n = ", as.character(as.data.frame(table(datacast$cluster))[,2]),sep=""), cluster = 1:numbclust)
+panel_text <- data.frame(cluster = 1:numbclust, label = paste("n = ", as.character(as.data.frame(table(datacast$cluster))[,2]),sep=""))
 
 #plot the mean values (and standard error in shaded area) for each measurement point for each cluster, 
 #the number of observations are plotted for each cluster
