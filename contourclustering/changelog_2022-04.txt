@@ -1,0 +1,53 @@
+Changelog to version 2022-04:
+------------------
+
+> Several changes in the Praat script to take time-series f0 measurements:
+- Added option to select separator (comma or tab) for Praat csv output file
+- Added option to specify advanced pitch settings
+- Added option to specify smoothing bandwith
+- Changed measurement procedure for soundfiles: generate pitch object - optionally kill octave jumps - smooth - interpolate - generate pitch tier - stylize - take measurements
+
+Applies to:
+- time-series_f0.praat
+
+------------------
+
+> Automatically install and load required packages (no manual install needed).
+
+Applies to:
+- contour_clustering.R
+- contour_clustering_gui.R
+
+------------------
+
+> Added option to remap column names; for use with data that was generated/processed differently (i.e. outside the provided Praat script).
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added tabpanel "Evaluate" for performing information cost evaluation of multiple clustering rounds (see Kaland & Ellison, submitted).
+
+Applies to:
+- contour_clustering_gui.R
+- contour_clustering.R
+- manual.pdf
+
+------------------
+
+> Added several smaller gui updates to improve usability:
+- Logo with link to website in sidepanel
+- Progress indicators for long operations
+- File loading information in status tab instead of sidepanel
+- Cluster analysis can only start after "Proceed" has been pressed
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Updated manual.pdf to account for the aforementioned changes.
+
+Applies to:
+- manual.pdf

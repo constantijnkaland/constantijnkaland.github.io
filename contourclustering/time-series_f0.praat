@@ -20,10 +20,13 @@ form Get time-series F0 data
 	text sound_directory /home/x/Desktop/tmp/
 	sentence Sound_file_extension .wav
 	comment Directory of TextGrid files
-	text textGrid_directory /home/c/Desktop/tmp/
+	text textGrid_directory /home/x/Desktop/tmp/
 	sentence TextGrid_file_extension .TextGrid
-	comment Full path of the resulting text file:
+	comment Full path of the resulting csv file:
 	text resultfile /home/x/Desktop/tmp/output.csv
+	choice csv_separator 1
+		button comma
+		button tab
 # Manual: 2.1.1. Tier
 	comment Which tier defines the intervals corresponding to the contours? (provide tier name)
 	sentence Tier tiername
@@ -40,10 +43,16 @@ form Get time-series F0 data
 # Manual: 2.1.5. Pitch minimum and maximum
 	positive Minimum_pitch_(Hz) 75
 	positive Maximum_pitch_(Hz) 600
-# Manual: 2.1.6. Stylization resolution
-	positive Stylization_resolution_(ST) 2
+	positive Silence_threshold 0.03
+	positive Voicing_threshold 0.45
+	positive Octave_cost 0.01
+	positive Octave_jump_cost 0.35
+	positive Voiced_unvoiced_cost 0.14
 # Manual: 2.1.7. Kill octave jumps
 	boolean Kill_octave_jumps 1
+	positive Smoothing_bandwith_(Hz) 10
+# Manual: 2.1.6. Stylization resolution
+	positive Stylization_resolution_(ST) 2
 endform
 
 # Here, you make a listing of all the sound files in a directory.
@@ -58,10 +67,18 @@ if fileReadable (resultfile$)
 	filedelete 'resultfile$'
 endif
 
+# Set the separator value
+if csv_separator = 1
+	sep$ = ","
+endif
+if csv_separator = 2
+	sep$ = tab$
+endif
+
 # Write a row with column titles to the result file:
 # (remember to edit this if you add or change the analyses!)
 
-titleline$ = "filename,interval_label,start,end,step,stepnumber,f0,jumpkilleffect'newline$'"
+titleline$ = "filename'sep$'interval_label'sep$'start'sep$'end'sep$'step'sep$'stepnumber'sep$'f0'sep$'jumpkilleffect'newline$'"
 fileappend "'resultfile$'" 'titleline$'
 
 # Go through all the sound files, one by one:
@@ -95,7 +112,7 @@ for ifile to numberOfFiles
 					Extract part: start, end, "rectangular", 1, "no"
 					# to pitch
 					selectObject: "Sound 'soundname$'_part"
-					To Pitch: time_step, minimum_pitch, maximum_pitch
+					To Pitch (ac): time_step, minimum_pitch, 15, "no", silence_threshold, voicing_threshold, octave_cost, octave_jump_cost, voiced_unvoiced_cost, maximum_pitch
 					selectObject: "Pitch 'soundname$'_part"
 					# kill octave jumps and retrieve difference between F0 before and after jump handling
 					mchange = 0
@@ -105,6 +122,8 @@ for ifile to numberOfFiles
 						moct = Get mean: 0, 0, "Hertz"						
 						mchange = morg/moct													
 					endif
+					Smooth: smoothing_bandwith
+					Interpolate
 					#stylize pitchtier
 					Down to PitchTier
 					Stylize: stylization_resolution, "Semitones"
@@ -115,12 +134,16 @@ for ifile to numberOfFiles
 					while stepnr <= number_of_measures
 						selectObject: "PitchTier 'soundname$'_part"
 						value = Get value at time: step
-						resultline$ = "'soundname$','label$','start','end','step','stepnr','value','mchange''newline$'"
+						resultline$ = "'soundname$''sep$''label$''sep$''start''sep$''end''sep$''step''sep$''stepnr''sep$''value''sep$''mchange''newline$'"
 						fileappend "'resultfile$'" 'resultline$'
 						step = step + measurestep
 						stepnr = stepnr + 1
 					endwhile
 					# remove used objects
+					selectObject: "Pitch 'soundname$'_part"
+					Remove
+					selectObject: "Pitch 'soundname$'_part"
+					Remove
 					selectObject: "Pitch 'soundname$'_part"
 					Remove
 					if kill_octave_jumps = 1

@@ -1,17 +1,20 @@
 # 0: general information ####
-# This script performs hierarchical cluster analysis on F0 contours measured with "time-series_F0.praat". A graphical user interface for this script is provided as 'contour_clustering_gui.R'.
+# This script performs hierarchical cluster analysis on f0 contours measured with "time-series_F0.praat". A graphical user interface for this script is provided as 'contour_clustering_gui.R'.
 # A theoretical motivation is given in the accompanying paper. 
 # Usage guidelines are given in the accompanying manual, referred to in this script by comments after "## Manual ..."
 # Additional in-line comments are given after single "#"
 # Code-block headings are commented by final "####" to indicate the script's structure in R studio
-# Developed and tested using package versions:
-# dplyr_1.0.7
-# reshape2_1.4.4
-# reshape_0.8.8
-# ggplot2_3.3.5
-# shiny_1.6.0 
+# Developed and tested using R/package versions:
+# R 4.0.3
+# R 1.3.1056
+# dplyr 1.0.7
+# ggdendro 0.1.22
+# ggplot2 3.3.5
+# reshape 0.8.8
+# reshape2 1.4.4
+# shiny 1.7.1 
 #
-# Constantijn Kaland, August 2021.
+# Constantijn Kaland, April 2022.
 # https://constantijnkaland.github.io/contourclustering/
 #
 # 1: set variables ####
@@ -53,16 +56,18 @@ if (workdir == "AUTO") {
   setwd(workdir)
 }
 
-if (!require("ggplot2")) install.packages("ggplot2")
-library(ggplot2)
+packages <- c("ggplot2",
+              "reshape", 
+              "reshape2", 
+              "dplyr",
+              "shiny")
 
-if (!require("reshape")) install.packages("reshape")
-library(reshape)
-if (!require("reshape2")) install.packages("reshape2")
-library(reshape2)
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
 
-if (!require("dplyr")) install.packages("dplyr")
-library(dplyr)
+invisible(lapply(packages, library, character.only = TRUE))
 
 
 # 3: read datafile ####
@@ -305,7 +310,7 @@ ggplot(dataplot, aes(x=variable, y = value)) +
   xlab("measurement number") +
   ylab(ylb) +
   theme(axis.title = element_text(size = 20),axis.text = element_text(size=20),strip.text = element_text(size = 20)) +
-  geom_text(data = panel_text, mapping = aes(x = 0.5*stepsN, y = 0.95*max(dataplot$value), label = label)) -> plot
+  geom_text(data = panel_text, mapping = aes(x = 0.5*steps, y = 0.95*as.numeric(max(dataplot$value)), label = label)) -> plot
 
 
 # show plot
@@ -360,3 +365,106 @@ for (spk in levels(as.factor(data$filename))) {
   }
   sink()
 }
+
+
+# 10: evaluate the number of clusters with the lowest information cost
+## Manual 2.2.7.
+# this codeblock generates a plot showing the minimum description length of several clustering rounds (specified by the user)
+
+# set range of cluster rounds (min and max N clusters)
+evalrange = c(2,10)
+
+for (r in evalrange[1]:evalrange[2]){
+  cut_avg <<- cutree(hclust_avg, k = r)
+  datacast <- mutate(datacast, cluster = cut_avg)
+  write.table(datacast, paste("data_eval_",r,".csv",sep=""),sep = ",",row.names = F)
+}
+Epsilon <- 1
+input$smoothing -> Smoothing
+Path <- ""
+N <- evalrange[2]-evalrange[1]+1
+PathFmt <- paste(Path,"data_eval_%d.csv",sep="")
+
+getNormalParameters <- function(df) {
+  aggregate(df[substr(names(df),1,1)=="X"], by = list(df$cluster),FUN = mean) -> mns
+  mns$fn <- "mean"
+  colnames(mns)[1] <- "cluster"
+  aggregate(df[substr(names(df),1,1)=="X"], by = list(df$cluster),FUN = sd) -> sds
+  colnames(sds)[1] <- "cluster"
+  sds$fn <- "sd"
+  rbind(mns,sds) -> df
+  df
+}
+
+loadData <- function(i,template) {
+  i %>%
+    (function(n) sprintf(template,i)) %>%
+    read.csv(file = ., stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+}
+
+precisionInterval <- function(value) {
+  floor(value / Epsilon) * Epsilon -> lb
+  c(lb,lb+Epsilon) ->> lbeps
+  lbeps
+}
+
+getRelInfoOfSample <- function(value,parameters) {
+  precisionInterval(value) %>%
+    pnorm(mean = parameters[parameters$fn == "mean",1],
+          sd = parameters[parameters$fn == "sd",1]) ->> x
+  - log( x[2] - x[1] )
+}
+
+getRelInfoOfToken <- function(row,parameters) {
+  (1:Xpoints) %>%
+    sprintf("X%d",.) %>%
+    map_dbl(function(Xfield) { getRelInfoOfSample(
+      row[,Xfield],parameters[,c(Xfield,"fn")]
+    )
+    }) %>%
+    sum()
+}
+
+getRelInfoOfData <- function(df,parameters) {
+  (1:length(df$cluster)) %>%
+    map_dbl(function(ri) {
+      getRelInfoOfToken(df[ri,],
+                        parameters[parameters$cluster == df$cluster[ri],])
+    }) %>%
+    sum()
+}
+
+getInfo <- function(v) {
+  data.frame(Ct=1,v=v) %>%
+    aggregate(Ct ~ v,.,sum) ->> w
+  nlogn <- function(x) x * log( x )
+  nlogn(sum(w)) - sum(nlogn(w))
+}
+
+mkInfoCost <- function(n) {
+  n %>%
+    loadData(PathFmt) -> df
+  Xpoints <<- ncol(df[,substr(names(df),1,1)=="X"])
+  df %>%
+    getNormalParameters() ->> params
+  df1 <- df; df1$cluster <- 1
+  df1 %>%
+    getNormalParameters() ->> paramsAll
+  params1 <<- params[params$fn == "mean",]; params1$cluster <- 1
+  getRelInfoOfData(params1,paramsAll)/Smoothing +
+    getInfo(df$cluster) +
+    getRelInfoOfData(df,params)/Smoothing
+}
+
+(evalrange[1]:evalrange[2]) %>%
+  map_dbl( mkInfoCost ) %>%
+  data.frame(x=(evalrange[1]:evalrange[2]),y=.) -> dx
+dx$x[which.min(dx$y)] -> evalNclust
+
+(ggplot(data=dx) +
+    geom_line(aes(x=x,y=y)) +
+    xlab("N clusters") +
+    ylab("Information cost") +
+    annotate(geom = "point", x = evalNclust, y = min(dx$y), size= 2) +
+    theme_bw(base_size = 20)) -> evalplot
+plot(evalplot)
