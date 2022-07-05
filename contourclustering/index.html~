@@ -56,7 +56,14 @@ li a:hover:not(.active) {
 </div>
 </ul>
 
-<div style="margin-left:25%;padding:1px 16px;height:100%; line-height: 2">
+<div style="position:fixed; bottom: 5%; left: 25%">
+<b>Cite as:</b><br>
+    <p style="margin-right: 25%">
+  Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
+  </p> 
+</div>
+
+<div style="margin-left:25%;padding:1px 16px 100px;height:70%; line-height: 2">
   <h2 id="home"></h2>
   <p style="margin-top: 3%; margin-bottom: 1%"></p>
   <img align:"bottom" src="unclustered.png" width="50%" height=auto>
@@ -71,12 +78,10 @@ li a:hover:not(.active) {
     - <a href="2021-03.zip">2021-03</a><br><br>
   <b><a style="text-decoration: none; color: black;" href="https://praat.org">Praat</a> script:</b><br>
     ~ <a href="time-series_f0.praat">time-series f0 measurements</a> (recommended) - 2022-04<br><br>  
-  <b><a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a>-scripts (GUI works with "shiny" package in <a style="text-decoration: none; color: black;" href="https://www.rstudio.com">R-studio</a>):</b><br>
+  <b><a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a>-scripts (GUI requires <a style="text-decoration: none; color: black;" href="https://www.rstudio.com">R-studio</a>):</b><br>
     ~ <a href="contour_clustering_gui.R">contour clustering GUI</a> (recommended) - 2022-04<br>
     - <a href="time-series_f0.R">time-series f0 measurements</a> (alternative to the Praat script to do the workflow entirely in R) - 2021-08<br>
     - <a href="contour_clustering.R">contour clustering no GUI</a> - 2022-04<br><br>  
-  <b>Manual:</b><br>
-    ~ <a href="manual.pdf">manual for Praat-script and R-script</a> (recommended)<br><br>
     <b>Cite as:</b><br>
     <p style="margin-right: 25%">
   Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
@@ -84,6 +89,8 @@ li a:hover:not(.active) {
   <p style="margin-bottom: 80%;"	</p>
   
   <h2 id="documentation">Documentation</h2>
+  <b>Manual:</b><br>
+    ~ <a href="manual.pdf">manual for Praat-script and R-script</a> (recommended)<br><br>
   <b>Tutorial and data files:</b><br>
     - <a href="tutorial.pdf">tutorial</a> - 03-2021<br>
     - <a href="pmy_spontaneous_phrases.csv">Papuan Malay spontaneous phrases</a> (article section 2) - datafile for tutorial<br>
@@ -106,7 +113,7 @@ li a:hover:not(.active) {
   <p style="margin-bottom: 80%;"	</p>
   
     <h2 id="contact">Contact</h2>
- Contact <a href="https://constantijnkaland.github.io/">author</a> for feedback, suggestions and requests for new versions:<br>
+ Contact <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/">author</a> for feedback, suggestions and requests for new versions:<br>
   <div id="myDIV">
   <form
   action="https://formspree.io/f/mzbkndbd"
