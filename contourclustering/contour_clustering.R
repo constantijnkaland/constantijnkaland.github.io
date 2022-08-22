@@ -27,7 +27,7 @@
 # working directory can be specified manually ["P:/ath/to/working/dir/"]
 ## Manual 2.2.
 workdir = "AUTO"
-datafile = "pmy_scripted_noun_phrases.csv"
+datafile = "fielddata_pmy.csv"
 
 # number of measurements per contour (as set in the Praat script) 
 # use "AUTO" for automatic detection based on number of columns in the datafile (change to manual value in case of errors) [a number] / ["AUTO"]
@@ -162,7 +162,7 @@ for (spk in levels(as.factor(data$filename))) {
 # 6: prepare data for cluster analysis / subsetting ####
 
 # make dataset "wide" for cluster analysis
-dcast(data,filename+interval_label+start+end~stepnumber,value.var="f0") -> datacast
+reshape2::dcast(data,filename+interval_label+start+end~stepnumber,value.var="f0") -> datacast
 
 # read which colum name is called "1" to identify the measures
 which( colnames(datacast)=="1" ) -> stepone
@@ -244,10 +244,6 @@ cut_avg <- cutree(hclust_avg, k = numbclust)
 datacast <- mutate(datacast, cluster = cut_avg)
 
 ###########################################################################################
-for (i in 1:8){
-  mean(datacast$1[datacast$cluster==1,])
-}
-
 
 # create a table with the cluster sizes (N) and
 # mean standard errors over all measurement points per cluster (M se)
