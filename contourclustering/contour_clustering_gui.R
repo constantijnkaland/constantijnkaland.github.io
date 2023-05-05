@@ -1,25 +1,33 @@
 # General information
-# This script generates time-series f0 measurements and performs hierarchical cluster analysis on f0 contours measured with "time-series_F0.praat".
+# This script generates time-series f0 measurements and performs hierarchical cluster analysis on f0 contours. Measurements can alternatively be taken using the Praat script "time-series_F0.praat".
 # The code below is largely uncommented. Additional mouse-hoover help comments are provided for some buttons in the app. Detailed script comments can be found in the no-gui version of this script 'contour_clustering.R', which has essentially the same functionality.
-# A theoretical motivation is given in the accompanying paper: https://doi.org/10.1017/S0025100321000049.
+# A theoretical motivation with illustrated examples is given in the accompanying paper: https://doi.org/10.1017/S0025100321000049.
 # Usage guidelines are given in the accompanying manual.
 #
 # Developed and tested using R/package versions:
-# R version 4.2.1 (2022-06-23)
-# RStudio 2022.07.1 Build 554
-# av 0.8.0
+# R version 4.1.2 (2021-11-01)
+# RStudio 2023.3.0.386
+# av 0.8.3
+# dtwclust 5.5.11
 # ggdendro 0.1.23
-# Hmisc 4.7.1
+# Hmisc 4.8.0
+# parallel 4.1.2
+# pracma 2.4.2
+# proxy 0.4.27
+# readr 2.1.4
 # readtextgrid 0.1.1
 # reshape 0.8.9
 # reshape2 1.4.4
-# shiny 1.7.2
-# soundgen 2.5.2
-# stringr 1.4.0
+# scales 1.2.1
+# shiny 1.7.4
+# soundgen 2.5.3
+# stringr 1.5.0
 # tidyverse 1.3.2
-# zoo 1.8.10
+# TSclust 1.3.1
+# TSdist 3.7.1
+# zoo 1.8.11
 #
-# Constantijn Kaland, August 2022.
+# Constantijn Kaland, May 2023.
 # https://constantijnkaland.github.io/contourclustering/
 
 # install required packages automatically ####
@@ -34,12 +42,25 @@ packages <- c(
   "av",
   "soundgen",
   "zoo",
-  "Hmisc"
+  "Hmisc",
+  "scales",
+  "TSdist",
+  "TSclust",
+  "proxy",
+  "dtwclust",
+  "readr",
+  "pracma",
+  "parallel"
 )
 
-#for (p in sort(packages)){
-#  print(paste(p,packageVersion(p)))
-#}
+# version list
+# library(rstudioapi)
+# version$version.string -> vlist
+# append(vlist,paste0("RStudio ", versionInfo()$version)) -> vlist
+# for (p in sort(packages)){
+#   append(vlist,paste(p,packageVersion(p))) -> vlist
+# }
+# writeLines(vlist)
 
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -72,6 +93,7 @@ ui <- fluidPage(
       uiOutput("skpnl"),
       textOutput("choose"),
       uiOutput("rem_empty"),
+      uiOutput("decl_corr"),
       uiOutput("semitone_conv"),
       uiOutput("jump_header"),
       uiOutput("jump_margin"),
@@ -109,6 +131,10 @@ ui <- fluidPage(
       ),
       
       uiOutput("nclust"),
+      fluidRow(
+        column(width = 6, align = "center", uiOutput("distm")),
+        column(width = 6, align = "center", uiOutput("sellink"))
+      ),
       fluidRow(
         column(width = 5, align = "center", uiOutput("getdendro")),
         column(width = 4, align = "center", uiOutput("gettab")),
@@ -171,6 +197,8 @@ server <- function(input, output, session) {
     dir.create("www")
   } else {
     1 ->> oldwww
+    showNotification("Existing directory 'www' found. Remove this directory before starting this app.",type = "error")
+    Sys.sleep(5)
     cat("Existing directory 'www' found. Remove this directory before starting this app.\n")
     stopApp()
   }
@@ -238,6 +266,7 @@ server <- function(input, output, session) {
             skipNul = snl
           )
         )
+      nrow(data) ->> nrowinput
       clnms <- colnames(data)
       clnrs <- c(1:length(clnms))
       colsdf <<- setNames(as.list(as.numeric(clnrs)), c(clnms))
@@ -276,7 +305,15 @@ server <- function(input, output, session) {
   output$rem_empty <- renderUI({
     if (is.null(input$file_input))
       return(NULL)
-    checkboxInput("rem_empty", "clean data (remove NA and f0 errors)", FALSE)
+    tags$div(title = "Clean missing interval labels and f0 values. Also removes contours with a rate of f0 change beyond the ones in Xu and Sun (2002, Table X; 72 ST/s for rises and 96 ST/s for falls). Only apply cleaning on f0 values in Hertz. ",
+             checkboxInput("rem_empty", "clean data (remove NA and f0 errors)", FALSE))
+  })
+  
+  output$decl_corr <- renderUI({
+    if (is.null(input$file_input))
+      return(NULL)
+    tags$div(title = "Avoid flat contours by applying a declination effect ('t Hart et al., 1991, p.129): D = (-11)/(t+1.5). Enables Pearson/auto-correlation distance measures.",
+             checkboxInput("decl_corr", "declination correction", FALSE))
   })
   
   output$semitone_conv <- renderUI({
@@ -465,19 +502,33 @@ server <- function(input, output, session) {
              actionButton("prep_data", "Proceed"))
   })
   
+  output$evaldep <- renderUI({
+    if (input$evalmethod == 2)
+      return(NULL)
+    tags$div(
+      title = "Value indicating the dependency between measurement points; higher for more dependency. Higher dependency for smaller units of analysis. Recommended values lie between 1 and 5 approximately.",
+      numericInput(
+        "smoothing",
+        "Bending factor:",
+        value = evaldep,
+        width = '80%'
+      )
+    )
+  })
+  
   # observers ####
   
   observeEvent(input$tsfz, {
     output$dirdata <- renderUI({
       tags$div(
         title = paste0(
-          "Specify path to the directory with sound files and textgrids, including final ",
+          "Specify path to the directory that contains sound files and textgrids, including final ",
           .Platform$file.sep,
-          ". Only long formatted TextGrids can be read, not TextGrids that are saved 'as short text file'."
+          ". Only long formatted TextGrids in UTF-8 encoding can be read, no other encodings or TextGrids saved 'as short text file'."
         ),
         textInput(
           "dir_input",
-          "Choose directory with sound files and textgrids:",
+          "Choose directory that contains sound files and textgrids:",
           ""
         )
       )
@@ -517,12 +568,20 @@ server <- function(input, output, session) {
     list.files(inDir, pattern = "*.TextGrid", ignore.case = T) -> grids
     as.data.frame(str_split(grids, pattern = "\\.", simplify = T))[, 1] -> grids
     as.data.frame(grids) -> grids
+    if (! as.character(guess_encoding(paste0(inDir, grids[1, 1], ".TextGrid"))[1,1]) %in% c("UTF-8","ASCII")){
+      showNotification("Cannot read TextGrids. Convert encoding of TextGrids to UTF-8.",type = "error")
+      Sys.sleep(5)
+      cat("Cannot read TextGrids. Convert encoding of TextGrids to UTF-8.\n")
+      stopApp()
+    }
     if (substr(read_lines(
       paste0(inDir, grids[1, 1], ".TextGrid"),
       n_max = 1,
       skip = 3
     ), 1, 4) != "xmin") {
-      cat("Choose only TextGrids in long format.\n")
+      showNotification("Cannot read TextGrids. Choose only TextGrids in long format.",type = "error")
+      Sys.sleep(5)
+      cat("Cannot read TextGrids. Choose only TextGrids in long format.\n")
       stopApp()
     }
     grids$rm <- 0
@@ -545,7 +604,7 @@ server <- function(input, output, session) {
     df.g ->> df.g
     tiers <- c()
     for (t in unique(df.g$tier_name[df.g$tier_type == "IntervalTier"])) {
-      if (length(unique(df.g$file[df.g$tier_name == t])) > 1) {
+      if (length(df.g$file[df.g$tier_name == t]) > 1) {
         append(tiers, t) -> tiers
       }
     }
@@ -604,14 +663,14 @@ server <- function(input, output, session) {
     
     output$smooth_bw <- renderUI({
       tags$div(
-        title = "Multiply the smoothing bandwith (estimated using Silverman 1986 method) with this factor. Snugger < 1 < smoother.",
+        title = "Smoothing bandwith for kernel smoothing. Snugger < smoother.",
         numericInput(
           "smooth_bw",
-          "Smoothing adaptor",
-          value = 0.5,
+          "Smoothing bandwith",
+          value = 1,
           min = 0,
-          max = 10,
-          step = 0.1
+          max = 100,
+          step = 1
         )
       )
     })
@@ -717,9 +776,7 @@ server <- function(input, output, session) {
         input$timestep,
         " ms, f0 will be tracked by ~",
         floor((1000 / input$timestep) * mD) - 1,
-        " points per interval. Generating many more measurement points than ",
-        floor((1000 / input$timestep) * mD) - 1,
-        " for the smoothed contour might not be a good idea, depending on the desired smoothing precision. Praat settings default to an f0 floor of 75 Hz with 10 ms timestep."
+        " points per interval. Praat settings default to an f0 floor of 75 Hz with 10 ms timestep. Smoothing will be determined by setting the points per interval and adjusting the smoothing factor."
       )
     })
   })
@@ -735,16 +792,16 @@ server <- function(input, output, session) {
       }
     }
     c() ->> rempng
-    df.g[df.g$tier_name == input$select_tier &
-           df.g$text != "",] -> df.gs
+    df.g[df.g$tier_name == isolate(input$select_tier) &
+           df.g$text != "", ] -> df.gs
     as.data.frame(df.gs, row.names = 1:nrow(df.gs)) ->> df.gs
     ncol(df.g) + 1 ->> colX
-    df.gs[, rep(paste0("X", 1:input$npoints))] <<- NA
-    if (input$select_sample == "Sample") {
-      sample(1:nrow(df.gs), input$n_sample) -> rows
+    df.gs[, rep(paste0("X", 1:isolate(input$npoints)))] <<- NA
+    if (isolate(input$select_sample) == "Sample") {
+      sample(1:nrow(df.gs), isolate(input$n_sample)) -> rows
       plot = T
     }
-    if (input$select_sample == "Measure") {
+    if (isolate(input$select_sample) == "Measure") {
       1:nrow(df.gs) -> rows
       plot = F
     }
@@ -772,13 +829,13 @@ server <- function(input, output, session) {
         if (di >= w / 1000) {
           tsf0() -> df.p
           if (is.null(nrow(df.p))) {
-            as.list(rep(NA, input$npoints)) -> df.gs[r, c(colX:(colX + input$npoints -
+            as.list(rep(NA, isolate(input$npoints))) -> df.gs[r, c(colX:(colX + isolate(input$npoints) -
                                                                   1))]
             "Measurements failed, writing NAs to output" ->> NAmsg
           }
           if (is.null(nrow(df.p)) == F) {
             if (sum(is.na(df.p$pitch)) == nrow(df.p)) {
-              as.list(rep(NA, input$npoints)) -> df.gs[r, c(colX:(colX + input$npoints -
+              as.list(rep(NA, isolate(input$npoints))) -> df.gs[r, c(colX:(colX + isolate(input$npoints) -
                                                                     1))]
               "No f0 detected, writing NAs to output." ->> NAmsg
             } else {
@@ -787,23 +844,23 @@ server <- function(input, output, session) {
                            df.p$pitchInt,
                            xout = df.p$time,
                            method = "constant")$y -> df.p$pitchInt
-              as.list(approx(df.p$pitchInt, n = input$npoints)$y) -> df.gs[r, c(colX:(colX +
-                                                                                        input$npoints - 1))]
-              b = bw.nrd0(df.p$pitchInt) * input$smooth_bw
+              as.list(approx(df.p$pitchInt, n = isolate(input$npoints))$y) -> df.gs[r, c(colX:(colX +
+                                                                                        isolate(input$npoints) - 1))]
+              b = isolate(input$smooth_bw)
               ksmooth(
-                1:input$npoints,
-                df.gs[r, c(colX:(colX + input$npoints - 1))],
+                1:isolate(input$npoints),
+                df.gs[r, c(colX:(colX + isolate(input$npoints) - 1))],
                 kernel = "normal",
                 bandwidth = b,
-                n.points = input$npoints
+                n.points = isolate(input$npoints)
               )$y -> ps
-              ps ->> df.gs[r, c(colX:(colX + input$npoints - 1))]
+              ps ->> df.gs[r, c(colX:(colX + isolate(input$npoints) - 1))]
             }
             if (plot == T) {
               if (NAmsg != "") {
                 suppressMessages(
                   ggplot(df.p, aes(time)) +
-                    scale_y_continuous(limits = c(input$pmin, input$pmax)) +
+                    scale_y_continuous(limits = c(isolate(input$pmin), isolate(input$pmax))) +
                     scale_x_continuous(limits = c(Tmin *
                                                     1000, Tmax * 1000)) +
                     labs(
@@ -815,7 +872,7 @@ server <- function(input, output, session) {
                     annotate(
                       "text",
                       x = (Tmax * 1000) - ((di * 1000) / 2),
-                      y = input$pmax - ((input$pmax - input$pmin) / 2),
+                      y = input$pmax - ((isolate(input$pmax) - isolate(input$pmin)) / 2),
                       label = NAmsg,
                       colour = "red"
                     )
@@ -829,8 +886,8 @@ server <- function(input, output, session) {
                   df.p$time
                 )) - min(na.omit(
                   df.p$time
-                ))) / (input$npoints - 1)
-                ), input$npoints))) -> ts
+                ))) / (isolate(input$npoints) - 1)
+                ), isolate(input$npoints)))) -> ts
                 as.data.frame(cbind(ts, ps)) -> df.ps
                 suppressMessages(
                   ggplot(df.p, aes(time)) +
@@ -845,7 +902,7 @@ server <- function(input, output, session) {
                       colour = "red",
                       na.rm = TRUE
                     ) +
-                    coord_cartesian(ylim = c(input$pmin, input$pmax)) +
+                    coord_cartesian(ylim = c(isolate(input$pmin), isolate(input$pmax))) +
                     labs(
                       title = df.gs$name_trim[r],
                       subtitle = df.gs$text[r],
@@ -868,7 +925,7 @@ server <- function(input, output, session) {
                   do.call(tagList, lapply(1:length(rempng), function(i) {
                     img(src = as.character(as.data.frame(
                       str_split(rempng, .Platform$file.sep)
-                    )[2,])[i],
+                    )[2, ])[i],
                     width = "50%")
                   })))
       })
@@ -879,11 +936,15 @@ server <- function(input, output, session) {
       reshape2::melt(
         df.gs,
         id.vars = c('name_trim', 'text', 'xmin', 'xmax'),
-        measure.vars = colX:(colX + 20 - 1),
+        measure.vars = colX:(colX + isolate(input$npoints) - 1),
         value.name = "f0"
       ) -> data_long
       as.numeric(data_long$variable) -> data_long$variable
-      cbind(data_long[, c('name_trim', 'text', 'xmin', 'xmax')], rep(0, nrow(data_long)), data_long[, c('variable', 'f0')], rep(1, nrow(data_long))) -> data_long
+      cbind(data_long[, c('name_trim', 'text', 'xmin', 'xmax')],
+            data_long$variable * ((data_long$xmax - data_long$xmin) / (isolate(input$npoints) +
+                                                                         1)),
+            data_long[, c('variable', 'f0')],
+            rep(1, nrow(data_long))) -> data_long
       colnames(data_long) <-
         c(
           'filename',
@@ -895,6 +956,7 @@ server <- function(input, output, session) {
           'f0',
           'jumpkilleffect'
         )
+      sort_df(data_long, c("filename", "start", "stepnumber")) -> data_long
       write.table(
         data_long,
         file.path("www", "data_long.csv"),
@@ -965,7 +1027,13 @@ server <- function(input, output, session) {
     })
     
     output$rem_empty <- renderUI({
-      checkboxInput("rem_empty", "clean data (remove NA and f0 errors)", FALSE)
+      tags$div(title = "Clean missing interval labels and f0 values. Also removes contours with a rate of f0 change beyond the ones in Xu and Sun (2002, Table X; 72 ST/s for rises and 96 ST/s for falls). Only apply cleaning on f0 values in Hertz. ",
+               checkboxInput("rem_empty", "clean data (remove NA and f0 errors)", FALSE))
+    })
+    
+    output$decl_corr <- renderUI({
+      tags$div(title = "Avoid flat contours by applying a declination effect ('t Hart et al., 1991, p.129): D = (-11)/(t+1.5). Enables Pearson/auto-correlation distance measures.",
+               checkboxInput("decl_corr", "declination correction", FALSE))
     })
     
     output$semitone_conv <- renderUI({
@@ -1006,7 +1074,8 @@ server <- function(input, output, session) {
             "3: standardise" = 3,
             "4: min-max normalize" = 4,
             "5: robust scaler" = 5,
-            "6: octave-median scaled" = 6
+            "6: octave-median scaled" = 6,
+            "7: first derivative (d1)" = 7
           ),
           selected = 1,
           multiple = F,
@@ -1267,13 +1336,22 @@ server <- function(input, output, session) {
     "(Hz)" ->> ysc
     
     if (input$rem_empty == T) {
-      subset(data, data$filename != "") -> data
-      subset(data, data$interval_label != "") -> data
-      droplevels(data) -> data
-      subset(data, !grepl("--undefined--", data$f0)) -> data
-      subset(data, data$f0 != "") -> data
-      na.omit(data) -> data
+      data[data$err != "1", ] -> data
+      subset(data, select = -c(err)) -> data
       "Cleaning applied." ->> cln
+    }
+    
+    if (input$decl_corr == T) {
+      for (f in unique(data$filename)) {
+        for (s in unique(data$start[data$filename==f])){
+          if (sd(data$f0[data$filename==f & data$start==s]) == 0){
+            log10((as.numeric(as.character(data$f0[data$filename==f & data$start==s])) / 50)) * 39.87 -> st
+            (-11)/(unique(data$end[data$filename==f & data$start==s])-s+1.5)*(unique(data$end[data$filename==f & data$start==s])-s) -> decl
+            st[2:stepsN]+(2:stepsN*(decl/(stepsN))) -> st[2:stepsN]
+            50*10^(st/39.87) -> data$f0[data$filename==f & data$start==s]
+          }
+        }
+      }
     }
     
     if (input$semitone_conv == T) {
@@ -1291,7 +1369,7 @@ server <- function(input, output, session) {
                                                                       100))) -> data
     paste0(input$jump_margin, "% allowed jumpkilleffect.") ->> jkm
     paste0("f0 ", ysc) ->> ylb
-    
+
     if (input$spkdiff == 2) {
       paste0("Speaker mean corrected f0 ", ysc) ->> ylb
       for (spk in levels(as.factor(data$filename))) {
@@ -1337,11 +1415,16 @@ server <- function(input, output, session) {
                                                                                         spk]
       }
     }
+    if (input$spkdiff == 7) {
+      "First derivative (d1)" ->> ylb
+      for (rws in 1:(nrow(datatmp)/stepsN)) {
+        pracma::gradient(as.numeric(as.character(data$f0[((rws*stepsN)-(stepsN-1)):(rws*stepsN)]))) -> data$f0[((rws*stepsN)-(stepsN-1)):(rws*stepsN)]
+      }
+    }
     write.table(data,
                 file.path("www", "data_long.csv"),
                 sep = ",",
                 row.names = F)
-    stepsN <<- length(levels(as.factor(data$stepnumber)))
     reshape2::dcast(data,
                     filename + interval_label + start + end ~ stepnumber,
                     value.var = "f0") -> datacast
@@ -1357,6 +1440,9 @@ server <- function(input, output, session) {
       return(NULL)
     })
     output$rem_empty <- renderUI({
+      return(NULL)
+    })
+    output$decl_corr <- renderUI({
       return(NULL)
     })
     output$semitone_conv <- renderUI({
@@ -1397,6 +1483,49 @@ server <- function(input, output, session) {
     })
     showTab(inputId = "outputs", target = "Data (long)")
     showTab(inputId = "outputs", target = "Data (wide)")
+    output$distm <- renderUI({
+      tags$div(
+        title = "Select distance measure to use for the computation of the distance matrix. Default is 'euclidean'",
+        selectInput(
+          "distm",
+          label = "Distance measure:",
+          choices = list(
+            "euclidean (L2 norm)" = "euclidean",
+            "dynamic time warping" = "dtw_basic",
+            "pearson (sqrt(2*(1-ρ)))" = "cor",
+            "autocorrelation" = "acf"
+          ),
+          selected = "complete",
+          multiple = F,
+          width = "100%"
+        )
+      )
+    })
+    
+    
+    output$sellink <- renderUI({
+      tags$div(
+        title = "Select linkage criterion for the 'hclust' function. Default is set to complete linkage. * = inversion risk",
+        selectInput(
+          "sellink",
+          label = "Linkage criterion:",
+          choices = list(
+            "complete (default)" = "complete",
+            "single" = "single",
+            "average (= UPGMA)" = "average",
+            "ward.D" = "ward.D",
+            "ward.D2" = "ward.D2",
+            "mcquitty (= WPGMA)" = "mcquitty",
+            "centroid* (= UPGMC)" = "centroid",
+            "median* (= WPGMC)" = "median"
+          ),
+          selected = "complete",
+          multiple = F,
+          width = "100%"
+        )
+      )
+    })
+    
     output$getdendro <- renderUI({
       actionButton("getdendro", "Dendrogram")
     })
@@ -1451,34 +1580,35 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$nclust, {
-    withProgress(message = "Running cluster analysis...", {
-      input$nclust ->> numbclust
-      if (numbclust < 4) {
-        300 ->> ht
-      } else{
-        ceiling(numbclust / 4) * 300 ->> ht
-      }
-      output$dosubset <- renderUI({
-        if (input$gettab == F && input$getplot == F)
-          return(NULL)
-        tags$div(title = "Removes the selected clusters from the wide data only. Number of remaining contours after subsettings can be read from Status tab.",
-                 actionButton("dosubset", "Apply subsetting"))
-      })
-      output$subset <- renderUI({
-        if (input$gettab == F && input$getplot == F)
-          return(NULL)
-        selclust()
-      })
-      incProgress(1 / 2)
-      clustprep()
-      output$table <- renderTable({
-        clusttab()
-      }, rownames = T)
-      output$plot <- renderPlot({
-        clusttab()
-        withProgress(message = "Generating plot...", suppressMessages(clustplot()))
-      }, height = ht)
+    input$nclust ->> numbclust
+    if (numbclust < 4) {
+      300 ->> ht
+    } else{
+      ceiling(numbclust / 4) * 300 ->> ht
+    }
+    output$dosubset <- renderUI({
+      if (input$gettab == F && input$getplot == F)
+        return(NULL)
+      tags$div(title = "Removes the selected clusters from the wide data only. Number of remaining contours after subsettings can be read from Status tab.",
+               actionButton("dosubset", "Apply subsetting"))
     })
+    output$subset <- renderUI({
+      if (input$gettab == F && input$getplot == F)
+        return(NULL)
+      selclust()
+    })
+    
+    clustprep()
+    
+    output$table <- renderTable({
+      clusttab()
+    }, rownames = T)
+    
+    output$plot <- renderPlot({
+      clusttab()
+      withProgress(message = "Generating plot...", suppressMessages(clustplot()))
+    }, height = ht)
+    
   })
   
   observeEvent(input$subset, {
@@ -1534,28 +1664,34 @@ server <- function(input, output, session) {
       fluidPage(
         fluidRow(
           column(
-            width = 6,
+            width = 5,
             align = "left",
             sliderInput(
               "evalslider",
-              "Clustering rounds (N clusters)",
+              "N clusters (range)",
               min = 2,
               max = 15,
               value = c(2, 10)
             )
           ),
           column(
-            width = 3,
+            width = 4,
             align = "left",
             tags$div(
-              title = "Value indicating the dependency between measurement points; higher for more dependency. Higher dependency for smaller units of analysis. Recommended values lie between 1 and 5 approximately.",
-              numericInput(
-                "smoothing",
-                "Measurement point dependency",
-                value = evaldep,
-                width = '100%'
+              title = "Select a method to perform evaluation. MDL performs information cost evaluation finding minimum description length (MDL). W/B cluster var performs evaluation aiming to find the cross-over point of within and between cluster variance.",
+              radioButtons(
+                "evalmethod",
+                "Evaluation method:",
+                choices = list("MDL" = 1, "W/B cluster var" = 2),
+                selected = 1,
+                inline = F
               )
             )
+          ),
+          column(
+            width = 3,
+            align = "left",
+            uiOutput("evaldep")
           )
         ),
         HTML('<br>'),
@@ -1582,55 +1718,62 @@ server <- function(input, output, session) {
     })
     updateTabsetPanel(session, inputId = "outputs", selected = "Evaluate")
     output$evalNclust <-
-      renderText(paste0(
-        "Lowest information cost obtained for ",
-        evalNclust,
-        " clusters."
-      ))
+      renderText(paste0("Suggested optimum of ",
+                        evalNclust,
+                        " clusters."))
   })
   
   
   # functions ####
   
   tsf0 <- function() {
-    suppressWarnings(try(analyze(
+      analyze(
       f,
       samplingRate = sr,
       from = Tmin,
       to = Tmax,
       windowLength = w,
       step = s,
-      roughness = list(amRes = NULL),
       pitchMethods = 'autocor',
       pitchAutocor = list(autocorThres = input$vthres),
       plot = F,
       pitchFloor = input$pmin,
-      pitchCeiling = input$pmax
+      pitchCeiling = input$pmax,
+      loudness = NULL,
+      novelty = NULL,
+      roughness = NULL,
+      nFormants = 0,
+      cores = detectCores()
     )$detailed
-    ,
-    silent = T,
-    outFile = wrn)
-    -> w1) -> w2
   }
   
   clustprep <- function() {
-    datacast <-
-      as.data.frame(read.csv(
-        file.path("www", "data_wide.csv"),
-        sep = ",",
-        header = T,
-        row.names = NULL,
-        stringsAsFactors = F
-      ))
-    distance_matrix <-
-      dist(datacast[, stepone:((stepone - 1) + stepsN)], method = 'euclidean')
-    hclust_avg <<- hclust(distance_matrix, method = 'complete')
-    if (file.exists(file.path("www", "dendro.png"))) {
-      
-    } else{
+    withProgress(message = "Running cluster analysis...", {
+      datacast <-
+        as.data.frame(read.csv(
+          file.path("www", "data_wide.csv"),
+          sep = ",",
+          header = T,
+          row.names = NULL,
+          stringsAsFactors = F
+        ))
+      incProgress(1 / 4)
+      if (input$distm == "euclidean") {
+        dist(datacast[, stepone:((stepone - 1) + stepsN)], method = input$distm) ->> distance_matrix
+      }
+      if (input$distm == "dtw_basic") {
+        proxy::dist(datacast[, stepone:((stepone - 1) + stepsN)], method = input$distm) ->> distance_matrix
+        stats::as.dist(distance_matrix) -> distance_matrix
+      }
+      if (input$distm == "cor" | input$distm == "acf") {
+        TSDatabaseDistances(datacast[, stepone:((stepone - 1) + stepsN)], distance = input$distm) ->> distance_matrix
+      }
+      incProgress(1 / 4)
+      hclust_avg <<- hclust(distance_matrix, method = input$sellink)
       ggdendrogram(hclust_avg, theme_dendro = T, labels = F) ->> dendro
+      incProgress(1 / 4)
       suppressMessages(ggsave(file.path("www", "dendro.png"), dendro))
-    }
+    })
   }
   
   clusttab <- function() {
@@ -1704,7 +1847,7 @@ server <- function(input, output, session) {
       ))
     })
     output$textgrid <- renderUI({
-      tags$div(title = "Generate a textgrid per speaker with the current clusters annotated per contour interval.", actionButton("textgrid", "Generate textgrids"))
+      tags$div(title = "Generate textgrids with the current clusters annotated for each contour interval. N.B. only works ", actionButton("textgrid", "Generate textgrids"))
     })
     sevt = c()
     for (c in 1:numbclust) {
@@ -1779,7 +1922,7 @@ server <- function(input, output, session) {
             show.legend = F
           ) +
           scale_x_continuous(breaks = brks) +
-          facet_wrap(~ cluster, ncol = 4) +
+          facet_wrap( ~ cluster, ncol = 4) +
           xlab("measurement number") +
           ylab(ylb) +
           theme(
@@ -1816,161 +1959,420 @@ server <- function(input, output, session) {
         row.names = NULL,
         stringsAsFactors = F
       ))
+    
+    nrow(data) ->> nrowinput
+    length(levels(as.factor(data$stepnumber))) ->> stepsN
     if (exists('df.gs')) {
       fileprop <- paste0("File loaded from time-series f0 analysis.")
     } else{
       fileprop <-
         paste0("File loaded using these arguments: ", sep, saf, enc, skn)
     }
-    filesave <-
-      ifelse(
-        input$prep_data == T,
-        paste0(
-          Sys.time(),
-          ": cleaned datafile saved to 'data_long.csv' in ",
-          file.path(getwd(), "www")
-        ),
-        paste0(
-          Sys.time(),
-          ": datafile saved to 'data_long.csv' in ",
-          file.path(getwd(), "www")
-        )
-      )
-    filesave <-
-      ifelse(
-        file.exists("dendrogram.png"),
-        paste0(
-          filesave,
-          "\n\n",
-          Sys.time(),
-          ": dendrogram saved to 'dendrogram.png' in ",
-          file.path(getwd(), "www")
-        ),
-        filesave
-      )
-    filesave <-
-      ifelse(
-        file.exists(file.path("www", "table.csv")),
-        paste0(
-          filesave,
-          "\n\n",
-          Sys.time(),
-          ": table saved to 'table.csv' in ",
-          file.path(getwd(), "www")
-        ),
-        filesave
-      )
-    filesave <-
-      ifelse(
-        file.exists(file.path("www", "plot.png")),
-        paste0(
-          filesave,
-          "\n\n",
-          Sys.time(),
-          ": plot saved to 'plot.png' in ",
-          file.path(getwd(), "www")
-        ),
-        filesave
-      )
-    filesave <-
-      ifelse(
-        file.exists(file.path("www", "data_wide.csv")),
-        paste0(
-          filesave,
-          "\n\n",
-          Sys.time(),
-          ": wide datafile with clusters annotated saved to 'data_wide.csv' in ",
-          file.path(getwd(), "www")
-        ),
-        filesave
-      )
-    dashedline <- "--------------------------------------------"
-    stepsN <- length(levels(as.factor(data$stepnumber)))
-    steps <- paste0(stepsN, " measurement points per contour")
-    spkN <- length(levels(as.factor(data$filename)))
-    spk <- paste0(spkN, " speakers (filenames)")
-    sscontours <-
-      if (file.exists(file.path("www", "data_wide.csv"))) {
-        datacast <-
-          as.data.frame(read.csv(
-            file.path("www", "data_wide.csv"),
+   
+    if (isTRUE(input$prep_data) && input$prep_data == T) {
+      paste0(
+        Sys.time(),
+        ": cleaned datafile saved to 'data_long.csv' in ",
+        file.path(getwd(), "www")
+      ) -> filesave
+      "0 rows marked for error removal" -> Nerr
+    } else {
+      paste0(Sys.time(),
+             ": datafile saved to 'data_long.csv' in ",
+             file.path(getwd(), "www")) -> filesave
+      0 -> data$err
+      suppressWarnings(as.numeric(data$f0)) -> data$f0
+      if (abs(sum(na.omit(data$f0[data$f0 < 0]))) == 0) {
+        for (r in 1:nrow(data)) {
+          if (data$filename[r] == "" ||
+              data$interval_label[r] == "" ||
+              grepl("--undefined--", data$f0[r], fixed = T) ||
+              is.na(data$f0[r])) {
+            "1" -> data$err[data$filename == data$filename[r] &
+                              data$start == data$start[r]]
+          }
+          if (data$stepnumber[r] != 1 && is.na(data$f0[r]) == F) {
+            (12 * (log2(data$f0[r] / data$f0[r - 1]))) * (1 / (data$step[r] - data$step[r -
+                                                                                          1])) -> d
+            if (d > 72 | d < -96) {
+              "1" -> data$err[data$filename == data$filename[r] &
+                                data$start == data$start[r]]
+            }
+          }
+        }
+        if (nrow(data[data$err == "1",]) > 0) {
+          paste0("WARNING: ",
+                 nrow(data[data$err == "1",]),
+                 " rows marked for error removal!") -> Nerr
+          write.table(
+            data,
+            file.path("www", "data_long.csv"),
             sep = ",",
-            header = T,
-            row.names = NULL,
-            stringsAsFactors = F
-          ))
-        paste0(" (",
-               nrow(datacast),
-               " left after subsetting - ",
-               round((nrow(datacast) / (
-                 nrow(data) / stepsN
-               )) * 100, 1),
-               "%)")
-      } else{
-        ""
-      }
-    ncontours <-
-      paste0(nrow(data) / stepsN, " contours in uploaded data", sscontours)
-    emptyN <-
-      (nrow(data) - nrow(subset(data, data$filename != ""))) + (nrow(data) - nrow(subset(data, data$interval_label !=
-                                                                                           "")))
-    empty <-
-      paste0(emptyN, " rows with empty filenames/labels detected")
-    unusedN <- nrow(data) - nrow(droplevels(data))
-    unused <- paste0(unusedN, " unsused levels detected")
-    f0_errN <-
-      nrow(data) - nrow(subset(data, !grepl("--undefined--", data$f0))) + nrow(data) -
-      nrow(subset(data, data$f0 != ""))
-    f0_err <- paste0(f0_errN, " f0 measurement errors detected")
-    na <- nrow(data) - nrow(na.omit(data))
-    natxt <- paste0(na, " rows with NA values detected")
-    warn <-
-      ifelse(
-        test = (emptyN + unusedN + f0_errN) > 0,
-        paste(dashedline, "WARNING: datafile might contain errors", sep = "\n"),
-        ""
-      )
-    updateTabsetPanel(session, inputId = "outputs", selected = "summary")
-    paste("F0 scale: ", ylb, ".", sep = "") ->> scl
-    paste(
-      ifelse(
-        file.exists(file.path("www", "data_wide.csv")),
-        paste(fileprop, cln, stconv, jkm, scl, sep = "\n\n"),
-        fileprop
-      ),
-      filesave,
-      dashedline,
-      ncontours,
-      steps,
-      spk,
-      dashedline,
-      empty,
-      unused,
-      f0_err,
-      natxt,
-      warn,
-      sep = "\n\n"
-    ) -> summary
-    write_file(summary, file.path("www", "summary.txt"), append = F)
-    paste0(summary)
-  }
-  
-  selclust <- function() {
-    if (exists('rem_clust')) {
-      checkboxGroupInput(
-        "subset",
-        "Remove these clusters:",
-        choices = 1:numbclust,
-        selected = rem_clust,
-        inline = T
-      )
-    }
-  }
-  
-  evaluate <- function() {
-    incProgress(1 / 5)
+            row.names = F
+          )
+        }else{
+          "0 rows marked for error removal" -> Nerr
+        }
+      }else{
+        if (input$spkdiff == 1 && rem_empty == T){
+        "WARNING: could not run error detection on f0 (negative values in data)." -> Nerr
+        }else{
+          "0 rows marked for error removal" -> Nerr
+        }
+      }}
     
-    for (r in input$evalslider[1]:input$evalslider[2]) {
+      filesave <-
+        ifelse(
+          file.exists("dendrogram.png"),
+          paste0(
+            filesave,
+            "\n\n",
+            Sys.time(),
+            ": dendrogram saved to 'dendrogram.png' in ",
+            file.path(getwd(), "www")
+          ),
+          filesave
+        )
+      filesave <-
+        ifelse(
+          file.exists(file.path("www", "table.csv")),
+          paste0(
+            filesave,
+            "\n\n",
+            Sys.time(),
+            ": table saved to 'table.csv' in ",
+            file.path(getwd(), "www")
+          ),
+          filesave
+        )
+      filesave <-
+        ifelse(
+          file.exists(file.path("www", "plot.png")),
+          paste0(
+            filesave,
+            "\n\n",
+            Sys.time(),
+            ": plot saved to 'plot.png' in ",
+            file.path(getwd(), "www")
+          ),
+          filesave
+        )
+      filesave <-
+        ifelse(
+          file.exists(file.path("www", "data_wide.csv")),
+          paste0(
+            filesave,
+            "\n\n",
+            Sys.time(),
+            ": wide datafile with clusters annotated saved to 'data_wide.csv' in ",
+            file.path(getwd(), "www")
+          ),
+          filesave
+        )
+      dashedline <- "--------------------------------------------"
+      stepsN <- length(levels(as.factor(data$stepnumber)))
+      steps <- paste0(stepsN, " measurement points per contour")
+      spkN <- length(levels(as.factor(data$filename)))
+      spk <- paste0(spkN, " speakers (filenames)")
+      sscontours <-
+        if (file.exists(file.path("www", "data_wide.csv"))) {
+          datacast <-
+            as.data.frame(
+              read.csv(
+                file.path("www", "data_wide.csv"),
+                sep = ",",
+                header = T,
+                row.names = NULL,
+                stringsAsFactors = F
+              )
+            )
+          paste0(" (",
+                 nrow(datacast),
+                 " left after subsetting - ",
+                 round((
+                   nrow(datacast) / (nrowinput / stepsN)
+                 ) * 100, 1),
+                 "%)")
+        } else{
+          ""
+        }
+      ncontours <-
+        paste0(nrowinput / stepsN, " contours in uploaded data", sscontours)
+      updateTabsetPanel(session, inputId = "outputs", selected = "summary")
+      paste("F0 scale: ", ylb, ".", sep = "") ->> scl
+      paste(
+        ifelse(
+          file.exists(file.path("www", "data_wide.csv")),
+          paste(fileprop, cln, stconv, jkm, scl, sep = "\n\n"),
+          fileprop
+        ),
+        filesave,
+        dashedline,
+        ncontours,
+        steps,
+        spk,
+        dashedline,
+        Nerr,
+        sep = "\n\n"
+      ) -> summary
+      write_file(summary, file.path("www", "summary.txt"), append = F)
+      paste0(summary)
+  }
+  
+
+    selclust <- function() {
+      if (exists('rem_clust')) {
+        checkboxGroupInput(
+          "subset",
+          "Remove these clusters:",
+          choices = 1:numbclust,
+          selected = rem_clust,
+          inline = T
+        )
+      }
+    }
+    
+    evaluate <- function() {
+      incProgress(1 / 5)
+      
+      for (r in isolate(input$evalslider[1]):isolate(input$evalslider[2])) {
+        datacast <-
+          as.data.frame(
+            read.csv(
+              file.path("www", "data_wide.csv"),
+              sep = ",",
+              header = T,
+              row.names = NULL,
+              stringsAsFactors = F
+            )
+          )
+        cut_avg <<- cutree(hclust_avg, k = r)
+        datacast <- mutate(datacast, cluster = cut_avg)
+        
+        if (isolate(input$evalmethod) == 2) {
+          if (r == isolate(input$evalslider[1])) {
+            as.data.frame(matrix(
+              nrow = (
+                isolate(input$evalslider[2]) - isolate(input$evalslider[1]) + 1
+              ),
+              ncol = 3
+            )) ->> d.eval
+            c("round", "within", "between") ->> colnames(d.eval)
+            isolate(input$evalslider[1]):isolate(input$evalslider[2]) ->> d.eval$round
+          }
+          c() -> wc
+          for (c in 1:r) {
+            c() -> w
+            for (m in stepone:(stepone + stepsN - 1)) {
+              append(w, sd(datacast[datacast$cluster == c, m])) -> w
+            }
+            append(wc, mean(w)) -> wc
+          }
+          mean(wc) ->> d.eval$within[d.eval$round == r]
+          
+          c() -> bmvar
+          for (m in stepone:(stepone + stepsN - 1)) {
+            c() -> bm
+            for (c in 1:r) {
+              mean(datacast[datacast$cluster == c, m]) -> b
+              append(bm, b) -> bm
+            }
+            append(bmvar, abs(max(bm) - min(bm))) -> bmvar
+          }
+          mean(bmvar) ->> d.eval$between[d.eval$round == r]
+          if (r == isolate(input$evalslider[2])) {
+            rescale(as.numeric(d.eval$within)) ->> d.eval$within
+            rescale(as.numeric(d.eval$between)) ->> d.eval$between
+            d.eval$round[which.min(abs(d.eval$within - d.eval$between))] ->> evalNclust
+            write.csv(d.eval, file.path("www", "evaltable.csv"))
+          }
+        }
+        
+        write.table(datacast,
+                    file.path("www", paste0("data_eval_", r, ".csv")),
+                    sep = ",",
+                    row.names = F)
+      }
+      
+      if (isolate(input$evalmethod) == 1) {
+        Epsilon <- 1
+        isolate(input$smoothing) -> Smoothing
+        N <-
+          isolate(input$evalslider[2]) - isolate(input$evalslider[1]) + 1
+        PathFmt <- file.path("www", "data_eval_%d.csv")
+        
+        getNormalParameters <- function(df) {
+          aggregate(df[substr(names(df), 1, 1) == "X"], by = list(df$cluster), FUN = mean) -> mns
+          mns$fn <- "mean"
+          colnames(mns)[1] <- "cluster"
+          aggregate(df[substr(names(df), 1, 1) == "X"], by = list(df$cluster), FUN = sd) -> sds
+          colnames(sds)[1] <- "cluster"
+          sds$fn <- "sd"
+          rbind(mns, sds) -> df
+          df
+        }
+        
+        incProgress(1 / 5)
+        
+        loadData <- function(i, template) {
+          i %>%
+            (function(n)
+              sprintf(template, i)) %>%
+            read.csv(
+              file = .,
+              stringsAsFactors = FALSE,
+              fileEncoding = "UTF-8"
+            )
+        }
+        
+        precisionInterval <- function(value) {
+          floor(value / Epsilon) * Epsilon -> lb
+          c(lb, lb + Epsilon) ->> lbeps
+          lbeps
+        }
+        
+        getRelInfoOfSample <- function(value, parameters) {
+          precisionInterval(value) %>%
+            pnorm(mean = parameters[parameters$fn == "mean", 1],
+                  sd = parameters[parameters$fn == "sd", 1]) ->> x
+          - log(x[2] - x[1])
+        }
+        
+        incProgress(1 / 5)
+        
+        getRelInfoOfToken <- function(row, parameters) {
+          (1:Xpoints) %>%
+            sprintf("X%d", .) %>%
+            map_dbl(function(Xfield) {
+              getRelInfoOfSample(row[, Xfield], parameters[, c(Xfield, "fn")])
+            }) %>%
+            sum()
+        }
+        
+        getRelInfoOfData <- function(df, parameters) {
+          (1:length(df$cluster)) %>%
+            map_dbl(function(ri) {
+              getRelInfoOfToken(df[ri, ],
+                                parameters[parameters$cluster == df$cluster[ri], ])
+            }) %>%
+            sum()
+        }
+        
+        getInfo <- function(v) {
+          data.frame(Ct = 1, v = v) %>%
+            aggregate(Ct ~ v, ., sum) ->> w
+          nlogn <- function(x)
+            x * log(x)
+          nlogn(sum(w)) - sum(nlogn(w))
+        }
+        
+        mkInfoCost <- function(n) {
+          n %>%
+            loadData(PathFmt) -> df
+          Xpoints <<- ncol(df[, substr(names(df), 1, 1) == "X"])
+          df %>%
+            getNormalParameters() ->> params
+          df1 <- df
+          df1$cluster <- 1
+          df1 %>%
+            getNormalParameters() ->> paramsAll
+          params1 <<- params[params$fn == "mean", ]
+          params1$cluster <- 1
+          getRelInfoOfData(params1, paramsAll) / Smoothing +
+            getInfo(df$cluster) +
+            getRelInfoOfData(df, params) / Smoothing
+        }
+        
+        incProgress(1 / 5)
+        
+        (isolate(input$evalslider[1]):isolate(input$evalslider[2])) %>%
+          map_dbl(mkInfoCost) %>%
+          data.frame(x = (
+            isolate(input$evalslider[1]):isolate(input$evalslider[2])
+          ),
+          y = .) -> dx
+        dx$x[which.min(dx$y)] ->> evalNclust
+        write.csv(dx, file.path("www", "evaltable.csv"))
+        
+        incProgress(1 / 5)
+        
+        (
+          ggplot(data = dx) +
+            geom_line(aes(x = x, y = y)) +
+            xlab("N clusters") +
+            ylab("Information cost") +
+            annotate(
+              geom = "point",
+              x = evalNclust,
+              y = min(dx$y),
+              size = 2
+            ) +
+            theme_bw(base_size = 20)
+        ) ->> evalplot
+        suppressMessages(ggsave(
+          filename = file.path("www", "evalplot.png"),
+          plot = evalplot
+        ))
+      }
+      if (isolate(input$evalmethod) == 2) {
+        ggplot(d.eval, aes(round)) +
+          geom_line(mapping = aes(y = within, linetype = "within")) +
+          geom_line(mapping = aes(y = between, linetype = "between")) +
+          xlab("N clusters") +
+          ylab("Scaled variance") +
+          scale_linetype_manual("Cluster variance", values = c("within" =
+                                                                  1, "between" = 2)) +
+          theme_bw(base_size = 20) ->> evalplot
+        suppressMessages(ggsave(
+          filename = file.path("www", "evalplot.png"),
+          plot = evalplot
+        ))
+      }
+      plot(evalplot)
+    }
+    
+    save_current <- function() {
+      withProgress(message = "Generating plot...", suppressMessages(clustplot()))
+      if (dir.exists("saved") == F) {
+        dir.create("saved")
+      }
+      file.copy(file.path("www", "plot.png"),
+                file.path("saved", paste0("plot_", numbclust, ".png")),
+                overwrite = T)
+      file.copy(file.path("www", "data_long.csv"),
+                file.path("saved", paste0("data_long_", numbclust, ".csv")),
+                overwrite = T)
+      file.copy(file.path("www", "data_wide.csv"),
+                file.path("saved", paste0("data_wide_", numbclust, ".csv")),
+                overwrite = T)
+      suppressMessages(ggsave(file.path("saved", "dendrogram.png"), dendro))
+      file.copy(
+        file.path("www", "evalplot.png"),
+        file.path("saved", "evaluation_plot.png"),
+        overwrite = T
+      )
+      file.copy(file.path("www", "table.csv"),
+                file.path("saved", paste0("table_", numbclust, ".csv")),
+                overwrite = T)
+      file.copy(
+        file.path("www", "evaltable.csv"),
+        file.path("saved", "evaluation_table.csv"),
+        overwrite = T
+      )
+      file.copy(file.path("www", "summary.txt"),
+                file.path("saved", paste0("summary_", numbclust, ".txt")),
+                overwrite = T)
+    }
+    
+    gen_textgrid <- function() {
+      data <-
+        as.data.frame(read.csv(
+          file.path("www", "data_long.csv"),
+          sep = ",",
+          header = T,
+          row.names = NULL,
+          stringsAsFactors = F
+        ))
       datacast <-
         as.data.frame(read.csv(
           file.path("www", "data_wide.csv"),
@@ -1979,264 +2381,93 @@ server <- function(input, output, session) {
           row.names = NULL,
           stringsAsFactors = F
         ))
-      cut_avg <<- cutree(hclust_avg, k = r)
-      datacast <- mutate(datacast, cluster = cut_avg)
-      write.table(datacast,
-                  file.path("www", paste0("data_eval_", r, ".csv")),
-                  sep = ",",
-                  row.names = F)
-    }
-    Epsilon <- 1
-    input$smoothing -> Smoothing
-    N <- input$evalslider[2] - input$evalslider[1] + 1
-    PathFmt <- file.path("www", "data_eval_%d.csv")
-    
-    getNormalParameters <- function(df) {
-      aggregate(df[substr(names(df), 1, 1) == "X"], by = list(df$cluster), FUN = mean) -> mns
-      mns$fn <- "mean"
-      colnames(mns)[1] <- "cluster"
-      aggregate(df[substr(names(df), 1, 1) == "X"], by = list(df$cluster), FUN = sd) -> sds
-      colnames(sds)[1] <- "cluster"
-      sds$fn <- "sd"
-      rbind(mns, sds) -> df
-      df
-    }
-    
-    incProgress(1 / 5)
-    
-    loadData <- function(i, template) {
-      i %>%
-        (function(n)
-          sprintf(template, i)) %>%
-        read.csv(
-          file = .,
-          stringsAsFactors = FALSE,
-          fileEncoding = "UTF-8"
-        )
-    }
-    
-    precisionInterval <- function(value) {
-      floor(value / Epsilon) * Epsilon -> lb
-      c(lb, lb + Epsilon) ->> lbeps
-      lbeps
-    }
-    
-    getRelInfoOfSample <- function(value, parameters) {
-      precisionInterval(value) %>%
-        pnorm(mean = parameters[parameters$fn == "mean", 1],
-              sd = parameters[parameters$fn == "sd", 1]) ->> x
-      - log(x[2] - x[1])
-    }
-    
-    incProgress(1 / 5)
-    
-    getRelInfoOfToken <- function(row, parameters) {
-      (1:Xpoints) %>%
-        sprintf("X%d", .) %>%
-        map_dbl(function(Xfield) {
-          getRelInfoOfSample(row[, Xfield], parameters[, c(Xfield, "fn")])
-        }) %>%
-        sum()
-    }
-    
-    getRelInfoOfData <- function(df, parameters) {
-      (1:length(df$cluster)) %>%
-        map_dbl(function(ri) {
-          getRelInfoOfToken(df[ri,],
-                            parameters[parameters$cluster == df$cluster[ri],])
-        }) %>%
-        sum()
-    }
-    
-    getInfo <- function(v) {
-      data.frame(Ct = 1, v = v) %>%
-        aggregate(Ct ~ v, ., sum) ->> w
-      nlogn <- function(x)
-        x * log(x)
-      nlogn(sum(w)) - sum(nlogn(w))
-    }
-    
-    mkInfoCost <- function(n) {
-      n %>%
-        loadData(PathFmt) -> df
-      Xpoints <<- ncol(df[, substr(names(df), 1, 1) == "X"])
-      df %>%
-        getNormalParameters() ->> params
-      df1 <- df
-      df1$cluster <- 1
-      df1 %>%
-        getNormalParameters() ->> paramsAll
-      params1 <<- params[params$fn == "mean",]
-      params1$cluster <- 1
-      getRelInfoOfData(params1, paramsAll) / Smoothing +
-        getInfo(df$cluster) +
-        getRelInfoOfData(df, params) / Smoothing
-    }
-    
-    incProgress(1 / 5)
-    
-    (input$evalslider[1]:input$evalslider[2]) %>%
-      map_dbl(mkInfoCost) %>%
-      data.frame(x = (input$evalslider[1]:input$evalslider[2]),
-                 y = .) -> dx
-    dx$x[which.min(dx$y)] ->> evalNclust
-    write.csv(dx, file.path("www", "evaltable.csv"))
-    
-    incProgress(1 / 5)
-    
-    (
-      ggplot(data = dx) +
-        geom_line(aes(x = x, y = y)) +
-        xlab("N clusters") +
-        ylab("Information cost") +
-        annotate(
-          geom = "point",
-          x = evalNclust,
-          y = min(dx$y),
-          size = 2
-        ) +
-        theme_bw(base_size = 20)
-    ) -> evalplot
-    suppressMessages(ggsave(
-      filename = file.path("www", "evalplot.png"),
-      plot = evalplot
-    ))
-    plot(evalplot)
-  }
-  
-  save_current <- function() {
-    withProgress(message = "Generating plot...", suppressMessages(clustplot()))
-    if (dir.exists("saved") == F) {
-      dir.create("saved")
-    }
-    file.copy(file.path("www", "plot.png"),
-              file.path("saved", paste0("plot_", numbclust, ".png")),
-              overwrite = T)
-    file.copy(file.path("www", "data_long.csv"),
-              file.path("saved", paste0("data_long_", numbclust, ".csv")),
-              overwrite = T)
-    file.copy(file.path("www", "data_wide.csv"),
-              file.path("saved", paste0("data_wide_", numbclust, ".csv")),
-              overwrite = T)
-    suppressMessages(ggsave(file.path("saved", "dendrogram.png"), dendro))
-    file.copy(
-      file.path("www", "evalplot.png"),
-      file.path("saved", "evaluation_plot.png"),
-      overwrite = T
-    )
-    file.copy(file.path("www", "table.csv"),
-              file.path("saved", paste0("table_", numbclust, ".csv")),
-              overwrite = T)
-    file.copy(
-      file.path("www", "evaltable.csv"),
-      file.path("saved", "evaluation_table.csv"),
-      overwrite = T
-    )
-    file.copy(file.path("www", "summary.txt"),
-              file.path("saved", paste0("summary_", numbclust, ".txt")),
-              overwrite = T)
-  }
-  
-  gen_textgrid <- function() {
-    data <-
-      as.data.frame(read.csv(
-        file.path("www", "data_long.csv"),
-        sep = ",",
-        header = T,
-        row.names = NULL,
-        stringsAsFactors = F
-      ))
-    datacast <-
-      as.data.frame(read.csv(
-        file.path("www", "data_wide.csv"),
-        sep = ",",
-        header = T,
-        row.names = NULL,
-        stringsAsFactors = F
-      ))
-    if (exists("filenames")) {
-      rm("filenames")
-    }
-    levels(as.factor(data$filename)) ->> filenames
-    for (spk in levels(as.factor(data$filename))) {
-      incProgress(1 / length(levels(as.factor(
-        data$filename
-      ))))
-      sink(paste0(spk, ".TextGrid"))
-      cat("File type = \"ooTextFile\"")
-      cat("\n")
-      cat("Object class = \"TextGrid\"")
-      cat("\n")
-      cat("\n")
-      cat("xmin = 0")
-      cat("\n")
-      xmax <- max(datacast$start[datacast$filename == spk]) + .5
-      cat(paste0("xmax = ", xmax))
-      cat("\n")
-      cat("tiers? <exists>")
-      cat("\n")
-      cat("size = 1")
-      cat("\n")
-      cat("item []:")
-      cat("\n")
-      cat("    item [1]:")
-      cat("\n")
-      cat("        class = \"IntervalTier\"")
-      cat("\n")
-      cat("        name = \"cluster\"")
-      cat("\n")
-      cat("        xmin = 0")
-      cat("\n")
-      cat(paste0("        xmax = ", xmax))
-      cat("\n")
-      cat(paste0("        intervals: size = ", nrow(sort_df(
-        datacast[datacast$filename == spk,], "start"
-      ))))
-      cat("\n")
-      for (contour in 1:nrow(sort_df(datacast[datacast$filename == spk,], "start"))) {
-        cat(paste0("        intervals [", contour, "]:"))
-        cat("\n")
-        cat(paste0("            xmin = ", subset(
-          sort_df(datacast, "start"), filename == spk
-        )[contour, "start"]))
-        cat("\n")
-        cat(paste0("            xmax = ", subset(
-          sort_df(datacast, "start"), filename == spk
-        )[contour, "end"]))
-        cat("\n")
-        cat(paste0("            text = \"", subset(
-          sort_df(datacast, "start"), filename == spk
-        )[contour, "cluster"], "\""))
-        cat("\n")
+      if (exists("filenames")) {
+        rm("filenames")
       }
-      sink()
-    }
-  }
-  
-  session$onSessionEnded(function() {
-    stopApp()
-  })
-  
-}
-
-
-
-shinyApp(
-  ui,
-  server,
-  onStart = function() {
-    c() ->> colsdf
-    8 ->> numbclust
-    "No cleaning applied." ->> cln
-    "" ->> jkm
-    "" ->> ylb
-    cat("Starting contour clustering app\n")
-    onStop(function() {
-      if (oldwww == 0) {
-        unlink("www", recursive = T)
+      levels(as.factor(data$filename)) ->> filenames
+      if (dir.exists("saved") == F) {
+        dir.create("saved")
       }
-      cat("Stopping contour clustering app.\n")
-      rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+      for (spk in levels(as.factor(data$filename))) {
+        incProgress(1 / length(levels(as.factor(
+          data$filename
+        ))))
+        sink(file.path("saved", paste0(spk, ".TextGrid")))
+        cat("File type = \"ooTextFile\"")
+        cat("\n")
+        cat("Object class = \"TextGrid\"")
+        cat("\n")
+        cat("\n")
+        cat("xmin = 0")
+        cat("\n")
+        xmax <- max(datacast$start[datacast$filename == spk]) + .5
+        cat(paste0("xmax = ", xmax))
+        cat("\n")
+        cat("tiers? <exists>")
+        cat("\n")
+        cat("size = 1")
+        cat("\n")
+        cat("item []:")
+        cat("\n")
+        cat("    item [1]:")
+        cat("\n")
+        cat("        class = \"IntervalTier\"")
+        cat("\n")
+        cat("        name = \"cluster\"")
+        cat("\n")
+        cat("        xmin = 0")
+        cat("\n")
+        cat(paste0("        xmax = ", xmax))
+        cat("\n")
+        cat(paste0("        intervals: size = ", nrow(sort_df(
+          datacast[datacast$filename == spk, ], "start"
+        ))))
+        cat("\n")
+        for (contour in 1:nrow(sort_df(datacast[datacast$filename == spk, ], "start"))) {
+          cat(paste0("        intervals [", contour, "]:"))
+          cat("\n")
+          cat(paste0("            xmin = ", subset(
+            sort_df(datacast, "start"), filename == spk
+          )[contour, "start"]))
+          cat("\n")
+          cat(paste0("            xmax = ", subset(
+            sort_df(datacast, "start"), filename == spk
+          )[contour, "end"]))
+          cat("\n")
+          cat(paste0("            text = \"", subset(
+            sort_df(datacast, "start"), filename == spk
+          )[contour, "cluster"], "\""))
+          cat("\n")
+        }
+        sink()
+      }
+    }
+    
+    session$onSessionEnded(function() {
+      stopApp()
     })
+    
   }
-)
+  
+  
+  
+  shinyApp(
+    ui,
+    server,
+    onStart = function() {
+      c() ->> colsdf
+      8 ->> numbclust
+      "No cleaning applied." ->> cln
+      "" ->> jkm
+      "" ->> ylb
+      "" ->> rem_empty
+      cat("Starting contour clustering app\n")
+      onStop(function() {
+        if (oldwww == 0) {
+          unlink("www", recursive = T)
+        }
+        cat("Stopping contour clustering app.\n")
+        rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+      })
+    }
+  )

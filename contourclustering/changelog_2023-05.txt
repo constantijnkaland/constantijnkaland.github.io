@@ -1,0 +1,50 @@
+Changelog to version 2022-XX:
+------------------
+
+> Fixed TextGrid reading problems.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added new evaluation method to find optimal number of clusters, based on within and between cluster variance.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added the options to specify distance measures and linkage criterion.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added cleaning method based on maximum rate of f0 change (Xu and Sun, 2002).
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added declination correction to enable correlation based distance measures ('t Hart et al., 1990).
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added first derivative (d1) as speaker-correction method.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+
+> Updated manual.pdf to account for the aforementioned changes.
+
+Applies to:
+- manual.pdf
