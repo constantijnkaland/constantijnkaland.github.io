@@ -136,7 +136,7 @@ li a:hover:not(.active) {
   </label><br>
   <label>
     <textarea name="message" rows="10" cols="100" placeholder="your message"></textarea>
-  </label><br>
+  </label><br><img src="logo.png" alt="" />
 
   <!-- your other form fields go here -->
 
