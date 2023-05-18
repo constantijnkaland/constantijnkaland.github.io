@@ -90,20 +90,30 @@ li a:hover:not(.active) {
     ~ <a href="manual.pdf">manual for Praat-script and R-script</a> (recommended)<br><br>
   <b>Tutorial and data files:</b><br>
     - <a href="tutorial.pdf">tutorial</a> - 03-2021<br>
-    - <a href="pmy_spontaneous_phrases.csv">Papuan Malay spontaneous phrases</a> (article section 2) - datafile for tutorial<br>
-    - <a href="pmy_scripted_noun_phrases.csv">Papuan Malay scripted noun phrases</a> (article section 3)<br>
+	 - <a href="pmy_scripted_noun_phrases.csv">Papuan Malay scripted noun phrases</a> (article section 2)<br>    
+    - <a href="pmy_spontaneous_phrases.csv">Papuan Malay spontaneous phrases</a> (article section 3) - datafile for tutorial<br>
     - <a href="zag_scripted_tone_syllables.csv">Zhagawa scripted tone syllables</a> (article section 4)<br><br>
     <b>R packages:</b><br>    
-   <a href="https://cran.r-project.org/web/packages/av/index.html">av</a>, 
+   <a href="https://cran.r-project.org/web/packages/dplyr/index.html">dplyr</a>,
+   <a href="https://cran.r-project.org/web/packages/dtwclust/index.html">dtwclust</a>,  
    <a href="https://cran.r-project.org/web/packages/ggdendro/index.html">ggdendro</a>, 
+   <a href="https://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a>,
+   <a href="https://cran.r-project.org/web/packages/graphics/index.html">graphics</a>,
    <a href="https://cran.r-project.org/web/packages/Hmisc/index.html">Hmisc</a>,
-   <a href="https://cran.r-project.org/web/packages/readtextgrid/index.html">readtextgrid</a>, 
+   <a href="https://cran.r-project.org/web/packages/pracma/index.html">pracma</a>,
+   <a href="https://cran.r-project.org/web/packages/proxy/index.html">proxy</a>,
+   <a href="https://cran.r-project.org/web/packages/purrr/index.html">purrr</a>, 
+   <a href="https://cran.r-project.org/web/packages/readr/index.html">readr</a>,<br> 
+   <a href="https://cran.r-project.org/web/packages/readtextgrid/index.html">readtextgrid</a>,
    <a href="https://cran.r-project.org/web/packages/reshape/index.html">reshape</a>, 
-   <a href="https://cran.r-project.org/web/packages/reshape2/index.html">reshape2</a>, 
+   <a href="https://cran.r-project.org/web/packages/reshape2/index.html">reshape2</a>,
+   <a href="https://cran.r-project.org/web/packages/scales/index.html">scales</a>, 
    <a href="https://cran.r-project.org/web/packages/shiny/index.html">shiny</a>, 
-   <a href="https://cran.r-project.org/web/packages/soundgen/index.html">soundgen</a>, 
-   <a href="https://cran.r-project.org/web/packages/stringr/index.html">stringr</a>, 
-   <a href="https://cran.r-project.org/web/packages/tidyverse/index.html">tidyverse</a>, 
+   <a href="https://cran.r-project.org/web/packages/stats/index.html">stats</a>, 
+   <a href="https://cran.r-project.org/web/packages/stringr/index.html">stringr</a>,
+   <a href="https://cran.r-project.org/web/packages/TSdist/index.html">TSdist</a>, 
+   <a href="https://cran.r-project.org/web/packages/utils/index.html">utils</a>,
+   <a href="https://cran.r-project.org/web/packages/wrassp/index.html">wrassp</a>, 
    <a href="https://cran.r-project.org/web/packages/zoo/index.html">zoo</a><br><br>              
     <b>Cite as:</b><br>
     <p style="margin-right: 25%">
