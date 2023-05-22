@@ -39,6 +39,10 @@ li a:hover:not(.active) {
   background-color: #555;
   color: white;
 }
+
+img {
+  object-fit: contain;
+}
 </style>
 <link rel="icon" href="logo.png">
 </head>
@@ -69,8 +73,7 @@ li a:hover:not(.active) {
 
   <h2 id="download">Download</h2>
   <b>Complete file package as zip:</b><br>
-  &rarr; <a href="2023-05.zip">2023-05</a> - <font color="red">current</font> (<a href="changelog_2023-05.txt">changelog</a>)<br>
-  - <a href="#old">old versions</a><br><br>    
+  &rarr; <a href="2023-05.zip">2023-05</a> - <font color="red">current</font> (<a href="changelog_2023-05.txt">changelog</a>, <a href="#old">old versions</a>)<br><br>    
   <b><a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a>-scripts (GUI requires <a style="text-decoration: none; color: black;" href="https://www.rstudio.com">R-studio</a>):</b><br>
     ~ <a href="contour_clustering_gui.R">contour clustering GUI</a> (recommended) - 2023-05<br>    
     - <a href="contour_clustering.R">contour clustering no GUI</a> - 2022-08<br><br>
