@@ -19,11 +19,18 @@ h2 {margin-top: 0; padding-top: 5%}
 
 ul {
   list-style-type: none;
-  width: 25%;
+  width: 30%;
   background-color: #f1f1f1;
   position: fixed;
   height: 100%;
   overflow: auto;
+}
+
+ul figure {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  vertical-align: bottom;
 }
 
 li a {
@@ -46,15 +53,15 @@ li a:hover:not(.active) {
 }
 
 main {
-margin-left: 30%;
+margin-left: 35%;
 padding-top: 5%;
 height:100%; 
 line-height: 2;
 }
 
-img {
-  object-fit: contain;
-}
+
+
+
 </style>
 <link rel="icon" href="logo.png">
 </head>
@@ -70,9 +77,13 @@ img {
   <li><a href="#contact">Contact</a></li>
  </div>
 
-
-<figure style="position: absolute; left: 25%; bottom: 5%; text-align:center;"><img align:"bottom" src="logo.png" width="175" height="100"><figcaption><a style="font-size:8px;padding:0px;margin:0;">last update: 2023-05-22</a><script type="text/javascript" src="//counter.websiteout.net/js/36/10/0/1"></script></figcaption></figure>
-  
+<div style="margin-bottom: 5%;">
+<figure style="text-align: center; width: 40%">
+<img align:"bottom" src="logo.png" width="100%">
+<a style="font-size:8px;padding:0px;margin:0;">last update: 2023-05-22</a>
+<script type="text/javascript" src="//counter.websiteout.net/js/36/10/0/1"></script>
+</figure>  
+</div>
 </ul>
 
 <main>
