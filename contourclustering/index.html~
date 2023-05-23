@@ -19,7 +19,7 @@ h2 {margin-top: 0; padding-top: 5%}
 
 ul {
   list-style-type: none;
-  width: 30%;
+  width: 25%;
   background-color: #f1f1f1;
   position: fixed;
   height: 100%;
@@ -53,7 +53,7 @@ li a:hover:not(.active) {
 }
 
 main {
-margin-left: 35%;
+margin-left: 30%;
 padding-top: 5%;
 height:100%; 
 line-height: 2;
