@@ -80,7 +80,7 @@ line-height: 2;
 <div style="position: absolute; bottom: 5%;">
 <figure style="text-align: center; width: 40%">
 <img align:"bottom" src="logo.png" width="100%">
-<a style="font-size:8px;padding:0px;margin:0;">last update: 2023-05-22</a>
+<a style="font-size:8px;padding:0px;margin:0;font-family:Courier New;">last update: 2023-05-22</a>
 <script type="text/javascript" src="//counter.websiteout.net/js/36/10/0/1"></script>
 </figure>  
 </div>
