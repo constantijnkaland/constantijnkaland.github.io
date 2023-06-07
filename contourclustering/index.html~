@@ -129,6 +129,7 @@ line-height: 2;
    <a href="https://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a>,
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/00Index.html">graphics</a>,
    <a href="https://cran.r-project.org/web/packages/Hmisc/index.html">Hmisc</a>,
+   <a href="https://cran.r-project.org/web/packages/Metrics/index.html">Metrics</a>,
    <a href="https://cran.r-project.org/web/packages/pracma/index.html">pracma</a>,
    <a href="https://cran.r-project.org/web/packages/proxy/index.html">proxy</a>,
    <a href="https://cran.r-project.org/web/packages/purrr/index.html">purrr</a>, 
@@ -140,7 +141,8 @@ line-height: 2;
    <a href="https://cran.r-project.org/web/packages/shiny/index.html">shiny</a>, 
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html">stats</a>, 
    <a href="https://cran.r-project.org/web/packages/stringr/index.html">stringr</a>,
-   <a href="https://cran.r-project.org/web/packages/TSdist/index.html">TSdist</a>, 
+   <a href="https://cran.r-project.org/web/packages/TSdist/index.html">TSdist</a>,
+   <a href="https://cran.r-project.org/web/packages/usedist/index.html">usedist</a>, 
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/00Index.html">utils</a>,
    <a href="https://cran.r-project.org/web/packages/wrassp/index.html">wrassp</a>, 
    <a href="https://cran.r-project.org/web/packages/zoo/index.html">zoo</a><br><br>              
@@ -155,6 +157,7 @@ line-height: 2;
   <b>Cite as:</b><br>
   Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
   <b>Also applied in:</b><br>
+  Cole, J., Steffman, J., Shattuck-hufnagel, S., & Tilsen, S. 2023. Hierarchical distinctions in the production and perception of nuclear tunes in American English. Laboratory Phonology, 14(1), 1–51. <a href=https://doi.org/10.16995/labphon.9437>doi: 10.16995/labphon.9437</a> [<a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">pdf</a>]<br><br>
   Laméris, Tim Joris; Li, Katrina Kechun & Post, Brechtje. 2023. Phonetic and Phono-Lexical Accuracy of Non-Native Tone Production by English-L1 and Mandarin-L1 Speakers. Language and Speech, 0(0). <a href="https://doi.org/10.1177/00238309221143719">doi:10.1177/00238309221143719</a> [<a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309221143719?download=true">pdf</a>]<br><br>
   Babinski, Sarah. 2022. Archival Phonetics & Prosodic Typology in Sixteen Australian Languages. PhD Thesis, Yale University. [<a href="https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1555&context=gsas_dissertations">pdf</a>]<br><br>
   Seeliger, Heiko & Kaland, Constantijn. 2022. Boundary tones in German wh-questions and wh-exclamatives - a cluster-based approach. In <i>Proceedings of the 11th International Conference on Speech Prosody 2022</i> (pp. 27–31). Lisbon, Portugal. <a href="https://doi.org/10.21437/SpeechProsody.2022-6">doi:10.21437/SpeechProsody.2022-6</a> [<a href="https://www.isca-speech.org/archive/pdfs/speechprosody_2022/seeliger22_speechprosody.pdf">pdf</a>]<br><br>
