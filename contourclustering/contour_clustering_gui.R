@@ -1,59 +1,46 @@
 # General information
 # This script generates time-series f0 measurements and performs hierarchical cluster analysis on f0 contours. Measurements can alternatively be taken using the Praat script "time-series_F0.praat".
-# The code below is largely uncommented. Additional mouse-hoover help comments are provided for some buttons in the app. Detailed script comments can be found in the no-gui version of this script 'contour_clustering.R', which has essentially the same functionality.
+# The code below is largely uncommented. Additional mouse-hoover help comments are provided for some settings in the app. Detailed script comments can be found in the no-gui version of this script 'contour_clustering.R', which has essentially the same functionality.
 # A theoretical motivation with illustrated examples is given in the accompanying paper: https://doi.org/10.1017/S0025100321000049.
-# Usage guidelines are given in the accompanying manual.
+# Usage guidelines are given in the accompanying manual: https://constantijnkaland.github.io/contourclustering/#documentation.
 #
 # Developed and tested using R/package versions:
 # R version 4.1.2 (2021-11-01)
-# RStudio 2023.3.0.386
-# av 0.8.3
-# dtwclust 5.5.11
+# RStudio 2023.5.0.366
+# dplyr 1.1.2
+# dtwclust 5.5.12
 # ggdendro 0.1.23
-# Hmisc 4.8.0
-# parallel 4.1.2
+# ggplot2 3.4.2
+# graphics 4.1.2
+# Hmisc 5.1.0
+# Metrics 0.1.4
 # pracma 2.4.2
 # proxy 0.4.27
+# purrr 1.0.1
 # readr 2.1.4
 # readtextgrid 0.1.1
 # reshape 0.8.9
 # reshape2 1.4.4
 # scales 1.2.1
 # shiny 1.7.4
-# soundgen 2.5.3
+# stats 4.1.2
 # stringr 1.5.0
-# tidyverse 1.3.2
-# TSclust 1.3.1
 # TSdist 3.7.1
-# zoo 1.8.11
+# usedist 0.4.0
+# utils 4.1.2
+# wrassp 1.0.4
+# zoo 1.8.12
 #
-# Constantijn Kaland, May 2023.
+# Constantijn Kaland, June 2023.
 # https://constantijnkaland.github.io/contourclustering/
 
 # install required packages automatically ####
-packages <- c(
-  "tidyverse",
-  "reshape",
-  "reshape2",
-  "shiny",
-  "ggdendro",
-  "readtextgrid",
-  "stringr",
-  "av",
-  "soundgen",
-  "zoo",
-  "Hmisc",
-  "scales",
-  "TSdist",
-  "TSclust",
-  "proxy",
-  "dtwclust",
-  "readr",
-  "pracma",
-  "parallel"
-)
+packages <- c("dplyr", "dtwclust", "ggdendro", "ggplot2", "graphics", "Hmisc", "Metrics", 
+  "pracma", "proxy", "purrr", "readr", "readtextgrid", "reshape", 
+  "reshape2", "scales", "shiny", "stats", "stringr", "TSdist", "usedist",
+  "utils", "wrassp", "zoo")
 
-# version list
+# #version list
 # library(rstudioapi)
 # version$version.string -> vlist
 # append(vlist,paste0("RStudio ", versionInfo()$version)) -> vlist
@@ -76,6 +63,16 @@ options(shiny.maxRequestSize = 20 * 1024 ^ 2)
 
 ui <- fluidPage(
   tags$style(".shiny-file-input-progress {display: none}"),
+  tags$style(HTML("
+    .irs--shiny .irs-bar {
+      background: linear-gradient(to bottom, #dedede -50%, #fff 150%);
+      border-top: 1px solid #cccccc;
+      border-bottom: 1px solid #cccccc;
+    }
+    .irs--shiny .irs-to, .irs--shiny .irs-from, .irs--shiny .irs-single {
+      background-color: rgba(0, 0, 0, 0.1);
+      color: #ff2b2b;
+    }")),
   sidebarLayout(
     sidebarPanel(
       fluidRow(
@@ -94,7 +91,8 @@ ui <- fluidPage(
       textOutput("choose"),
       uiOutput("rem_empty"),
       uiOutput("decl_corr"),
-      uiOutput("semitone_conv"),
+      uiOutput("f0_header"),
+      uiOutput("f0_conv"),
       uiOutput("jump_header"),
       uiOutput("jump_margin"),
       uiOutput("spkdiff_header"),
@@ -125,7 +123,7 @@ ui <- fluidPage(
         column(width = 4, align = "left", uiOutput("timestep"))
       ),
       fluidRow(
-        column(width = 4, align = "left", uiOutput("vthres")),
+        column(width = 4, align = "left", uiOutput("f0fit")),
         column(width = 4, align = "left", uiOutput("npoints")),
         column(width = 4, align = "left", uiOutput("smooth_bw"))
       ),
@@ -312,16 +310,22 @@ server <- function(input, output, session) {
   output$decl_corr <- renderUI({
     if (is.null(input$file_input))
       return(NULL)
-    tags$div(title = "Avoid flat contours by applying a declination effect ('t Hart et al., 1991, p.129): D = (-11)/(t+1.5). Enables Pearson/auto-correlation distance measures.",
-             checkboxInput("decl_corr", "declination correction", FALSE))
+    tags$div(title = "Avoid flat contours by applying a declination effect ('t Hart et al., 1991, p.129): D = (-11)/(t+1.5). Enables Pearson/auto-correlation distance measures. Only applied to flat contours.",
+             checkboxInput("decl_corr", "forced declination", FALSE))
   })
   
-  output$semitone_conv <- renderUI({
+  output$f0_header <- renderUI({
+    if (is.null(input$file_input))
+      return(NULL)
+    "f0 scale:"
+  })
+  
+  output$f0_conv <- renderUI({
     if (is.null(input$file_input))
       return(NULL)
     tags$div(
-      title = "Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87",
-      checkboxInput("semitone_conv", label = "convert f0 Hertz values to semitones", value = F)
+      title = "Default assumption: f0 is measured in Hertz (Hz). Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87 or convert to Equivalent Rectangular Bandwidth (ERB): f0(ERB) = 16.6*log10(1+(f0(Hz)/165.4))" ,
+      selectInput("f0_conv", label = NULL,choices = list("Hz (no conversion)" = "Hz", "ST" = "ST", "ERB" = "ERB"),selected = 1,multiple = F, width = "40%")
     )
   })
   
@@ -354,7 +358,7 @@ server <- function(input, output, session) {
     if (is.null(input$file_input))
       return(NULL)
     tags$div(
-      title = "Only apply when number of speakers is correctly detected. 1 = none, 2 = f0–mean(f0.spk), 3 = f0–mean(f0.spk) / sd(f0.spk), 4 = f0–min(f0.spk) / max(f0.spk)–min(f0.spk), 5 = f0–median(f0.spk) / 75q(f0.spk)–25q(f0.spk), 6 = log2(f0.spk/media(f0.spk))",
+      title = "Only apply when number of speakers is correctly detected. 1 = none, 2 = f0–mean(f0.spk), 3 = f0–mean(f0.spk) / sd(f0.spk), 4 = f0–min(f0.spk) / max(f0.spk)–min(f0.spk), 5 = f0–median(f0.spk) / 75q(f0.spk)–25q(f0.spk), 6 = log2(f0.spk/media(f0.spk)), 7 = Δf0/Δtime",
       selectInput(
         "spkdiff",
         label = NULL,
@@ -364,7 +368,8 @@ server <- function(input, output, session) {
           "3: standardise" = 3,
           "4: min-max normalize" = 4,
           "5: robust scaler" = 5,
-          "6: octave-median scaled" = 6
+          "6: octave-median scaled" = 6,
+          "7: first derivative (d1)" = 7
         ),
         selected = 1,
         multiple = F,
@@ -524,7 +529,7 @@ server <- function(input, output, session) {
         title = paste0(
           "Specify path to the directory that contains sound files and textgrids, including final ",
           .Platform$file.sep,
-          ". Only long formatted TextGrids in UTF-8 encoding can be read, no other encodings or TextGrids saved 'as short text file'."
+          ". Only long formatted TextGrids in UTF-8 encoding can be read, no other encodings and no TextGrids saved 'as short text file'."
         ),
         textInput(
           "dir_input",
@@ -647,13 +652,13 @@ server <- function(input, output, session) {
       )
     })
     
-    output$vthres <- renderUI({
+    output$f0fit <- renderUI({
       tags$div(
-        title = "Package 'soundgen': voicing threshold, defaults to 0.7. This means that peaks in the autocorrelation function have to be at least 0.7 in height (1 = perfect autocorrelation). A lower threshold produces more false positives (f0 is detected in voiceless, noisy frames), whereas a higher threshold produces more accurate values f0 at the expense of failing to detect f0 in noisier frames.",
+        title = "Package 'wrassp':  minimum quality value of f0 fit, defaults to 0.52. More accurate/less f0 candidates > 0.52 > less accurate/more f0 candidates.",
         numericInput(
-          "vthres",
-          "Voicing threshold",
-          value = 0.7,
+          "f0fit",
+          "f0 fit",
+          value = 0.52,
           min = 0,
           max = 1,
           step = 0.1
@@ -774,9 +779,9 @@ server <- function(input, output, session) {
         input$select_tier,
         ") and a time-step of ",
         input$timestep,
-        " ms, f0 will be tracked by ~",
+        " ms, f0 measurement resolution will be ~",
         floor((1000 / input$timestep) * mD) - 1,
-        " points per interval. Praat settings default to an f0 floor of 75 Hz with 10 ms timestep. Smoothing will be determined by setting the points per interval and adjusting the smoothing factor."
+        " points per interval (tracking accuracy). Praat settings default to an f0 floor of 75 Hz with 10 ms timestep. Smoothing accuracy will be determined by setting the measurement points per interval and adjusting the smoothing factor."
       )
     })
   })
@@ -792,18 +797,19 @@ server <- function(input, output, session) {
       }
     }
     c() ->> rempng
-    df.g[df.g$tier_name == isolate(input$select_tier) &
+    df.g[df.g$tier_name == input$select_tier &
            df.g$text != "", ] -> df.gs
     as.data.frame(df.gs, row.names = 1:nrow(df.gs)) ->> df.gs
     ncol(df.g) + 1 ->> colX
-    df.gs[, rep(paste0("X", 1:isolate(input$npoints)))] <<- NA
-    if (isolate(input$select_sample) == "Sample") {
-      sample(1:nrow(df.gs), isolate(input$n_sample)) -> rows
-      plot = T
+    df.gs[, rep(paste0("X", 1:input$npoints))] <<- NA
+    if (input$select_sample == "Sample") {
+      sample(1:nrow(df.gs), input$n_sample) -> rows
+#      plot = T
     }
-    if (isolate(input$select_sample) == "Measure") {
+    if (input$select_sample == "Measure") {
+      as.list(c()) ->> pnglist
       1:nrow(df.gs) -> rows
-      plot = F
+#      plot = F
     }
     withProgress(message = "Measuring f0...", {
       for (r in rows) {
@@ -811,8 +817,6 @@ server <- function(input, output, session) {
         "" ->> NAmsg
         df.p <- c()
         paste0(inDir, df.gs$name_trim[r], snd_ext) ->> f
-        as.numeric(av_media_info(f)$audio[2]) ->> sr
-        as.numeric(av_media_info(f)$duration) -> d
         df.gs$xmax[r] ->> Tmax
         df.gs$xmin[r] ->> Tmin
         df.gs$xmax[r] - df.gs$xmin[r] -> di
@@ -827,15 +831,20 @@ server <- function(input, output, session) {
           "Interval too short, writing NAs to output." ->> NAmsg
         }
         if (di >= w / 1000) {
-          tsf0() -> df.p
+          tsf0() -> listf0
+          c() -> df.p
+          listf0$pitch -> df.p$pitch
+          NA -> df.p$pitch[df.p$pitch==0]
+          seq(0,numRecs.AsspDataObj(listf0) - 1) / rate.AsspDataObj(listf0) + attr(listf0, 'startTime') -> df.p$time
+          as.data.frame(df.p) -> df.p
           if (is.null(nrow(df.p))) {
-            as.list(rep(NA, isolate(input$npoints))) -> df.gs[r, c(colX:(colX + isolate(input$npoints) -
+            as.list(rep(NA, input$npoints)) -> df.gs[r, c(colX:(colX + input$npoints -
                                                                   1))]
             "Measurements failed, writing NAs to output" ->> NAmsg
           }
           if (is.null(nrow(df.p)) == F) {
             if (sum(is.na(df.p$pitch)) == nrow(df.p)) {
-              as.list(rep(NA, isolate(input$npoints))) -> df.gs[r, c(colX:(colX + isolate(input$npoints) -
+              as.list(rep(NA, input$npoints)) -> df.gs[r, c(colX:(colX + input$npoints -
                                                                     1))]
               "No f0 detected, writing NAs to output." ->> NAmsg
             } else {
@@ -844,23 +853,22 @@ server <- function(input, output, session) {
                            df.p$pitchInt,
                            xout = df.p$time,
                            method = "constant")$y -> df.p$pitchInt
-              as.list(approx(df.p$pitchInt, n = isolate(input$npoints))$y) -> df.gs[r, c(colX:(colX +
-                                                                                        isolate(input$npoints) - 1))]
-              b = isolate(input$smooth_bw)
+              as.list(approx(df.p$pitchInt, n = input$npoints)$y) -> df.gs[r, c(colX:(colX +
+                                                                                        input$npoints - 1))]
               ksmooth(
-                1:isolate(input$npoints),
-                df.gs[r, c(colX:(colX + isolate(input$npoints) - 1))],
+                1:input$npoints,
+                df.gs[r, c(colX:(colX + input$npoints - 1))],
                 kernel = "normal",
-                bandwidth = b,
-                n.points = isolate(input$npoints)
+                bandwidth = input$smooth_bw,
+                n.points = input$npoints
               )$y -> ps
-              ps ->> df.gs[r, c(colX:(colX + isolate(input$npoints) - 1))]
+              ps ->> df.gs[r, c(colX:(colX + input$npoints - 1))]
             }
-            if (plot == T) {
+            if (input$select_sample == "Sample") {
               if (NAmsg != "") {
                 suppressMessages(
                   ggplot(df.p, aes(time)) +
-                    scale_y_continuous(limits = c(isolate(input$pmin), isolate(input$pmax))) +
+                    scale_y_continuous(limits = c(input$pmin, input$pmax)) +
                     scale_x_continuous(limits = c(Tmin *
                                                     1000, Tmax * 1000)) +
                     labs(
@@ -872,7 +880,7 @@ server <- function(input, output, session) {
                     annotate(
                       "text",
                       x = (Tmax * 1000) - ((di * 1000) / 2),
-                      y = input$pmax - ((isolate(input$pmax) - isolate(input$pmin)) / 2),
+                      y = input$pmax - ((input$pmax - input$pmin) / 2),
                       label = NAmsg,
                       colour = "red"
                     )
@@ -886,8 +894,8 @@ server <- function(input, output, session) {
                   df.p$time
                 )) - min(na.omit(
                   df.p$time
-                ))) / (isolate(input$npoints) - 1)
-                ), isolate(input$npoints)))) -> ts
+                ))) / (input$npoints - 1)
+                ), input$npoints))) -> ts
                 as.data.frame(cbind(ts, ps)) -> df.ps
                 suppressMessages(
                   ggplot(df.p, aes(time)) +
@@ -902,7 +910,7 @@ server <- function(input, output, session) {
                       colour = "red",
                       na.rm = TRUE
                     ) +
-                    coord_cartesian(ylim = c(isolate(input$pmin), isolate(input$pmax))) +
+                    coord_cartesian(ylim = c(input$pmin, input$pmax)) +
                     labs(
                       title = df.gs$name_trim[r],
                       subtitle = df.gs$text[r],
@@ -919,29 +927,29 @@ server <- function(input, output, session) {
         }
       }
     })
-    if (plot == T) {
+    if (input$select_sample == "Sample") {
       output$sample <- renderUI({
         fluidPage(align = "center",
                   do.call(tagList, lapply(1:length(rempng), function(i) {
-                    img(src = as.character(as.data.frame(
+                    img(src = as.character(unlist(as.data.frame(
                       str_split(rempng, .Platform$file.sep)
-                    )[2, ])[i],
+                    )[2, ]))[i],
                     width = "50%")
                   })))
       })
       showTab(inputId = "outputs", target = "Sample")
-      updateTabsetPanel(session, inputId = "outputs", selected = "Sample")
+      isolate(updateTabsetPanel(session, inputId = "outputs", selected = "Sample"))
     }
-    if (plot == F) {
+    if (input$select_sample == "Measure") {
       reshape2::melt(
         df.gs,
         id.vars = c('name_trim', 'text', 'xmin', 'xmax'),
-        measure.vars = colX:(colX + isolate(input$npoints) - 1),
+        measure.vars = colX:(colX + input$npoints - 1),
         value.name = "f0"
       ) -> data_long
       as.numeric(data_long$variable) -> data_long$variable
       cbind(data_long[, c('name_trim', 'text', 'xmin', 'xmax')],
-            data_long$variable * ((data_long$xmax - data_long$xmin) / (isolate(input$npoints) +
+            data_long$variable * ((data_long$xmax - data_long$xmin) / (input$npoints +
                                                                          1)),
             data_long[, c('variable', 'f0')],
             rep(1, nrow(data_long))) -> data_long
@@ -1001,7 +1009,7 @@ server <- function(input, output, session) {
     output$timestep <- renderUI({
       return(NULL)
     })
-    output$vthres <- renderUI({
+    output$f0fit <- renderUI({
       return(NULL)
     })
     output$npoints <- renderUI({
@@ -1032,14 +1040,20 @@ server <- function(input, output, session) {
     })
     
     output$decl_corr <- renderUI({
-      tags$div(title = "Avoid flat contours by applying a declination effect ('t Hart et al., 1991, p.129): D = (-11)/(t+1.5). Enables Pearson/auto-correlation distance measures.",
-               checkboxInput("decl_corr", "declination correction", FALSE))
+      tags$div(title = "Avoid flat contours by applying a declination effect ('t Hart et al., 1991, p.129): D = (-11)/(t+1.5). Enables Pearson/auto-correlation distance measures. Only applied to flat contours.",
+               checkboxInput("decl_corr", "forced declination", FALSE))
     })
     
-    output$semitone_conv <- renderUI({
+    output$f0_header <- renderUI({
+      if (is.null(input$file_input))
+        return(NULL)
+      "Choose f0 scale:"
+    })
+    
+    output$f0_conv <- renderUI({
       tags$div(
-        title = "Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87",
-        checkboxInput("semitone_conv", label = "convert f0 Hertz values to semitones", value = F)
+        title = "Default assumption: f0 is measured in Hertz (Hz). Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87 or convert to Equivalent Rectangular Bandwidth (ERB): f0(ERB) = 16.6*log10(1+(f0(Hz)/165.4))",
+        selectInput("f0_conv", label = NULL,choices = list("Hz (no conversion)" = "Hz", "ST" = "ST", "ERB" = "ERB"),selected = 1,multiple = F,width="40%")
       )
     })
     
@@ -1064,7 +1078,7 @@ server <- function(input, output, session) {
     
     output$spkdiff <- renderUI({
       tags$div(
-        title = "Only apply when number of speakers is correctly detected. 1 = none, 2 = f0–mean(f0.spk), 3 = f0–mean(f0.spk) / sd(f0.spk), 4 = f0–min(f0.spk) / max(f0.spk)–min(f0.spk), 5 = f0–median(f0.spk) / 75q(f0.spk)–25q(f0.spk), 6 = log2(f0.spk/media(f0.spk))",
+        title = "Only apply when number of speakers is correctly detected. 1 = none, 2 = f0–mean(f0.spk), 3 = f0–mean(f0.spk) / sd(f0.spk), 4 = f0–min(f0.spk) / max(f0.spk)–min(f0.spk), 5 = f0–median(f0.spk) / 75q(f0.spk)–25q(f0.spk), 6 = log2(f0.spk/media(f0.spk)), 7 = Δf0/Δtime",
         selectInput(
           "spkdiff",
           label = NULL,
@@ -1354,12 +1368,18 @@ server <- function(input, output, session) {
       }
     }
     
-    if (input$semitone_conv == T) {
+    if (input$f0_conv == "Hz") {
+      "F0 values not converted (assuming Hz)." ->> stconv
+    }
+    if (input$f0_conv == "ST") {
       log10((as.numeric(as.character(data$f0)) / 50)) * 39.87 -> data$f0
       "(ST)" ->> ysc
-      "Hertz values converted to semitones." ->> stconv
-    } else{
-      "F0 values not converted." ->> stconv
+      "Hertz values converted to ST." ->> stconv
+    }
+    if (input$f0_conv == "ERB") {
+      16.6*log10(1+(as.numeric(as.character(data$f0)) / 165.4)) -> data$f0
+      "(ERB)" ->> ysc
+      "Hertz values converted to ERB." ->> stconv
     }
     
     subset(data,
@@ -1417,7 +1437,7 @@ server <- function(input, output, session) {
     }
     if (input$spkdiff == 7) {
       "First derivative (d1)" ->> ylb
-      for (rws in 1:(nrow(datatmp)/stepsN)) {
+      for (rws in 1:(nrow(data)/stepsN)) {
         pracma::gradient(as.numeric(as.character(data$f0[((rws*stepsN)-(stepsN-1)):(rws*stepsN)]))) -> data$f0[((rws*stepsN)-(stepsN-1)):(rws*stepsN)]
       }
     }
@@ -1445,7 +1465,10 @@ server <- function(input, output, session) {
     output$decl_corr <- renderUI({
       return(NULL)
     })
-    output$semitone_conv <- renderUI({
+    output$f0_header <- renderUI({
+      return(NULL)
+    })
+    output$f0_conv <- renderUI({
       return(NULL)
     })
     output$jump_header <- renderUI({
@@ -1491,6 +1514,7 @@ server <- function(input, output, session) {
           label = "Distance measure:",
           choices = list(
             "euclidean (L2 norm)" = "euclidean",
+            "mean absolute scaled error (MASE)" = "mase",
             "dynamic time warping" = "dtw_basic",
             "pearson (sqrt(2*(1-ρ)))" = "cor",
             "autocorrelation" = "acf"
@@ -1727,26 +1751,18 @@ server <- function(input, output, session) {
   # functions ####
   
   tsf0 <- function() {
-      analyze(
+    mhsF0(
       f,
-      samplingRate = sr,
-      from = Tmin,
-      to = Tmax,
-      windowLength = w,
-      step = s,
-      pitchMethods = 'autocor',
-      pitchAutocor = list(autocorThres = input$vthres),
-      plot = F,
-      pitchFloor = input$pmin,
-      pitchCeiling = input$pmax,
-      loudness = NULL,
-      novelty = NULL,
-      roughness = NULL,
-      nFormants = 0,
-      cores = detectCores()
-    )$detailed
+      beginTime = Tmin,
+      endTime = Tmax,
+      minF = as.numeric(input$pmin),
+      maxF = as.numeric(input$pmax),
+      windowShift = as.numeric(input$timestep),
+      minProb = as.numeric(input$f0fit),
+      toFile = F
+      )
   }
-  
+    
   clustprep <- function() {
     withProgress(message = "Running cluster analysis...", {
       datacast <-
@@ -1760,6 +1776,14 @@ server <- function(input, output, session) {
       incProgress(1 / 4)
       if (input$distm == "euclidean") {
         dist(datacast[, stepone:((stepone - 1) + stepsN)], method = input$distm) ->> distance_matrix
+      }
+      if (input$distm == "mase") {
+        mase_distance <-function (r1, r2) {
+                 mase(r1,r2)
+                 }
+        as.matrix(datacast[, stepone:((stepone - 1) + stepsN)]) -> datacastmat
+        rownames(datacastmat) <- 1:nrow(datacast)
+        dist_make(datacastmat, mase_distance) ->> distance_matrix
       }
       if (input$distm == "dtw_basic") {
         proxy::dist(datacast[, stepone:((stepone - 1) + stepsN)], method = input$distm) ->> distance_matrix
@@ -1847,7 +1871,7 @@ server <- function(input, output, session) {
       ))
     })
     output$textgrid <- renderUI({
-      tags$div(title = "Generate textgrids with the current clusters annotated for each contour interval. N.B. only works ", actionButton("textgrid", "Generate textgrids"))
+      tags$div(title = "Generate textgrids with the current clusters annotated for each contour interval.", actionButton("textgrid", "Generate textgrids"))
     })
     sevt = c()
     for (c in 1:numbclust) {
