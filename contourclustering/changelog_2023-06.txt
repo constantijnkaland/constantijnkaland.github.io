@@ -1,4 +1,4 @@
-Changelog to version 2022-XX:
+Changelog to version 2022-06:
 ------------------
 
 > Resource efficient method for f0 traking (Michel Scheffers’ Modified Harmonic Sieve algorithm as implemented in wrassp::mhsF0).
