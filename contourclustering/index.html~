@@ -164,8 +164,8 @@ line-height: 2;
 	<tr>
 		<td height="17" align="left"><b>Language</b></td>
 		<td align="left"><b>Unit of analysis</b></td>
-		<td colspan=2><b>Paper(s)</b></td>
-	</tr>
+		<td colspan=2 align="left"><b>Paper(s)</b></td>
+		</tr>
 	<tr>
 		<td height="17" align="left">American English</td>
 		<td align="left">words</td>
@@ -194,7 +194,7 @@ line-height: 2;
 		<td height="17" align="left">German</td>
 		<td align="left">phrases</td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>
-		<td align="left"><br></td>
+		<td align="left"><a href="https://www.isca-speech.org/archive/pdfs/speechprosody_2022/seeliger22_speechprosody.pdf">Seeliger &amp; Kaland, 2022</a></td>
 	</tr>
 	<tr>
 		<td height="17" align="left">Gija</td>
@@ -251,7 +251,7 @@ line-height: 2;
 		<td align="left"><br></td>
 	</tr>
 	<tr>
-		<td height="17" align="left">Ngan'gi</td>
+		<td height="17" align="left">Ngan’gi</td>
 		<td align="left">phrases</td>
 		<td align="left"><a href="https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1555&amp;context=gsas_dissertations">Babinski, 2022</a></td>
 		<td align="left"><br></td>
@@ -304,7 +304,7 @@ line-height: 2;
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2021</a></td>
 	</tr>
-</table>  
+</table> 
   <p style="margin-bottom: 80%;"	</p>
     
   <h2 id="references">References</h2>
