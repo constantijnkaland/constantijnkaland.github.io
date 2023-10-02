@@ -143,8 +143,6 @@ line-height: 2;
    <a href="https://cran.r-project.org/web/packages/purrr/index.html">purrr</a>, 
    <a href="https://cran.r-project.org/web/packages/readr/index.html">readr</a>,<br> 
    <a href="https://cran.r-project.org/web/packages/readtextgrid/index.html">readtextgrid</a>,
-   <a href="https://cran.r-project.org/web/packages/reshape/index.html">reshape</a>, 
-   <a href="https://cran.r-project.org/web/packages/reshape2/index.html">reshape2</a>,
    <a href="https://cran.r-project.org/web/packages/scales/index.html">scales</a>, 
    <a href="https://cran.r-project.org/web/packages/shiny/index.html">shiny</a>, 
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html">stats</a>, 
