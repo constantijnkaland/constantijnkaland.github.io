@@ -124,7 +124,8 @@ line-height: 2;
   <h2 id="documentation">Documentation</h2>
   <b>Manual:</b><br>
     ~ <a href="manual.pdf">manual for Praat-script and R-script</a> (recommended)<br><br>  
-  <b>Tutorial and data files:</b><br>
+  <b>Additional learning material:</b><br>
+    - Two-day workshop <a href="https://www.ling.uni-konstanz.de/forschung/workshops/">Methods @ LingLab</a> [<a href="https://youtu.be/fAopN5LRaTs">Day 1</a>] [<a href="">Day 2</a>] [<a href="https://osf.io/mec6y/?view_only=286fec372bfd4e2b856a75e8a931f7cf">OSF repository</a>] - 11-2023<br>  
     - <a href="tutorial.pdf">tutorial</a> - 03-2021<br>
 	 - <a href="pmy_scripted_noun_phrases.csv">Papuan Malay scripted noun phrases</a> (article section 2)<br>    
     - <a href="pmy_spontaneous_phrases.csv">Papuan Malay spontaneous phrases</a> (article section 3) - datafile for tutorial<br>
