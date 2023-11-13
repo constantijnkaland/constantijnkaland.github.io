@@ -337,9 +337,6 @@ line-height: 2;
   <label>
     <textarea name="message" rows="10" cols="100" placeholder="your message"></textarea>
   </label><br>
-
-  <!-- your other form fields go here -->
-
   <button type="submit">Send (via formspree.io)</button>
 </form>
     </div>
