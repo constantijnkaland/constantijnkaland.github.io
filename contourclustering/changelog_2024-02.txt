@@ -1,4 +1,4 @@
-Changelog to version xxxx-XX:
+Changelog to version 2024-02:
 ------------------
 
 > Added option to do multivariate clustering using additional intensity and duration information.
