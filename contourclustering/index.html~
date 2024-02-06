@@ -74,7 +74,7 @@ line-height: 2;
  </div>
 
 <div style="transform: skewY(160deg);text-align: center;margin-top: 20%;font-size: 150%;">
-<a style="text-decoration: none; color: red;" href=""></a>
+<a style="text-decoration: none; color: red;" href="">New version! (2024-02)</a>
 </div>
 
 
@@ -95,9 +95,9 @@ line-height: 2;
 
   <h2 id="download">Download</h2>
   <b>Complete file package as zip:</b><br>
-  &rarr; <a href="2023-06.zip">2023-06</a> - <font color="red">current</font> (<a href="changelog_2023-06.txt">changelog</a>, <a href="#old">old versions</a>)<br><br>    
+  &rarr; <a href="2024-02.zip">2024-02</a> - <font color="red">current</font> (<a href="changelog_2024-02.txt">changelog</a>, <a href="#old">old versions</a>)<br><br>    
   <b><a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a>-scripts (GUI requires <a style="text-decoration: none; color: black;" href="https://www.rstudio.com">R-studio</a>):</b><br>
-    ~ <a href="contour_clustering_gui.R">contour clustering GUI</a> (recommended) - 2023-06<br>    
+    ~ <a href="contour_clustering_gui.R">contour clustering GUI</a> (recommended) - 2024-02<br>    
     - <a href="contour_clustering.R">contour clustering no GUI</a> - 2022-08<br><br>
     <b><a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/">Praat</a> script:</b><br>  
     - <a href="time-series_f0.praat">time-series f0 measurements</a> - 2022-04<br><br>
@@ -109,6 +109,7 @@ line-height: 2;
   
     <h2 id="old">Old versions</h2>
   <b>Complete file package as zip:</b><br>
+  - <a href="2023-06.zip">2023-06</a><br>   
   - <a href="2023-05.zip">2023-05</a><br>  
   - <a href="2022-08.zip">2022-08</a><br>
   - <a href="2022-04.zip">2022-04</a><br>
@@ -318,7 +319,8 @@ line-height: 2;
   <b>Cite as:</b><br>
   Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
   <b>Also applied in:</b><br>
-  Li, Katrina Kechun; Nolan, Francis & Post, Brechtje. 2023. Clustering lexical tones with intonation variation. <i>Proceedings of the Second International Conference on Tone and Intonation</i> (pp. 87-88). Chinese and Oriental Languages information Procesing Society. [<a href="https://www.colips.org/conferences/tai2023/proceedings/pdf/2023.tai-abstract.43.pdf">pdf</a>]<br><br>
+  Li, Katrina Kechun; Nolan, Francis & Post, Brechtje. 2023. Clustering lexical tones with intonation variation. <i>Proceedings of the Second International Conference on Tone and Intonation (TAI)</i> (pp. 87-88). Chinese and Oriental Languages information Procesing Society. [<a href="https://www.colips.org/conferences/tai2023/proceedings/pdf/2023.tai-abstract.43.pdf">pdf</a>]<br><br>
+  Seeliger, Heiko; Lützeler, Anne & Kaland, Constantijn. 2023. The perception of German wh-phrase-final intonation: a contour clustering evaluation. <i>Proceedings of the Second International Conference on Tone and Intonation (TAI)</i> (pp. 5-6). Chinese and Oriental Languages information Procesing Society. [<a href="https://www.colips.org/conferences/tai2023/proceedings/pdf/2023.tai-abstract.3.pdf">pdf</a>]<br><br> 
   Jabeen, Farhat & Wagner, Petra. 2023. Variability in hesitations in Punjabi semi-spontaneous narrative speech: An automatic clustering based analysis. Proc. Disfluency in Spontaneous Speech (DiSS) Workshop 2023, 71-75. <a href=https://doi.org/10.21437/DiSS.2023-15>doi: 10.21437/DiSS.2023-15</a> [<a href="https://www.isca-archive.org/diss_2023/jabeen23_diss.pdf">pdf</a>]<br><br>
   Kaland, Constantijn. 2023. Intonation contour similarity: F0 representations and distance measures compared to human perception in two languages. The Journal of the Acoustical Society of America, 154(1), 95–107. <a href=https://doi.org/10.1121/10.0019850>doi: 10.1121/10.0019850</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/A03_Kaland_2023_Intonation_contour_similarity_f0_representations_and_distance_measures_compared_to_human_perception_in_two_languages.pdf">pdf</a>]<br><br>
   Kaland, Constantijn & Ellison, T. Mark. 2023. Evaluating cluster analysis on f0 contours: An information theoretic approach on three languages. In R. Skarnitzl & J. Volín (Eds.), <i>Proceedings of the 20th International Congress of Phonetic Sciences</i> (pp. 3448–3452). Guarant International. [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">pdf</a>]<br><br>
