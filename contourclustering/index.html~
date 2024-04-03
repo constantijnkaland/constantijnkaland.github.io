@@ -73,14 +73,16 @@ line-height: 2;
   <li><a href="#contact">Contact</a></li>
  </div>
 
-<div style="transform: skewY(160deg);text-align: center;margin-top: 20%;font-size: 150%;">
-<a style="text-decoration: none; color: red;" href="#download">New version! (2024-02)</a>
-</div>
+<!--
+	<div style="transform: skewY(160deg);text-align: center;margin-top: 20%;font-size: 150%;">
+	<a style="text-decoration: none; color: red;" href="#download">New version! (2024-02)</a>
+	</div>
+-->
 
 
 <div style="position: absolute; bottom: 5%;">
 <figure style="text-align: center; width: 40%">
-<img align:"bottom" src="logo.png" width="100%">
+<img align:"bottom"; src="logo.png"; width="100%">
 <a style="font-size:8px;padding:0px;margin:0;font-family:Courier New;">last website update: <script>document.write( document.lastModified.substring(6,10)+"-"+document.lastModified.substring(0,2)+"-"+document.lastModified.substring(3,5) );</script></a>
 <script type="text/javascript" src="//counter.websiteout.net/js/36/10/0/1"></script>
 </figure>  
@@ -91,7 +93,7 @@ line-height: 2;
   <img align:"bottom" src="unclustered.png" width="50%" height=auto>
   <p style="margin-top: 0%; margin-bottom: 0%; font-size: 500%; padding-left: 25%;">&#8595</p>
   <img align:"bottom" src="clustered.png" width="50%" height=auto>
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 80%;"</p>
 
   <h2 id="download">Download</h2>
   <b>Complete file package as zip:</b><br>
@@ -171,7 +173,7 @@ line-height: 2;
 		<td height="17" align="left">American English</td>
 		<td align="left">words</td>
 		<td align="left"><a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">Cole et al., 2023</a></td>
-		<td align="left"><a href= "https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">Steffman et al., 2023</a></td>
+		<td align="left"><a href= "https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">Steffman et al., 2024</a></td>
 		<td align="left"><br></td>
 	</tr>
 	<tr>
@@ -320,14 +322,15 @@ line-height: 2;
   <b>Cite as:</b><br>
   Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
   <b>Also applied in:</b><br>
+  Kaland, Constantijn & Grice, Martine. 2024. Exploring and explaining variation in phrase-final f0 movements in spontaneous Papuan Malay. <i>Phonetica</i>, 0(0). <a href="https://doi.org/10.1515/phon-2023-0031">doi:10.1515/phon-2023-0031</a><br><br>
   Steffman, Jeremy; Cole, Jennifer & Shattuck-Hufnagel, Stefanie. 2024. Intonational categories and continua in American English rising nuclear tunes. <i>Journal of Phonetics</i>. <a href="https://doi.org/10.1016/j.wocn.2024.101310">doi:10.1016/j.wocn.2024.101310</a> [<a href="https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">pdf</a>]<br><br>
   Li, Katrina Kechun; Nolan, Francis & Post, Brechtje. 2023. Clustering lexical tones with intonation variation. <i>Proceedings of the Second International Conference on Tone and Intonation (TAI)</i> (pp. 87-88). Chinese and Oriental Languages information Procesing Society. [<a href="https://www.colips.org/conferences/tai2023/proceedings/pdf/2023.tai-abstract.43.pdf">pdf</a>]<br><br>
   Seeliger, Heiko; Lützeler, Anne & Kaland, Constantijn. 2023. The perception of German wh-phrase-final intonation: a contour clustering evaluation. <i>Proceedings of the Second International Conference on Tone and Intonation (TAI)</i> (pp. 5-6). Chinese and Oriental Languages information Procesing Society. [<a href="https://www.colips.org/conferences/tai2023/proceedings/pdf/2023.tai-abstract.3.pdf">pdf</a>]<br><br> 
   Jabeen, Farhat & Wagner, Petra. 2023. Variability in hesitations in Punjabi semi-spontaneous narrative speech: An automatic clustering based analysis. Proc. Disfluency in Spontaneous Speech (DiSS) Workshop 2023, 71-75. <a href=https://doi.org/10.21437/DiSS.2023-15>doi: 10.21437/DiSS.2023-15</a> [<a href="https://www.isca-archive.org/diss_2023/jabeen23_diss.pdf">pdf</a>]<br><br>
   Kaland, Constantijn. 2023. Intonation contour similarity: F0 representations and distance measures compared to human perception in two languages. The Journal of the Acoustical Society of America, 154(1), 95–107. <a href=https://doi.org/10.1121/10.0019850>doi: 10.1121/10.0019850</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/A03_Kaland_2023_Intonation_contour_similarity_f0_representations_and_distance_measures_compared_to_human_perception_in_two_languages.pdf">pdf</a>]<br><br>
   Kaland, Constantijn & Ellison, T. Mark. 2023. Evaluating cluster analysis on f0 contours: An information theoretic approach on three languages. In R. Skarnitzl & J. Volín (Eds.), <i>Proceedings of the 20th International Congress of Phonetic Sciences</i> (pp. 3448–3452). Guarant International. [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">pdf</a>]<br><br>
-  Cole, Jennifer; Steffman, Jeremy; Shattuck-hufnagel, Stefanie & Tilsen, Sam. 2023. Hierarchical distinctions in the production and perception of nuclear tunes in American English. Laboratory Phonology, 14(1), 1–51. <a href=https://doi.org/10.16995/labphon.9437>doi: 10.16995/labphon.9437</a> [<a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">pdf</a>]<br><br>
-  Laméris, Tim Joris; Li, Katrina Kechun & Post, Brechtje. 2023. Phonetic and Phono-Lexical Accuracy of Non-Native Tone Production by English-L1 and Mandarin-L1 Speakers. Language and Speech, 0(0). <a href="https://doi.org/10.1177/00238309221143719">doi:10.1177/00238309221143719</a> [<a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309221143719?download=true">pdf</a>]<br><br>
+  Cole, Jennifer; Steffman, Jeremy; Shattuck-hufnagel, Stefanie & Tilsen, Sam. 2023. Hierarchical distinctions in the production and perception of nuclear tunes in American English. <i>Laboratory Phonology</i>, 14(1), 1–51. <a href=https://doi.org/10.16995/labphon.9437>doi: 10.16995/labphon.9437</a> [<a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">pdf</a>]<br><br>
+  Laméris, Tim Joris; Li, Katrina Kechun & Post, Brechtje. 2023. Phonetic and Phono-Lexical Accuracy of Non-Native Tone Production by English-L1 and Mandarin-L1 Speakers. <i>Language and Speech</i>, 66(4). <a href="https://doi.org/10.1177/00238309221143719">doi:10.1177/00238309221143719</a> [<a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309221143719?download=true">pdf</a>]<br><br>
   Babinski, Sarah. 2022. Archival Phonetics & Prosodic Typology in Sixteen Australian Languages. PhD Thesis, Yale University. [<a href="https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1555&context=gsas_dissertations">pdf</a>]<br><br>
   Seeliger, Heiko & Kaland, Constantijn. 2022. Boundary tones in German wh-questions and wh-exclamatives - a cluster-based approach. In <i>Proceedings of the 11th International Conference on Speech Prosody 2022</i> (pp. 27–31). Lisbon, Portugal. <a href="https://doi.org/10.21437/SpeechProsody.2022-6">doi:10.21437/SpeechProsody.2022-6</a> [<a href="https://www.isca-speech.org/archive/pdfs/speechprosody_2022/seeliger22_speechprosody.pdf">pdf</a>]<br><br>
   Babinski, Sarah & Bowern, Claire. 2022. Automatic categorization of prosodic contours in Bardi. <i>Proceedings of the Linguistic Society of America</i> 7(1) (pp. 5218). <a href="https://doi.org/10.3765/plsa.v7i1.5218">doi:10.3765/plsa.v7i1.5218</a> [<a href="https://journals.linguisticsociety.org/proceedings/index.php/PLSA/article/download/5218/4896">pdf</a>]<br><br>
