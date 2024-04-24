@@ -168,7 +168,7 @@ line-height: 2;
 	<tr>
 		<td height="17" align="left"><b>Language</b></td>
 		<td align="left"><b>Unit of analysis</b></td>
-		<td colspan=2 align="left"><b>Paper(s)</b></td>
+		<td colspan=3 align="left"><b>Paper(s)</b></td>
 		</tr>
 	<tr>
 		<td height="17" align="left">American English</td>
@@ -287,7 +287,7 @@ line-height: 2;
 		<td align="left">(noun) phrases</td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2021</a></td>
-		<td align="left"><a href="https://doi.org/10.1515/phon-2023-0031">Kaland & Grice, 2024</a></td>
+		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Grice_2024_Exploring_explaining_variation.pdf">Kaland &amp; Grice, 2024</a></td>
 	</tr>
 	<tr>
 		<td height="17" align="left">Punjabi</td>
