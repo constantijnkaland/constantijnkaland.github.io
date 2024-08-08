@@ -6,10 +6,11 @@
 #
 # Developed and tested using R/package versions:
 # R version 4.1.2 (2021-11-01)
-# RStudio 2023.5.0.366
+# RStudio 2023.6.0.421
 # data.table 1.14.8
 # dplyr 1.1.3
 # dtwclust 5.5.12
+# fda 6.1.8
 # ggdendro 0.1.23
 # ggplot2 3.4.3
 # graphics 4.1.2
@@ -30,11 +31,11 @@
 # wrassp 1.0.4
 # zoo 1.8.12
 # 
-# Constantijn Kaland, February 2024.
+# Constantijn Kaland, August 2024.
 # https://constantijnkaland.github.io/contourclustering/
 
 # install/load required packages automatically ####
-packages <- c("data.table", "dplyr", "dtwclust", "ggdendro", "ggplot2", "graphics", 
+packages <- c("data.table", "dplyr", "dtwclust", "fda", "ggdendro", "ggplot2", "graphics", 
               "Hmisc", "Metrics", "pracma", "proxy", "purrr", "readr", "readtextgrid", 
               "scales", "shiny", "stats", "stringr", "TSdist", "usedist", "utils", 
               "wrassp", "zoo")
@@ -53,14 +54,17 @@ packages <- c("data.table", "dplyr", "dtwclust", "ggdendro", "ggplot2", "graphic
 #              "https://constantijnkaland.github.io/contourclustering/"))
 
 installed_packages <- packages %in% rownames(installed.packages())
+if ("TSdist" %in% installed.packages()==F && Sys.info()[['sysname']]=="Darwin"){
+  cat("Make sure XQuartz is installed on macOS (download from https://www.xquartz.org/) before continuing.\n")
+  stopApp()
+}
 if (any(installed_packages == FALSE)) {
   install.packages(packages[!installed_packages])
 }
 
 suppressPackageStartupMessages(invisible(lapply(packages, library, character.only = TRUE)))
 
-options(shiny.maxRequestSize = 20 * 1024 ^ 2, warn = -1, error = NULL)
-
+options(shiny.maxRequestSize = 10 * 1024^2, warn = -1, error = NULL)
 
 # ui and server ####
 
@@ -118,12 +122,18 @@ ui <- fluidPage(
         column(width = 2, align = "center", uiOutput("confcols"))
       ),
       fluidRow(
-        column(width = 6, align = "center", uiOutput("include_dur")),
-        column(width = 6, align = "center", uiOutput("include_int"))
+        column(width = 6, align = "left", uiOutput("include_dur")),
+        column(width = 6, align = "left", uiOutput("include_int"))
       ),
-      uiOutput("prep_data"),
       tags$hr(),
       uiOutput("select_tier"),
+      fluidRow(
+        column(width = 4, align = "left", uiOutput("select_fpca")),
+        column(width = 4, align = "left", uiOutput("Npc")),
+        column(width = 4, align = "left", uiOutput("Lbd"))
+      ),
+      uiOutput("nclust"),
+      tags$hr(),
       fluidRow(
         column(width = 4, align = "left", uiOutput("pmin")),
         column(width = 4, align = "left", uiOutput("pmax")),
@@ -134,13 +144,13 @@ ui <- fluidPage(
         column(width = 4, align = "left", uiOutput("npoints")),
         column(width = 4, align = "left", uiOutput("smooth_bw"))
       ),
-      uiOutput("select_int"),
-      
-      uiOutput("nclust"),
+      uiOutput("prep_data"),
       fluidRow(
         column(width = 6, align = "center", uiOutput("distm")),
         column(width = 6, align = "center", uiOutput("sellink"))
       ),
+      tags$hr(),
+      uiOutput("select_int"),
       fluidRow(
         column(width = 5, align = "center", uiOutput("getdendro")),
         column(width = 4, align = "center", uiOutput("gettab")),
@@ -180,12 +190,13 @@ ui <- fluidPage(
       tabsetPanel(
         id = "outputs",
         type = "tabs",
-        tabPanel(value = "summary", 'Status', span(
-          HTML('<br>'), verbatimTextOutput("summary")
+        tabPanel(value = "logger", 'Log', span(
+          HTML('<br>'), verbatimTextOutput("logger")
         )),
         tabPanel("Sample", span(HTML('<br>'), uiOutput("sample"))),
         tabPanel("Data (long)", span(HTML('<br>'), tableOutput("data_long"))),
         tabPanel("Dendrogram", span(HTML('<br>'), plotOutput("dendro"))),
+        tabPanel("fPCA", span(HTML('<br>'), uiOutput("fpca"))),
         tabPanel("Table", span(HTML('<br>'), tableOutput("table"))),
         tabPanel("Plot", span(HTML('<br>'), plotOutput("plot"))),
         tabPanel("Evaluate", span(HTML('<br>'), uiOutput("evaluate"))),
@@ -212,6 +223,7 @@ server <- function(input, output, session) {
   hideTab(inputId = "outputs", target = "Data (long)")
   hideTab(inputId = "outputs", target = "Sample")
   hideTab(inputId = "outputs", target = "Dendrogram")
+  hideTab(inputId = "outputs", target = "fPCA")
   hideTab(inputId = "outputs", target = "Table")
   hideTab(inputId = "outputs", target = "Plot")
   hideTab(inputId = "outputs", target = "Evaluate")
@@ -285,7 +297,6 @@ server <- function(input, output, session) {
       clnrs <- c(1:length(clnms))
       colsdf <<- setNames(as.list(as.numeric(clnrs)), c(clnms))
       fwrite(data, file.path("www", "data_long.csv"))
-      updateTabsetPanel(session, inputId = "outputs", selected = "summary")
       ifelse(
         input$sepchoice == 1,
         sep <<-
@@ -337,25 +348,6 @@ server <- function(input, output, session) {
     tags$div(
       title = "Default assumption: f0 is measured in Hertz (Hz). Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87 or convert to Equivalent Rectangular Bandwidth (ERB): f0(ERB) = 16.6*log10(1+(f0(Hz)/165.4))" ,
       selectInput("f0_conv", label = NULL,choices = list("Hz (no conversion)" = "Hz", "ST" = "ST", "ERB" = "ERB"),selected = 1,multiple = F, width = "40%")
-    )
-  })
-  
-  output$jump_header <- renderUI({
-    if (is.null(input$file_input))
-      return(NULL)
-    "Allowed % change after octave jump correction:"
-  })
-  
-  output$jump_margin <- renderUI({
-    if (is.null(input$file_input))
-      return(NULL)
-    numericInput(
-      "jump_margin",
-      label = NULL,
-      value = 10,
-      min = 0,
-      max = 100,
-      width = '20%'
     )
   })
   
@@ -529,6 +521,15 @@ server <- function(input, output, session) {
     }
   })
   
+  output$select_fpca <- renderUI({
+    if (is.null(input$file_input)) {
+      return(NULL)
+    } else {
+      tags$div(title = "Do functional principal component analysis and use its scores for clustering (instead of f0 contours).",
+               checkboxInput("select_fpca", "cluster f0 fPCA scores", F))
+    }
+  })
+  
   output$prep_data <- renderUI({
     if (is.null(input$file_input))
       return(NULL)
@@ -553,6 +554,11 @@ server <- function(input, output, session) {
   # observers ####
   
   observeEvent(input$tsfz, {
+    paste0(logger, Sys.time(),": Chosen time-series f0 measures.","\n") ->> logger
+    write_file(logger, file.path("www", "log.txt"), append = F)
+    output$logger <- renderText({
+      logger
+    })
     output$dirdata <- renderUI({
       tags$div(
         title = paste0(
@@ -600,15 +606,16 @@ server <- function(input, output, session) {
       showNotification("Specify path before reading directory.",type = "error")
       Sys.sleep(5)
     }
-    else if (substr(inDir,nchar(inDir),nchar(inDir))!=.Platform$file.sep){
-      showNotification(paste0("Include final ",.Platform$file.sep),type = "error")
-    } 
     else if (dir.exists(inDir)==F){
       showNotification("Directory does not exist.",type = "error")
     } 
     else if (length(list.files(inDir, pattern = "*.TextGrid", ignore.case = T))==0 | length(list.files(inDir, pattern = "*.wav", ignore.case = T))==0){
       showNotification("No audio and/or TextGrids in directory.",type = "error")
-      }else {
+      } else {
+        if (substr(inDir,nchar(inDir),nchar(inDir))!=.Platform$file.sep){
+          showNotification(paste0("Added final ",.Platform$file.sep),type = "error")
+          paste0(inDir,.Platform$file.sep) ->> inDir
+        }
     if (input$snd_ext == 1) {
       ".wav" ->> snd_ext
     }
@@ -665,7 +672,11 @@ server <- function(input, output, session) {
     ))), c(tiers)) ->> tiers
     median(df.g$xmax[df.g$tier_name == input$select_tier] - df.g$xmin[df.g$tier_name ==
                                                                         input$select_tier]) ->> mD
-    
+    paste0(logger, Sys.time(),": Completed reading audio and textgrids from ",inDir,"\n") ->> logger
+    write_file(logger, file.path("www", "log.txt"), append = F)
+    output$logger <- renderText({
+      logger
+    })
     output$select_tier <- renderUI({
       selectInput(
         "select_tier",
@@ -676,8 +687,6 @@ server <- function(input, output, session) {
         width = '75%'
       )
     })
-    
-
     
     output$pmin <- renderUI({
       numericInput(
@@ -931,7 +940,7 @@ server <- function(input, output, session) {
                       title = df.gs$name_trim[r],
                       subtitle = df.gs$text[r],
                       x = "Time (ms)",
-                      y = "Pitch (Hz)"
+                      y = "f0 (Hz)"
                     ) +
                     annotate(
                       "text",
@@ -980,6 +989,7 @@ server <- function(input, output, session) {
         }
       }
     })
+    
     if (input$select_sample == "Sample") {
       output$sample <- renderUI({
         fluidPage(align = "center",
@@ -1022,7 +1032,13 @@ server <- function(input, output, session) {
         int_available <<- 1
       }
       arrange(data_long, filename, start, stepnumber) -> data_long
+      data_long %>% mutate_if(is.numeric, round, digits=3) -> data_long
       fwrite(data_long, file.path("www", "data_long.csv"))
+      paste0(logger, Sys.time(),": Data written to ",file.path("www", "data_long.csv"),"\n") ->> logger
+      write_file(logger, file.path("www", "log.txt"), append = F)
+      output$logger <- renderText({
+        logger
+      })
       output$tocc <- renderUI({
         tags$div(title = "Contour clustering with this dataset",
                  actionButton("tocc", "Start contour clustering with this dataset"))
@@ -1033,7 +1049,29 @@ server <- function(input, output, session) {
       })
       updateTabsetPanel(session, inputId = "outputs", selected = "Data (wide)")
     }
-    
+    paste0(logger, Sys.time(),": Measured f0 from tier '",
+           input$select_tier,
+           "' from ",
+           length(rows),
+           " intervals, with f0 floor = ",
+           input$pmin,
+           " Hz, f0 ceiling = ",
+           input$pmax,
+           " Hz , time-step = ",
+           input$timestep,
+           " ms, f0 fit = ",
+           input$f0fit,
+           ", number of points = ",
+           input$npoints,
+           ", smoothing bandwith = ",
+           input$smooth_bw,
+           ", intensity = ",
+           input$select_int,
+           "\n") ->> logger
+    write_file(logger, file.path("www", "log.txt"), append = F)
+    output$logger <- renderText({
+      logger
+    })
   })
   
   observeEvent(input$tocc, {
@@ -1110,21 +1148,6 @@ server <- function(input, output, session) {
       tags$div(
         title = "Default assumption: f0 is measured in Hertz (Hz). Convert to semitones re 50 Hz: f0(ST) = log10((f0(Hz)/50)*39.87 or convert to Equivalent Rectangular Bandwidth (ERB): f0(ERB) = 16.6*log10(1+(f0(Hz)/165.4))",
         selectInput("f0_conv", label = NULL,choices = list("Hz (no conversion)" = "Hz", "ST" = "ST", "ERB" = "ERB"),selected = 1,multiple = F,width="40%")
-      )
-    })
-    
-    output$jump_header <- renderUI({
-      "Allowed % change after octave jump correction:"
-    })
-    
-    output$jump_margin <- renderUI({
-      numericInput(
-        "jump_margin",
-        label = NULL,
-        value = 10,
-        min = 0,
-        max = 100,
-        width = '20%'
       )
     })
     
@@ -1283,17 +1306,24 @@ server <- function(input, output, session) {
                checkboxInput("include_dur", "Include duration", T))
     })
     
+    output$select_fpca <- renderUI({
+        tags$div(title = "Do functional principal component analysis and use its scores for clustering (instead of f0 contours).",
+                 checkboxInput("select_fpca", "cluster f0 fPCA scores", F))
+    })
+    
     output$prep_data <- renderUI({
       tags$div(title = "Applies cleaning/octave jump range selection/speaker correction to the data. Apply once after uploading data.",
                actionButton("prep_data", "Proceed"))
     })
-    output$summary <- renderText({
-      readdata()
-    })
-    updateTabsetPanel(session, inputId = "outputs", selected = "summary")
+    readdata()
   })
   
   observeEvent(input$cc, {
+    paste0(logger, Sys.time(),": Chosen contour clustering (with file-upload).","\n") ->> logger
+    write_file(logger, file.path("www", "log.txt"), append = F)
+    output$logger <- renderText({
+      logger
+    })
     output$dirdata <- renderUI({
       fileInput(
         "file_input",
@@ -1385,9 +1415,42 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$file_input, {
-    output$summary <- renderText({
-      readdata()
+    readdata()
+    output$logger <- renderText({
+      logger
     })
+  })
+  
+  observeEvent(input$select_fpca, {
+    if (input$select_fpca == T){
+      output$Npc <- renderUI({
+        tags$div(title = "Specify number of principal components",
+                 numericInput(inputId = "Npc",
+                              label = "N PCs",
+                              value = 4,
+                              min = 1,
+                              max = 10,
+                              step = 1,
+                              width = '50%'))
+      })
+      output$Lbd <-renderUI({
+        tags$div(title = "Specify lambda (smoothing to be applied to estimated functional parameter).",
+                 numericInput(inputId = "Lbd",
+                              label = "λ",
+                              value = 1,
+                              min = 1,
+                              max = 1000,
+                              step = 1,
+                              width = '50%'))
+      })
+    } else {
+      output$Npc <- renderUI({
+        NULL 
+        })
+      output$Lbd <-renderUI({
+        NULL 
+      })
+    }
   })
   
   observeEvent(input$prep_data, {
@@ -1398,6 +1461,7 @@ server <- function(input, output, session) {
         header = T,
         stringsAsFactors = F
       ))
+    data %>% mutate_if(is.numeric, round, digits=3) -> data
     if (is.null(input$stdcols) == F &&
         input$stdcols != input$dfcols && input$confcols == T) {
       colnames(data)[colnames(data) == names(colsdf[as.numeric(input$dfcols)])] <-
@@ -1415,9 +1479,8 @@ server <- function(input, output, session) {
       x = as.character(data$interval_label)
     ) -> data$interval_label
     "(Hz)" ->> ysc
-    
-    if (input$rem_empty == T) {
-      data[data$err != "1", ] -> data
+    if (input$rem_empty == T & "err" %in% colnames(data)) {
+      data[data$err != "1",] -> data
       subset(data, select = -c(err)) -> data
       "Cleaning applied." ->> cln
     }
@@ -1448,15 +1511,15 @@ server <- function(input, output, session) {
       "(ERB)" ->> ysc
       "Hertz values converted to ERB." ->> stconv
     }
-    
-    subset(data,
+    if (mjke!=1){
+      subset(data,
            as.numeric(as.character(data$jumpkilleffect)) >= (1 - (input$jump_margin /
                                                                     100)) &
              as.numeric(as.character(data$jumpkilleffect)) <= (1 + (input$jump_margin /
                                                                       100))) -> data
-    paste0(input$jump_margin, "% allowed jumpkilleffect.") ->> jkm
+        paste0(input$jump_margin, "% allowed jumpkilleffect.") ->> jkm
+    } else {paste0("No jumpkilleffect subsetting.") ->> jkm}
     paste0("f0 ", ysc) ->> ylb
-
     if (input$spkdiff == 2) {
       paste0("Speaker mean corrected f0 ", ysc) ->> ylb
       for (spk in levels(as.factor(data$filename))) {
@@ -1520,15 +1583,23 @@ server <- function(input, output, session) {
           (as.numeric(as.character(data$dB[data$filename == spk])) - m) /
             sd -> data$dB[data$filename == spk]
         }
-        }
+        T ->> incl_int
+      }
       data.table::dcast(as.data.table(data),
                         filename + interval_label + start + end ~ stepnumber,
                         value.var = "dB") -> datacastdB
       datacastdB %>% select(tail(names(.), stepsN)) -> datacastdB
       rep(paste0("dB",1:stepsN)) -> colnames(datacastdB)
       cbind(datacast,datacastdB) -> datacast
+    } else {
+      F ->> incl_int
     }
     fwrite(datacast, file.path("www", "data_wide.csv"))
+    paste0(logger, Sys.time(),": ", cln, " Forced declination = ",input$decl_corr, ". ",stconv," ",jkm, " Speaker correction: ",ylb,". Include intensity = ",incl_int,". Include duration = ",input$include_dur,".","\n") ->> logger
+    if (input$select_fpca==T){
+      paste0(logger, Sys.time(),": fPCA selected with ",input$Npc," components. Lambda (smoothing) set to: ",input$Lbd ,".","\n") ->> logger
+    }
+    write_file(logger, file.path("www", "log.txt"), append = F)
     stepone <<- which(colnames(datacast) == "1")
     
     output$prep_data <- renderUI({
@@ -1544,12 +1615,6 @@ server <- function(input, output, session) {
       return(NULL)
     })
     output$f0_conv <- renderUI({
-      return(NULL)
-    })
-    output$jump_header <- renderUI({
-      return(NULL)
-    })
-    output$jump_margin <- renderUI({
       return(NULL)
     })
     output$spkdiff_header <- renderUI({
@@ -1577,6 +1642,15 @@ server <- function(input, output, session) {
       return(NULL)
     })
     output$include_dur<- renderUI({
+      return(NULL)
+    })
+    output$select_fpca<- renderUI({
+      return(NULL)
+    })
+    output$Npc<- renderUI({
+      return(NULL)
+    })
+    output$Lbd<- renderUI({
       return(NULL)
     })
     output$data_long <- renderTable({
@@ -1633,12 +1707,13 @@ server <- function(input, output, session) {
     })
     
     output$getdendro <- renderUI({
-      actionButton("getdendro", "Dendrogram")
+      isolate(actionButton("getdendro", "Dendrogram"))
     })
-    updateTabsetPanel(session, inputId = "outputs", selected = "summary")
-    output$summary <- renderText({
-      readdata()
+    readdata()
+    output$logger <- renderText({
+      logger
     })
+    updateTabsetPanel(session, inputId = "outputs", selected = "logger")
   })
   
   observeEvent(input$getdendro, {
@@ -1647,7 +1722,7 @@ server <- function(input, output, session) {
         "nclust",
         "Number of clusters",
         min = 2,
-        max = 50,
+        max = 30,
         value = numbclust,
         step = 1
       )
@@ -1660,15 +1735,58 @@ server <- function(input, output, session) {
     })
     output$dendro <- renderPlot({
       clustprep()
+      paste0(logger, Sys.time(),": Dendrogram saved to ",file.path("www", "dendro.png"),"\n") ->> logger
+      write_file(logger, file.path("www", "log.txt"), append = F)
       plot(dendro)
     })
     showTab(inputId = "outputs", target = "Dendrogram")
+    if (input$select_fpca==T){
+      output$PCplot <- renderPlot({
+        suppressMessages(ggsave(file.path("www", "PCplot.png"), PCplot))
+        plot(PCplot)
+      })
+      output$PCvarprop <- renderUI({
+        if (exists('PCsel')){
+          PCvarprop[which(substr(PCvarprop,1,3) %in% PCsel)] -> PCselected
+        } else{
+          PCvarprop -> PCselected
+        }
+        checkboxGroupInput(inputId = "PCvarprop",label = NULL,choices = PCvarprop, selected = PCselected,inline = F)
+      })
+      output$fpca <- renderUI({
+        fluidPage(
+          plotOutput("PCplot"),
+          HTML('<br>'),
+          HTML('Selected components (proportion variance) for clustering:'),
+          tableOutput("PCvarprop"),
+          HTML('<br>'),
+          HTML('(click "Dendrogram", "Table", or "Plot" to effectuate the selection)'),
+        )
+      })
+    } else {
+      output$fPCA <- renderUI({
+        NULL
+      })
+    }
     updateTabsetPanel(session, inputId = "outputs", selected = "Dendrogram")
   })
+  
+  observeEvent(input$PCvarprop, {
+    if (length(input$PCvarprop)==0){
+      showNotification("At least one PC should be selected for clustering.",type = "error")
+      "PC1" ->> PCsel
+      updateCheckboxGroupInput(session,"PCvarprop",selected = PCvarprop[1])
+      update
+    } else {
+      paste0(substr(input$PCvarprop,1,3)) ->> PCsel
+    }
+  },ignoreNULL = F, ignoreInit = T)
   
   observeEvent(input$gettab, {
     output$table <- renderTable({
       clustprep()
+      paste0(logger, Sys.time(),": Table saved to ",file.path("www", "table.csv"),"\n") ->> logger
+      write_file(logger, file.path("www", "log.txt"), append = F)
       clusttab()
     }, rownames = T)
     showTab(inputId = "outputs", target = "Table")
@@ -1679,6 +1797,8 @@ server <- function(input, output, session) {
     output$plot <- renderPlot({
       clustprep()
       clusttab()
+      paste0(logger, Sys.time(),": Plot saved to ",file.path("www", "plot.png"),"\n") ->> logger
+      write_file(logger, file.path("www", "log.txt"), append = F)
       withProgress(message = "Generating plot...", clustplot())
     }, height = ht)
     showTab(inputId = "outputs", target = "Plot")
@@ -1695,7 +1815,7 @@ server <- function(input, output, session) {
     output$dosubset <- renderUI({
       if (input$gettab == F && input$getplot == F)
         return(NULL)
-      tags$div(title = "Removes the selected clusters from the wide data only. Number of remaining contours after subsettings can be read from Status tab.",
+      tags$div(title = "Removes the selected clusters from the wide data only. Number of remaining contours after subsettings can be read from Log tab.",
                actionButton("dosubset", "Apply subsetting"))
     })
     output$subset <- renderUI({
@@ -1738,6 +1858,9 @@ server <- function(input, output, session) {
       subset(datacast, datacast$cluster != clust) -> datacast
     }
     fwrite(datacast, file.path("www", "data_wide.csv"))
+    paste0(logger, Sys.time(),": Subsetting - removing contours in cluster ",paste(rem_clust, collapse = ", "),".","\n") ->> logger
+    paste0(logger, Sys.time(),": ",nrow(datacast), " contours in data.","\n") ->> logger
+    write_file(logger, file.path("www", "log.txt"), append = F)
     clustprep()
     output$subset <- renderUI({
       selclust()
@@ -1752,9 +1875,9 @@ server <- function(input, output, session) {
   })
   
   observe({
-    if (input$outputs == "summary") {
-      output$summary <- renderText({
-        readdata()
+    if (input$outputs == "logger") {
+      output$logger <- renderText({
+        logger
       })
     }
   })
@@ -1857,21 +1980,68 @@ server <- function(input, output, session) {
   clustprep <- function() {
     withProgress(message = "Running cluster analysis...", {
       datacast <-
-        as.data.frame(fread(
+        as.data.table(fread(
           file.path("www", "data_wide.csv"),
           sep = ",",
           header = T,
           stringsAsFactors = F
         ))
+      if (input$select_fpca==T){
+        datacast[, stepone:((stepone - 1) + stepsN)] -> datafpca
+        data.table::transpose(
+          melt(
+            datafpca,
+            id.vars = colnames(datafpca)
+          )
+        ) -> datafpca
+        list(
+          id = colnames(datafpca),
+          f0 = as.matrix(datafpca)
+        ) -> datafpca
+        f0_basis = create.bspline.basis(breaks = 1:stepsN)
+        harmLfd_f0 = int2Lfd(2)
+        f0fdPar = fdPar(f0_basis,harmLfd_f0,input$Lbd)
+        f0fd = smooth.basis(1:stepsN,datafpca$f0,f0fdPar)
+        f0pca = pca.fd(f0fd$fd,nharm=input$Npc)
+        paste0("PC",1:input$Npc," (",round(f0pca$varprop,3),")") ->> PCvarprop
+        harmfd = f0pca$harmonics
+        harmvals = eval.fd(1:stepsN,harmfd)
+        cbind.data.frame(step = rep(1:stepsN,input$Npc),melt(as.data.table(harmvals),variable.name = "PC")) -> dataPCplot
+        ggplot(dataPCplot) +
+          geom_line(aes(x=step,y=value))+
+          xlab("measurement point") +
+          ylab("PC (harmonic) value") +
+          facet_wrap(~ PC) +
+          theme_bw(base_size = 20) ->> PCplot
+        for (p in 1:input$Npc){
+          f0pca$scores[,p] -> datacast[,paste0("PC",p)]
+        }
+        fwrite(datacast, file.path("www", "data_wide.csv"))
+        output$data_wide <- renderTable({
+          datacast
+        })
+        paste0(logger, Sys.time(),": fPCA performed with ",input$Npc," components (proportions of variance): ",paste0(PCvarprop,collapse = ", "), ". PC scores written to ",file.path("www", "data_wide.csv"),".","\n") ->> logger
+        showTab(inputId = "outputs", target = "fPCA")
+        if (exists('PCsel')){
+          subset(datacast, select = PCsel) -> distdata
+        paste0(logger, Sys.time(),": Components selected for cluster analysis: ",paste(PCsel,collapse = ", "),".","\n") ->> logger
+        } else {
+          subset(datacast, select = c(paste0(rep("PC",input$Npc),1:input$Npc))) -> distdata
+        paste0(logger, Sys.time(),": Components selected for cluster analysis: ",paste0(rep("PC",input$Npc),1:input$Npc,collapse = ", "),".","\n") ->> logger
+        }
+        write_file(logger, file.path("www", "log.txt"), append = F)
+        } else {
+        datacast[, stepone:((stepone - 1) + stepsN)] -> distdata
+      }
       incProgress(1 / 4)
       if (input$distm == "euclidean") {
-        dist(datacast[, stepone:((stepone - 1) + stepsN)], method = input$distm) ->> distance_matrix
+        dist(distdata, method = input$distm) ->> distance_matrix
       }
       if (input$distm == "rmse") {
         rmse_distance <-function (r1, r2) {
           rmse(r1,r2)
         }
-        as.matrix(datacast[, stepone:((stepone - 1) + stepsN)]) -> datacastmat
+        as.matrix(distdata) -> datacastmat
         rownames(datacastmat) <- 1:nrow(datacast)
         dist_make(datacastmat, rmse_distance) ->> distance_matrix
       }
@@ -1879,16 +2049,16 @@ server <- function(input, output, session) {
         mase_distance <-function (r1, r2) {
                  mase(r1,r2)
                  }
-        as.matrix(datacast[, stepone:((stepone - 1) + stepsN)]) -> datacastmat
+        as.matrix(distdata) -> datacastmat
         rownames(datacastmat) <- 1:nrow(datacast)
         dist_make(datacastmat, mase_distance) ->> distance_matrix
       }
       if (input$distm == "dtw_basic") {
-        proxy::dist(datacast[, stepone:((stepone - 1) + stepsN)], method = input$distm) ->> distance_matrix
+        proxy::dist(distdata, method = input$distm) ->> distance_matrix
         stats::as.dist(distance_matrix) -> distance_matrix
       }
       if (input$distm == "cor" | input$distm == "acf") {
-        TSDatabaseDistances(datacast[, stepone:((stepone - 1) + stepsN)], distance = input$distm) ->> distance_matrix
+        TSDatabaseDistances(distdata, distance = input$distm) ->> distance_matrix
       }
       if (int_available==1){
         if (input$include_int==T){
@@ -1915,6 +2085,8 @@ server <- function(input, output, session) {
       incProgress(1 / 4)
       suppressMessages(ggsave(file.path("www", "dendro.png"), dendro))
     })
+    paste0(logger, Sys.time(),": Cluster analysis performed assuming ",numbclust," clusters, with linkage criterion '",input$sellink,"' and distance metric '",input$distm, "'.","\n") ->> logger
+    write_file(logger, file.path("www", "log.txt"), append = F)
   }
   
   clusttab <- function() {
@@ -1945,8 +2117,8 @@ server <- function(input, output, session) {
       5 ->> evaldep
     }
     fwrite(datacast, file.path("www", "data_wide.csv"))
-    # uncomment line below to print distribution table based on interval labels; can be used to label relevant conditions/variables
-    #  print(table(datacast$interval_label,datacast$cluster))
+    ## uncomment line below to print distribution table based on interval labels; can be used to label relevant conditions/variables
+    #print(table(datacast$interval_label,datacast$cluster))
     output$data_long <- renderTable({
       data <-
         as.data.frame(fread(
@@ -1974,7 +2146,7 @@ server <- function(input, output, session) {
       tags$div(title = "Load the evaluation tab", actionButton("goevaluate", "Evaluate"))
     })
     output$savecurrent <- renderUI({
-      tags$div(title = "Save plot and data of analysis with currently chosen number (N) of clusters (filenames: dendrogram.png, data_long_N.csv, data_wide_N.csv, table_N.csv, plot_N.png, evaluation_plot.png, evaluation_table.csv)", actionButton(
+      tags$div(title = "Save plot and data of analysis with currently chosen number (N) of clusters (filenames: dendrogram.png, PCplot.png, data_long_N.csv, data_wide_N.csv, table_N.csv, plot_N.png, evaluation_plot.png, evaluation_table.csv)", actionButton(
         "savecurrent",
         paste0("Save this (", numbclust, " clusters)")
       ))
@@ -2054,6 +2226,7 @@ server <- function(input, output, session) {
           ) +
           stat_summary(
             fun.data = mean_sdl,
+            fun.args = list(mult = 1),
             group = "cluster",
             geom = "ribbon",
             alpha = .2,
@@ -2088,13 +2261,13 @@ server <- function(input, output, session) {
                          data = dataplot,fun = mean, group = "cluster", geom = "line", colour = "#00ff00", size = 1, show.legend = F) +
             stat_summary(
               mapping = aes(y = dB_resc), 
-              data = dataplot, fun.data = mean_sdl, group = "cluster", geom = "ribbon", alpha = .2, show.legend = F) +
+              data = dataplot, fun.data = mean_sdl, fun.args = list(mult = 1), group = "cluster", geom = "ribbon", alpha = .2, show.legend = F) +
             theme(axis.title.y.left = element_text(colour="#02abea")) +
             theme(axis.title.y.right = element_text(colour = "#00ff00")) -> plot
           incProgress(1 / 5)
         }}
         suppressMessages(ggsave(filename = file.path("www", "plot.png"), plot = plot))
-    # uncomment line below for high res plot (tiff print quality)
+    ## uncomment line below for high res plot (tiff print quality)
     #   ggsave(filename = "plot.tiff", plot = plot, dpi=300, compression = 'lzw')
     plot
   }
@@ -2112,25 +2285,49 @@ server <- function(input, output, session) {
       ))
     nrow(data) ->> nrowinput
     length(levels(as.factor(data$stepnumber))) ->> stepsN
+    min(data$jumpkilleffect,na.rm = T)->> mjke
+    output$jump_header <- renderUI({
+      if (is.null(input$file_input) | mjke==1 | file.exists(file.path("www", "data_wide.csv")) == T)
+        return(NULL)
+      "Allowed % change after octave jump correction:"
+    })
+    
+    output$jump_margin <- renderUI({
+      if (is.null(input$file_input) | mjke==1 | file.exists(file.path("www", "data_wide.csv")) == T)
+        return(NULL)
+      numericInput(
+        "jump_margin",
+        label = NULL,
+        value = 10,
+        min = 0,
+        max = 100,
+        width = '20%'
+      )
+    })
+    
+    if (grepl("File loaded", logger)==F){
     if (exists('df.gs')) {
-      fileprop <- paste0("File loaded from time-series f0 analysis.")
+      paste0(logger, Sys.time(),": File loaded from time-series f0 analysis.","\n") ->> logger
+      paste0(logger, Sys.time(),": Number of measurement points detected in data: ", stepsN,".","\n") ->> logger
+      paste0(logger, Sys.time(),": Number of speakers detected in data (= filenames): ", length(levels(as.factor(data$filename))),".","\n") ->> logger
+      paste0(logger, Sys.time(),": Data written to ",file.path("www", "data_long.csv"),"\n") ->> logger
+      updateTabsetPanel(session, inputId = "outputs", selected = "logger")
     } else{
-      fileprop <-
-        paste0("File loaded using these arguments: ", sep, saf, enc, skn)
+      paste0(logger, Sys.time(),": File loaded using these arguments: ", sep, saf, enc, skn,"\n") ->> logger
+      paste0(logger, Sys.time(),": Number of measurement points detected in data: ", stepsN,".","\n") ->> logger
+      paste0(logger, Sys.time(),": Number of speakers detected in data (= filenames): ", length(levels(as.factor(data$filename))),".","\n") ->> logger
+      paste0(logger, Sys.time(),": Data written to ",file.path("www", "data_long.csv"),"\n") ->> logger
+      updateTabsetPanel(session, inputId = "outputs", selected = "logger")
     }
-   
+    }
+    paste0(logger, Sys.time(),": ",nrowinput / stepsN, " contours in data.","\n") ->> logger
+    updateTabsetPanel(session, inputId = "outputs", selected = "logger")
+    
+    0 -> data$err
     if (isTRUE(input$prep_data) && input$prep_data == T) {
-      paste0(
-        Sys.time(),
-        ": cleaned datafile saved to 'data_long.csv' in ",
-        file.path(getwd(), "www")
-      ) -> filesave
-      "0 rows marked for error removal" -> Nerr
+      paste0(logger, Sys.time(),": Cleaned datafile saved to ",file.path("www", "data_long.csv"),"\n") ->> logger
+      updateTabsetPanel(session, inputId = "outputs", selected = "logger")
     } else {
-      paste0(Sys.time(),
-             ": datafile saved to 'data_long.csv' in ",
-             file.path(getwd(), "www")) -> filesave
-      0 -> data$err
       suppressWarnings(as.numeric(data$f0)) -> data$f0
       if (abs(sum(na.omit(data$f0[data$f0 < 0]))) == 0) {
         for (r in 1:nrow(data)) {
@@ -2153,120 +2350,29 @@ server <- function(input, output, session) {
         if (nrow(data[data$err == "1",]) > 0) {
           suggest_cln <<- T
           updateCheckboxInput(session,"rem_empty", value = suggest_cln)
-          paste0("WARNING: ",
-                 nrow(data[data$err == "1",]),
-                 " rows marked for error removal!") -> Nerr
+          paste0(logger,"! ", Sys.time(),": WARNING - ",nrow(data[data$err == "1",])/stepsN," contours marked for error removal.","\n") ->> logger
+          updateTabsetPanel(session, inputId = "outputs", selected = "logger")
           fwrite(data, file.path("www", "data_long.csv"))
         }else{
           suggest_cln <<- F
           updateCheckboxInput(session,"rem_empty", value = suggest_cln)
-          "0 rows marked for error removal" -> Nerr
+          paste0(logger, Sys.time(),": No contours marked for error removal.","\n") ->> logger
+          updateTabsetPanel(session, inputId = "outputs", selected = "logger")
         }
       }else{
         if (input$spkdiff == 1 && rem_empty == T){
-        "WARNING: could not run error detection on f0 (negative values in data)." -> Nerr
+          paste0(logger,"! ", Sys.time(),": WARNING - could not run error detection on f0 (negative values in data).","\n") ->> logger
+          updateTabsetPanel(session, inputId = "outputs", selected = "logger")
         }else{
           suggest_cln <<- F
           updateCheckboxInput(session,"rem_empty", value = suggest_cln)
-          "0 rows marked for error removal" -> Nerr
+          paste0(logger, Sys.time(),": No contours marked for error removal.","\n") ->> logger
+          updateTabsetPanel(session, inputId = "outputs", selected = "logger")
         }
       }}
-    
-      filesave <-
-        ifelse(
-          file.exists("dendrogram.png"),
-          paste0(
-            filesave,
-            "\n\n",
-            Sys.time(),
-            ": dendrogram saved to 'dendrogram.png' in ",
-            file.path(getwd(), "www")
-          ),
-          filesave
-        )
-      filesave <-
-        ifelse(
-          file.exists(file.path("www", "table.csv")),
-          paste0(
-            filesave,
-            "\n\n",
-            Sys.time(),
-            ": table saved to 'table.csv' in ",
-            file.path(getwd(), "www")
-          ),
-          filesave
-        )
-      filesave <-
-        ifelse(
-          file.exists(file.path("www", "plot.png")),
-          paste0(
-            filesave,
-            "\n\n",
-            Sys.time(),
-            ": plot saved to 'plot.png' in ",
-            file.path(getwd(), "www")
-          ),
-          filesave
-        )
-      filesave <-
-        ifelse(
-          file.exists(file.path("www", "data_wide.csv")),
-          paste0(
-            filesave,
-            "\n\n",
-            Sys.time(),
-            ": wide datafile with clusters annotated saved to 'data_wide.csv' in ",
-            file.path(getwd(), "www")
-          ),
-          filesave
-        )
-      dashedline <- "--------------------------------------------"
-      stepsN <- length(levels(as.factor(data$stepnumber)))
-      steps <- paste0(stepsN, " measurement points per contour")
-      spkN <- length(levels(as.factor(data$filename)))
-      spk <- paste0(spkN, " speakers (filenames)")
-      sscontours <-
-        if (file.exists(file.path("www", "data_wide.csv"))) {
-          datacast <-
-            as.data.frame(
-              fread(
-                file.path("www", "data_wide.csv"),
-                sep = ",",
-                header = T,
-                stringsAsFactors = F
-              )
-            )
-          paste0(" (",
-                 nrow(datacast),
-                 " left after subsetting - ",
-                 round((
-                   nrow(datacast) / (nrowinput / stepsN)
-                 ) * 100, 1),
-                 "%)")
-        } else{
-          ""
-        }
-      ncontours <-
-        paste0(nrowinput / stepsN, " contours in uploaded data", sscontours)
-      updateTabsetPanel(session, inputId = "outputs", selected = "summary")
       paste("F0 scale: ", ylb, ".", sep = "") ->> scl
-      paste(
-        ifelse(
-          file.exists(file.path("www", "data_wide.csv")),
-          paste(fileprop, cln, stconv, jkm, scl, sep = "\n\n"),
-          fileprop
-        ),
-        filesave,
-        dashedline,
-        ncontours,
-        steps,
-        spk,
-        dashedline,
-        Nerr,
-        sep = "\n\n"
-      ) -> summary
-      write_file(summary, file.path("www", "summary.txt"), append = F)
-      paste0(summary)
+      write_file(logger, file.path("www", "log.txt"), append = F)
+      paste0(logger)
   }
   
 
@@ -2274,7 +2380,7 @@ server <- function(input, output, session) {
       if (exists('rem_clust')) {
         checkboxGroupInput(
           "subset",
-          "Remove observations in these clusters:",
+          "Remove contours in these clusters:",
           choices = 1:numbclust,
           selected = rem_clust,
           inline = T
@@ -2457,7 +2563,9 @@ server <- function(input, output, session) {
           filename = file.path("www", "evalplot.png"),
           plot = evalplot
         ))
-      }
+        paste0(logger, Sys.time(),": Evaluating using MDL from ",input$evalslider[1]," to ",input$evalslider[2]," clusters.","\n") ->> logger
+        write_file(logger, file.path("www", "log.txt"), append = F)
+        }
       if (isolate(input$evalmethod) == 2) {
         ggplot(d.eval, aes(round)) +
           geom_line(mapping = aes(y = within, linetype = "within")) +
@@ -2471,7 +2579,13 @@ server <- function(input, output, session) {
           filename = file.path("www", "evalplot.png"),
           plot = evalplot
         ))
+        paste0(logger, Sys.time(),": Evaluating using W/B cluster variation from ",input$evalslider[1]," to ",input$evalslider[2]," clusters.","\n") ->> logger
+        write_file(logger, file.path("www", "log.txt"), append = F)
+        
       }
+      paste0(logger, Sys.time(),": Evaluation plot saved to ",file.path("www", "evalplot.png"),"\n") ->> logger
+      paste0(logger, Sys.time(),": Evaluation table saved to ",file.path("www", "evaltable.csv"),"\n") ->> logger
+      write_file(logger, file.path("www", "log.txt"), append = F)
       plot(evalplot)
     }
     
@@ -2489,6 +2603,9 @@ server <- function(input, output, session) {
       file.copy(file.path("www", "data_wide.csv"),
                 file.path("saved", paste0("data_wide_", numbclust, ".csv")),
                 overwrite = T)
+      file.copy(file.path("www", "PCplot.png"),
+                file.path("saved", paste0("PCplot.png")),
+                overwrite = T)
       suppressMessages(ggsave(file.path("saved", "dendrogram.png"), dendro))
       file.copy(
         file.path("www", "evalplot.png"),
@@ -2503,9 +2620,11 @@ server <- function(input, output, session) {
         file.path("saved", "evaluation_table.csv"),
         overwrite = T
       )
-      file.copy(file.path("www", "summary.txt"),
-                file.path("saved", paste0("summary_", numbclust, ".txt")),
+      file.copy(file.path("www", "log.txt"),
+                file.path("saved", paste0("log_", numbclust, ".txt")),
                 overwrite = T)
+      paste0(logger, Sys.time(),": Saving current analysis (",numbclust," clusters) to ",file.path(getwd(),"saved",""),".","\n") ->> logger
+      write_file(logger, file.path("www", "log.txt"), append = F)
       showNotification("Current analysis saved.")
     }
     
@@ -2598,7 +2717,9 @@ server <- function(input, output, session) {
     ui,
     server,
     onStart = function() {
+      paste0(Sys.time(),": Started contour clustering app.","\n") ->> logger
       c() ->> colsdf
+      1 ->> mjke
       0 ->> int_available
       8 ->> numbclust
       "No cleaning applied." ->> cln
@@ -2607,15 +2728,14 @@ server <- function(input, output, session) {
       "" ->> rem_empty
       cat("Running contour clustering app\n")
       onStop(function() {
-          if (oldwww == 0) {
-            unlink("www", recursive = T)
+        if (oldwww == 0) {
+          suppressWarnings(unlink("www", recursive = T))
             }
         cat("Stopped contour clustering app.\n")
-        suppressWarnings(rm(list = c("df.g","df.gs","pnglist","tiers","colsdf","colsstd",
-                                     "d.eval", "oldwww",
-                                     "dendro","evalplot","hclust_avg","int_available","params","params1","paramsAll","suggest_cln","w"),envir = .GlobalEnv))
-        suppressWarnings(rm(list = c("colX","f","inDir","int_available","mD","NAmsg","rempng","s","snd_ext","Tmax","Tmin","cln","cut_avg","distance_matrix","enc","evaldep","evalNclust","ht","jkm","lbeps","nrowinput","numbclust",
-           "rem_clust","rem_empty","saf","scl","sep","skn","stconv","stepone","stepsN","x","Xpoints","ylb","ysc"),envir = .GlobalEnv))
+        suppressWarnings(rm(list = c("df.g","df.gs","pnglist","tiers","colsdf","colsstd","d.eval", "oldwww","incl_int",
+                                      "dendro","evalplot","hclust_avg","int_available","params","params1","paramsAll","suggest_cln","w"),envir = .GlobalEnv))
+        suppressWarnings(rm(list = c("colX","f","inDir","int_available","logger","mD","NAmsg","rempng","s","snd_ext","Tmax","Tmin","cln","cut_avg","distance_matrix","enc","evaldep","evalNclust","ht","jkm","lbeps","nrowinput","numbclust",
+          "rem_clust","rem_empty","saf","scl","sep","skn","stconv","stepone","stepsN","x","Xpoints","ylb","ysc","mjke","PCsel","PCvarprop","PCplot"),envir = .GlobalEnv))
       })
     },
     options = list("quiet" = T)

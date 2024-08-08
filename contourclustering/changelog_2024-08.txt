@@ -1,0 +1,49 @@
+Changelog to version 2024-08:
+------------------
+
+> Plots displayed with one standard deviation (mean_sdl, mult = 1)
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Data saved with three decimals for data-efficient reading/writing (previously > 10)
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Added functional principal component analysis for clustering on its scores.
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Warning for macOS users given upon 'TSdist' package installation (requires installation of XQuarts from www.xquarts.com)
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> New incremental logging method implemented (previous 'Status' tab now 'Log'). 
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Hide setting 'octave jump kill effect' when redundant in data
+
+Applies to:
+- contour_clustering_gui.R
+
+------------------
+
+> Updated manual.pdf to account for the aforementioned changes.
+
+Applies to:
+- manual.pdf
