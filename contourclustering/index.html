@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Contour clustering</title>
+<title>Contour Clustering</title>
 <style>
 html, body, ul {
     margin: 0;
@@ -64,9 +64,10 @@ font-size:0.85vw;
 <body style="overflow: auto">
 
 <ul>
-<h1><a style="text-decoration: none; font-size:2vw; color: black;" href="https://constantijnkaland.github.io/contourclustering/">Contour clustering</a></h1>
+<h1><a style="text-decoration: none; font-size:2vw; color: black;" href="https://constantijnkaland.github.io/contourclustering/">Contour Clustering</a></h1>
 <p style="margin-bottom: 10%"</p>
-<div style="margin-left:5%; font-size:0.9vw;">  
+<div style="margin-left:5%; font-size:0.9vw;">
+  <li><a href="#what">What is this?</a></li>  
   <li><a href="#download">Download</a></li>
   <li><a href="#documentation">Documentation</a></li>
   <li><a href="#languages">Languages</a></li>
@@ -75,7 +76,7 @@ font-size:0.85vw;
  </div>
 
 
-<div style="transform: skewY(160deg);text-align: center;margin-top: 20%;font-size: 150%;">
+<div style="transform: skewY(160deg);text-align: center;margin-top: 10%;font-size: 150%;">
 	<a style="text-decoration: none; color: red;" href="#download">New version!</a>
 	</div>
 
@@ -95,6 +96,27 @@ font-size:0.85vw;
   <p style="margin-top: 0%; margin-bottom: 0%; font-size: 500%; padding-left: 25%;">&#8595</p>
   <img align:"bottom" src="clustered.png" width="50%" height=auto>
   <p style="margin-bottom: 80%;"</p>
+
+  <h2 id="what">What is this?</h2>
+  <b>Contour Clustering gives you a graphical user interface to get:</b><br>
+~ time-series f0 measures<br>
+- interpolated, extrapolated, smoothed, and error-free f0 contours<br>
+- time-series intensity measures<br>
+- duration measures<br>
+- several speaker-correction methods<br>
+- several f0 contour representations (scaled, first derivative, principal components)<br>
+- cluster analyses on any of the chosen acoustic measures<br>
+- several clustering settings (distance metrics, linkage criteria)<br>
+- evaluations of the optimal number of clusters<br>
+- data for further (manual) analysis, including visualizations and tables<br><br>
+  <b>What Contour Clustering needs from you:</b><br>
+- a prosodic research question<br>
+- segmented speech (.wav/.mp3 and .textgrid)<br>
+- <a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a> and <a style="text-decoration: none; color: black;" href="https://posit.co/download/rstudio-desktop/">R Studio</a> installed<br><br>
+
+<a style="text-decoration: none; color: black;" href="#documentation"><b>Learn more</b><a/>
+
+  <p style="margin-bottom: 80%;"	</p>
 
   <h2 id="download">Download</h2>
   <b>Complete file package as zip:</b><br>
@@ -133,7 +155,8 @@ font-size:0.85vw;
     <b>R packages:</b><br>    
 	<a href="https://cran.r-project.org/web/packages/data.table/index.html">data.table</a>,
    <a href="https://cran.r-project.org/web/packages/dplyr/index.html">dplyr</a>,
-   <a href="https://cran.r-project.org/web/packages/dtwclust/index.html">dtwclust</a>,  
+   <a href="https://cran.r-project.org/web/packages/dtwclust/index.html">dtwclust</a>,
+   <a href="https://cran.r-project.org/web/packages/fda/index.html">fda</a>,    
    <a href="https://cran.r-project.org/web/packages/ggdendro/index.html">ggdendro</a>, 
    <a href="https://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a>,
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/00Index.html">graphics</a>,
@@ -173,16 +196,15 @@ font-size:0.85vw;
 		<td colspan=3 align="left"><b>Paper(s)</b></td>
 		</tr>
 	<tr>
-		<td height="17" align="left">American English</td>
-		<td align="left">phrases/words</td>		
+		<td rowspan="2" height="17" align="left">American English</td>
+		<td rowspan="2" align="left">phrases/words</td>		
+		<td align="left"><a href="https://www.isca-archive.org/interspeech_2024/kaland24_interspeech.pdf">Kaland et al., 2024</a></td>		
 		<td align="left"><a href="https://www.isca-archive.org/speechprosody_2024/tatar24_speechprosody.pdf">Tatár et al., 2024</a></td>
-		<td align="left"><a href="https://labphon.org/sites/default/files/labphon19/Papers/corpusphon/albert%20et%20al.pdf">Albert et al., 2024</a></td>		
-		<td align="left"><a href= "https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">Steffman et al., 2024</a></td>
+		<td align="left"><a href="https://labphon.org/sites/default/files/labphon19/Papers/corpusphon/albert%20et%20al.pdf">Albert et al., 2024</a></td>
 	</tr>
 	<tr>
-		<td height="17" align="left"></td>
-		<td height="17" align="left"></td>
-		<td align="left"><a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">Cole et al., 2023</a></td>		
+		<td align="left"><a href= "https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">Steffman et al., 2024</a></td>
+		<td align="left"><a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">Cole et al., 2023</a></td>				
 		<td align="left"><br></td>
 	</tr>	
 	<tr>
@@ -381,6 +403,7 @@ font-size:0.85vw;
   <b>Cite as:</b><br>
   Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
   <b>Also applied in:</b><br>
+  Kaland, Constantijn; Steffman, Jeremy & Cole, Jennifer. 2024. K-means and hierarchical clustering of f0 contours. <i>Proc. Interspeech 2024</i> (1520-1524). Kos, Greece. <a href=https://doi.org/10.21437/Interspeech.2024-181>doi:10.21437/Interspeech.2024-181</a> [<a href="https://www.isca-archive.org/interspeech_2024/kaland24_interspeech.pdf">pdf</a>]<br><br>
   Hakim, Jacob. 2024. Using role-playing tasks to document intonational tune prototypes in Nasal, an endangered language of Sumatra. <i>Proc. Speech Prosody 2024</i> (1175-1179). Leiden, The Netherlands. <a href=https://doi.org/10.21437/SpeechProsody.2024-237>doi:10.21437/SpeechProsody.2024-237</a> [<a href="https://www.isca-archive.org/speechprosody_2024/hakim24_speechprosody.pdf">pdf</a>]<br><br>
   Zahrer, Alexander. 2024. Exploring natural speech intonation of an under-researched Papuan language. <i>Proc. Speech Prosody 2024</i> (1095-1099). Leiden, The Netherlands. <a href=https://doi.org/10.21437/SpeechProsody.2024-221>doi:10.21437/SpeechProsody.2024-221</a> [<a href="https://www.isca-archive.org/speechprosody_2024/zahrer24_speechprosody.pdf">pdf</a>]<br><br>
   Tatár, Csilla; Brennan, Jonathan R.; Krivokapić, Jelena & Keshet, Ezra. 2024. Examining melodiousness in sarcasm: wiggliness, spaciousness, and contour clustering. <i>Proc. Speech Prosody 2024</i> (677-681). Leiden, The Netherlands. <a href=https://doi.org/10.21437/SpeechProsody.2024-137>doi:10.21437/SpeechProsody.2024-137</a> [<a href="https://www.isca-archive.org/speechprosody_2024/tatar24_speechprosody.pdf">pdf</a>]<br><br>
