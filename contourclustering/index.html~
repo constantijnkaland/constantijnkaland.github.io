@@ -98,7 +98,7 @@ font-size:0.85vw;
   <p style="margin-bottom: 80%;"</p>
 
   <h2 id="what">What is this?</h2>
-  <b>Contour Clustering can give you:</b><br>
+  <b>Contour Clustering gives you a graphical user interface to get:</b><br>
 ~ time-series f0 measures<br>
 - interpolated, extrapolated, smoothed, and error-free f0 contours<br>
 - time-series intensity measures<br>
