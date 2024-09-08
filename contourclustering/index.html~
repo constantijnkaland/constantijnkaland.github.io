@@ -64,7 +64,7 @@ font-size:0.85vw;
 <body style="overflow: auto">
 
 <ul>
-<h1><a style="text-decoration: none; font-size:2vw; color: black;" href="https://constantijnkaland.github.io/contourclustering/">Contour Clustering</a></h1>
+<h1><a style="text-decoration: none; font-size:2vw; color: black;" href="https://constantijnkaland.github.io/contourclustering/">Contour Clustering</a></h1> 
 <p style="margin-bottom: 10%"</p>
 <div style="margin-left:5%; font-size:0.9vw;">
   <li><a href="#what">What is this?</a></li>  
@@ -98,8 +98,8 @@ font-size:0.85vw;
   <p style="margin-bottom: 80%;"</p>
 
   <h2 id="what">What is this?</h2>
-  <b>Contour Clustering gives you a graphical user interface to get:</b><br>
-~ time-series f0 measures<br>
+  <b>Contour Clustering gives you a graphical user interface to automatically get:</b><br>
+- time-series f0 measures<br>
 - interpolated, extrapolated, smoothed, and error-free f0 contours<br>
 - time-series intensity measures<br>
 - duration measures<br>
@@ -108,10 +108,10 @@ font-size:0.85vw;
 - cluster analyses on any of the chosen acoustic measures<br>
 - several clustering settings (distance metrics, linkage criteria)<br>
 - evaluations of the optimal number of clusters<br>
-- data for further (manual) analysis, including visualizations and tables<br><br>
+- data (.csv) for further (manual) analysis, including graphs and tables<br><br>
   <b>What Contour Clustering needs from you:</b><br>
 - a prosodic research question<br>
-- segmented speech (.wav/.mp3 and .textgrid)<br>
+- segmented speech (.wav/.mp3 and <a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/manual/TextGrid.html">.textgrid</a>)<br>
 - <a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a> and <a style="text-decoration: none; color: black;" href="https://posit.co/download/rstudio-desktop/">R Studio</a> installed<br><br>
 
 <a style="text-decoration: none; color: black;" href="#documentation"><b>Learn more</b><a/>
@@ -128,7 +128,7 @@ font-size:0.85vw;
     - <a href="time-series_f0.praat">time-series f0 measurements</a> - 2022-04<br><br>
     <b>Cite as:</b><br>
     <p style="margin-right: 25%">
-  Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
+  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
   </p>    
   <p style="margin-bottom: 80%;"	</p>
   
@@ -178,7 +178,7 @@ font-size:0.85vw;
    <a href="https://cran.r-project.org/web/packages/zoo/index.html">zoo</a><br><br>              
     <b>Cite as:</b><br>
     <p style="margin-right: 25%">
-  Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
+  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
   </p>
   <p style="margin-bottom: 80%;"	</p></p>
   
@@ -338,7 +338,7 @@ font-size:0.85vw;
 		<td align="left">(noun) phrases/words</td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Grice_2024_Exploring_explaining_variation.pdf">Kaland &amp; Grice, 2024</a></td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>
-		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2021</a></td>		
+		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2023</a></td>		
 	</tr>
 		<tr>
 		<td height="17" align="left">Patwin</td>
@@ -392,7 +392,7 @@ font-size:0.85vw;
 		<td height="17" align="left">Zhagawa</td>
 		<td align="left">syllables</td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>
-		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2021</a></td>
+		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2023</a></td>
 		<td align="left"><br></td>
 	</tr>
 </table> 
@@ -401,7 +401,7 @@ font-size:0.85vw;
   <h2 id="references">References</h2>
   <p style="margin-right: 25%">
   <b>Cite as:</b><br>
-  Kaland, Constantijn. 2021. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i>. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
+  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
   <b>Also applied in:</b><br>
   Kaland, Constantijn; Steffman, Jeremy & Cole, Jennifer. 2024. K-means and hierarchical clustering of f0 contours. <i>Proc. Interspeech 2024</i> (1520-1524). Kos, Greece. <a href=https://doi.org/10.21437/Interspeech.2024-181>doi:10.21437/Interspeech.2024-181</a> [<a href="https://www.isca-archive.org/interspeech_2024/kaland24_interspeech.pdf">pdf</a>]<br><br>
   Hakim, Jacob. 2024. Using role-playing tasks to document intonational tune prototypes in Nasal, an endangered language of Sumatra. <i>Proc. Speech Prosody 2024</i> (1175-1179). Leiden, The Netherlands. <a href=https://doi.org/10.21437/SpeechProsody.2024-237>doi:10.21437/SpeechProsody.2024-237</a> [<a href="https://www.isca-archive.org/speechprosody_2024/hakim24_speechprosody.pdf">pdf</a>]<br><br>
@@ -423,6 +423,7 @@ font-size:0.85vw;
   Seeliger, Heiko & Kaland, Constantijn. 2022. Boundary tones in German wh-questions and wh-exclamatives - a cluster-based approach. In <i>Proceedings of the 11th International Conference on Speech Prosody 2022</i> (pp. 27–31). Lisbon, Portugal. <a href="https://doi.org/10.21437/SpeechProsody.2022-6">doi:10.21437/SpeechProsody.2022-6</a> [<a href="https://www.isca-archive.org/speechprosody_2022/seeliger22_speechprosody.pdf">pdf</a>]<br><br>  
   Babinski, Sarah & Bowern, Claire. 2022. Automatic categorization of prosodic contours in Bardi. <i>Proceedings of the Linguistic Society of America</i> 7(1) (pp. 5218). <a href="https://doi.org/10.3765/plsa.v7i1.5218">doi:10.3765/plsa.v7i1.5218</a> [<a href="https://journals.linguisticsociety.org/proceedings/index.php/PLSA/article/download/5218/4896">pdf</a>]<br><br>
   Kaland, Constantijn; Peck, Naomi; Ellison, T. Mark & Reinöhl, Uta. 2021. An initial exploration of the interaction of tone and intonation in Kera'a. <i>Proceedings of the 1st International Conference on Tone and Intonation (TAI)</i> (pp. 132-136). Sønderborg, Denmark. <a href="https://doi.org/10.21437/TAI.2021-27">doi:10.21437/TAI.2021-27</a> [<a href="https://www.isca-archive.org/tai_2021/kaland21_tai.pdf">pdf</a>]<br><br>
+  Kaland, Constantijn. 2020. Contour clustering: a tool for exploring prototypical f0 patterns. <i>Middag van de Fonetiek</i>, Nederlandse Vereniging voor Fonetiek. Online oral presentation. <a href="https://www.nvfw.org/content/contour-clustering-tool-exploring-prototypical-f0-patterns">abstract</a> [<a href="https://www.nvfw.org/sites/nvfw.org/files/Abstract_MvdF2020_Kaland.pdf">pdf</a>]<br><br>
   </p>
   <p style="margin-bottom: 80%;"	</p>
   
