@@ -1,0 +1,57 @@
+<html>
+<head>
+   <style>
+.title h2 {
+	font-size: 6em;
+	position: absolute;
+}
+
+.title h2:nth-child(1) {
+	color: transparent;
+	-webkit-text-stroke: 2px black;
+}
+
+.title h2:nth-child(2) {
+	color: black;
+	animation: animate 5s ease-in-out infinite;
+}
+
+@keyframes animate {
+	0%,
+	100% {
+		clip-path: polygon(
+			0% 45%,
+			16% 44%,
+			33% 50%,
+			54% 60%,
+			75% 61%,
+			84% 59%,
+			100% 52%,
+			100% 100%,
+			0% 100%
+		);
+	}
+
+	50% {
+		clip-path: polygon(
+			0% 60%,
+			15% 65%,
+			34% 66%,
+			51% 42%,
+			67% 50%,
+			84% 45%,
+			100% 16%,
+			100% 100%,
+			0% 100%
+		);
+	}
+}
+   </style>
+</head>
+<body>
+	<div class="title">
+		<h2>Contour Clustering</h2>
+		<h2>Contour Clustering</h2>
+	</div>
+</body>
+</html>
