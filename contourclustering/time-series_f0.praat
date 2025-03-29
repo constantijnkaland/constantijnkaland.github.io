@@ -1,57 +1,42 @@
 # This script goes through sound and TextGrid files in a directory,
 # opens each pair of Sound and TextGrid, extracts stylized F0 contours from 
-# intervals of specified length, takes a specified number of F0 measures equally 
-# distributed over the contour, and saves results to a comma-separated csv-file.
-# Octave jumps can be handled, in which case mean F0 per interval is measured 
-# before and after handling. The difference between both means (m1/m2) is then
-# given in an additional column "jumpkilleffect". Stylization resolution (ST)
-# can be specified by user.
+# intervals of specified length, takes a specified number of F0 measures (using 
+# filtered autocorrelation method), which are equally distributed over the contour.
+# The results are saved to a comma-separated csv-file. Octave jumps can be handled,
+# in which case mean F0 per interval is measured before and after handling. The
+# difference between both means (m1/m2) is then given in an additional column
+# "jumpkilleffect". Stylization resolution (ST) can be specified by user.
 #
-# The generated output serves time-series analyses of F0, such as GAMMs or cluster analysis.
+# The generated output can be uploaded into the Contour Clustering app.
 #
 # The core structure of this script is based on "collect_pitch_data_from_files.praat"
 # by Mietta Lennes (https://lennes.github.io/spect/).
 #
-# Constantijn Kaland, March 2021.
+# Constantijn Kaland, March 2025.
 # https://constantijnkaland.github.io/contourclustering/
 
 form Get time-series F0 data
-	comment Directory of sound files
-	text sound_directory /home/x/Desktop/tmp/
+	text Sound_directory /home/x/Desktop/tmp/
 	sentence Sound_file_extension .wav
-	comment Directory of TextGrid files
-	text textGrid_directory /home/x/Desktop/tmp/
+	text TextGrid_directory /home/x/Desktop/tmp/
 	sentence TextGrid_file_extension .TextGrid
-	comment Full path of the resulting csv file:
-	text resultfile /home/x/Desktop/tmp/output.csv
-	choice csv_separator 1
-		button comma
-		button tab
-# Manual: 2.1.1. Tier
-	comment Which tier defines the intervals corresponding to the contours? (provide tier name)
+	text Output_file /home/x/Desktop/tmp/output.csv
 	sentence Tier tiername
-# Manual: 2.1.2. Duration
 	comment What is the desired duration range of the contour length (seconds)?
 	positive Minimum_duration 0.0001
 	positive Maximum_duration 100
-# Manual: 2.1.3. Number of measures
-	comment How many measures should be taken per contour?
-	positive Number_of_measures_(steps) 20
-	comment Pitch analysis parameters
-# Manual: 2.1.4. Time-step
+	positive Number_of_measurement_points 20
+	comment Pitch analysis parameters (filtered ac):
 	positive Time_step 0.01
-# Manual: 2.1.5. Pitch minimum and maximum
-	positive Minimum_pitch_(Hz) 75
-	positive Maximum_pitch_(Hz) 600
-	positive Silence_threshold 0.03
-	positive Voicing_threshold 0.45
-	positive Octave_cost 0.01
+	positive Minimum_pitch_(Hz) 50
+	positive Maximum_pitch_(Hz) 800
+	positive Silence_threshold 0.09
+	positive Voicing_threshold 0.5
+	positive Octave_cost 0.055
 	positive Octave_jump_cost 0.35
 	positive Voiced_unvoiced_cost 0.14
-# Manual: 2.1.7. Kill octave jumps
 	boolean Kill_octave_jumps 1
 	positive Smoothing_bandwith_(Hz) 10
-# Manual: 2.1.6. Stylization resolution
 	positive Stylization_resolution_(ST) 2
 endform
 
@@ -62,24 +47,19 @@ Create Strings as file list... list 'sound_directory$'*'sound_file_extension$'
 numberOfFiles = Get number of strings
 
 # Check if the result file exists:
-if fileReadable (resultfile$)
-	pause The result file 'resultfile$' already exists! Do you want to overwrite it?
-	filedelete 'resultfile$'
+if fileReadable (output_file$)
+	pause The result file 'output_file$' already exists! Do you want to overwrite it?
+	filedelete 'output_file$'
 endif
 
 # Set the separator value
-if csv_separator = 1
-	sep$ = ","
-endif
-if csv_separator = 2
-	sep$ = tab$
-endif
+sep$ = ","
 
 # Write a row with column titles to the result file:
 # (remember to edit this if you add or change the analyses!)
 
-titleline$ = "filename'sep$'interval_label'sep$'start'sep$'end'sep$'step'sep$'stepnumber'sep$'f0'sep$'jumpkilleffect'newline$'"
-fileappend "'resultfile$'" 'titleline$'
+titleline$ = "filename'sep$'interval_label'sep$'start'sep$'end'sep$'steptime'sep$'stepnumber'sep$'f0'sep$'jumpkilleffect'newline$'"
+fileappend "'output_file$'" 'titleline$'
 
 # Go through all the sound files, one by one:
 
@@ -112,7 +92,7 @@ for ifile to numberOfFiles
 					Extract part: start, end, "rectangular", 1, "no"
 					# to pitch
 					selectObject: "Sound 'soundname$'_part"
-					To Pitch (ac): time_step, minimum_pitch, 15, "no", silence_threshold, voicing_threshold, octave_cost, octave_jump_cost, voiced_unvoiced_cost, maximum_pitch
+					To Pitch (filtered autocorrelation): time_step, minimum_pitch, maximum_pitch, 15, "no", 0.03, silence_threshold, voicing_threshold, octave_cost, octave_jump_cost, voiced_unvoiced_cost
 					selectObject: "Pitch 'soundname$'_part"
 					# kill octave jumps and retrieve difference between F0 before and after jump handling
 					mchange = 0
@@ -128,14 +108,14 @@ for ifile to numberOfFiles
 					Down to PitchTier
 					Stylize: stylization_resolution, "Semitones"
 					# get specified number of measures equally distributed over interval
-					measurestep = dur/(number_of_measures+1)
+					measurestep = dur/(number_of_measurement_points+1)
 					step = measurestep
 					stepnr = 1
-					while stepnr <= number_of_measures
+					while stepnr <= number_of_measurement_points
 						selectObject: "PitchTier 'soundname$'_part"
 						value = Get value at time: step
 						resultline$ = "'soundname$''sep$''label$''sep$''start''sep$''end''sep$''step''sep$''stepnr''sep$''value''sep$''mchange''newline$'"
-						fileappend "'resultfile$'" 'resultline$'
+						fileappend "'output_file$'" 'resultline$'
 						step = step + measurestep
 						stepnr = stepnr + 1
 					endwhile
