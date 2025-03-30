@@ -36,16 +36,21 @@ ul figure {
 li a {
   display: block;
   color: #000;
-  padding: 8px 16px;
+  padding: 10px 16px;
   font-size: 150%;
   line-height: 2;
   text-decoration: none;
 }
 
 li a:hover {
-  background-color: #555;
+  background-color: #686868;
   color: white;
 }
+
+li a:hover img{
+  -webkit-filter: invert(100%) !important;
+  filter: invert(100%) !important;
+  }
 
 main {
 margin-left: 30%;
@@ -55,7 +60,11 @@ line-height: 2;
 font-size:0.85vw;
 }
 
-
+img.l {
+  vertical-align: middle;
+  padding-right: 7%;
+  width: 8%
+}
 
 
 </style>
@@ -66,18 +75,19 @@ font-size:0.85vw;
 <ul>
 <h1><a style="text-decoration: none; font-size:2vw; color: black;" href="https://constantijnkaland.github.io/contourclustering/">Contour Clusterĩng</a></h1> 
 <p style="margin-bottom: 10%"</p>
-<div style="margin-left:5%; font-size:0.9vw;">
-  <li><a href="#what">What is this?</a></li>  
-  <li><a href="#download">Download</a></li>
-  <li><a href="#documentation">Documentation</a></li>
-  <li><a href="#languages">Languages</a></li>
-  <li><a href="#references">References</a></li>
-  <li><a href="#contact">Contact</a></li>
+<div style="margin-left:5%; font-size:0.8vw;">
+  <li><a href="#what"><img class="l" src="li_what.png" alt="">What is this?</a></li>  
+  <li><a href="#download"><img class="l" src="li_dl.png" alt="">Download</a></li>
+  <li><a href="#documentation"><img class="l" src="li_doc.png" alt="">Documentation</a></li>
+  <li><a href="#languages"><img class="l" src="li_lgs.png" alt="">Languages</a></li>
+  <li><a href="#references"><img class="l" src="li_ref.png" alt="">References</a></li>
+  <li><a href="#credits"><img class="l" src="li_crd.png" alt="">Credits</a></li>
+  <li><a href="#contact"><img class="l" src="li_cnt.png " alt="">Contact</a></li>
  </div>
 
 
-<div style="transform: skewY(160deg);text-align: center;margin-top: 10%;font-size: 150%;">
-	<a style="text-decoration: none; color: red;" href="https://www.cl.uzh.ch/de/events/colloquia/colloquium-phonetics.html">Workshop!</a>
+<div style="transform: skewY(170deg);text-align: center;margin-top:10%;margin-bottom:10%;font-size: 150%;">
+	<a style="text-decoration: none; color: red;" href="#download">New version!</a>
 	</div>
 
 
@@ -95,45 +105,75 @@ font-size:0.85vw;
   <img align:"bottom" src="unclustered.png" width="50%" height=auto>
   <p style="margin-top: 0%; margin-bottom: 0%; font-size: 500%; padding-left: 25%;">&#8595</p>
   <img align:"bottom" src="clustered.png" width="50%" height=auto>
-  <p style="margin-bottom: 80%;"</p>
+  <p style="margin-bottom: 90%;"</p>
 
   <h2 id="what">What is this?</h2>
-  <b>Contour Clustering gives you a graphical user interface to automatically get:</b><br>
+  <p style="width:85%"><img id="randomImage" style="float:right;width:17%;padding-left:5%;">
+  Learners of a spoken language acquire intonation mainly through the auditory speech signal, not so much through their nostrils, finger tips, or pupils. 
+  For example, questions end with a high tone, statements end with a low tone, but they don't have to. How does this work? 
+  We distinguish intonation patterns in a <a style="text-decoration: none; color: black;" href="#languages">language</a> based on their acoustic form and (para)linguistic meaning.
+  Can we simulate this distinction task in ways that our ears, brains and mouths do it? 
+  <a style="text-decoration: none; color: black;" href="#download">Here</a>'s a tool that offers a tiny bit of help for you to explore this big question.<br> 
+  Go ahead and contribute to the <a style="text-decoration: none; color: black;" href="#references">research</a> so that we can help each other understand. 
+  It's not too late, we've only just <a style="text-decoration: none; color: black;" href="https://doi.org/10.1017/S0025100321000049">begun</a> :)</p><br>
+
+<script type="text/javascript">
+function getRandomImage() {
+
+var images = ['fig_mouth.png', 'fig_ear.png', 'fig_brain.png','fig_melodies.png'];
+var image = images[Math.floor(Math.random()*images.length)];
+ 
+return image;
+
+}
+ 
+function displayRandomImage() {
+
+var htmlImage = document.getElementById("randomImage");
+htmlImage.src = getRandomImage();
+
+}
+displayRandomImage();
+</script>
+
+  <b>Contour Clustering gives you:</b><br>
+- a workflow for cluster analysis on (time-series) measures of speech<br>
+- a graphical user interface (no coding required)<br>  
 - time-series f0 measures<br>
 - interpolated, extrapolated, smoothed, and error-free f0 contours<br>
 - time-series intensity measures<br>
 - duration measures<br>
 - several speaker-correction methods<br>
-- several f0 contour representations (scaled, first derivative, principal components)<br>
-- cluster analyses on any of the chosen acoustic measures<br>
-- several clustering settings (distance metrics, linkage criteria)<br>
+- several f0 contour representations (scales, derivatives, principal components)<br>
+- several clustering settings (method, distance metric, linkage criterion)<br>
 - evaluations of the optimal number of clusters<br>
-- data (.csv) for further (manual) analysis, including graphs and tables<br><br>
+- well <a style="text-decoration: none; color: black;" href="#documentation">documented<a/> examples and instructions<br>
+- data (.csv) for further (manual) analysis, including plots and tables<br><br>
   <b>What Contour Clustering needs from you:</b><br>
-- a prosodic research question<br>
-- segmented speech (.wav/.mp3 and <a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/manual/TextGrid.html">.textgrid</a>)<br>
+- a research question<br>
+- segmented speech (.wav/.mp3 and <a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/manual/TextGrid.html">.textgrid</a>) or an existing <a style="text-decoration: none; color: black;" href="pmy_scripted_noun_phrases.csv">datafile</a> with one row per measurement point (long format)<br>
 - <a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a> and <a style="text-decoration: none; color: black;" href="https://posit.co/download/rstudio-desktop/">R Studio</a> installed<br><br>
 
 <a style="text-decoration: none; color: black;" href="#documentation"><b>Learn more</b><a/>
 
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 90%;"	</p>
 
   <h2 id="download">Download</h2>
   <b>Complete file package as zip:</b><br>
-  &rarr; <a href="2024-08.zip">2024-08</a> - <font color="red">current</font> (<a href="changelog_2024-08.txt">changelog</a>, <a href="#old">old versions</a>)<br><br>    
-  <b><a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a>-scripts (GUI requires <a style="text-decoration: none; color: black;" href="https://www.rstudio.com">R-studio</a>):</b><br>
-    ~ <a href="contour_clustering_gui.R">contour clustering GUI</a> (recommended) - 2024-08<br>    
-    - <a href="contour_clustering.R">contour clustering no GUI</a> - 2022-08<br><br>
+  &rarr; <a href="2025-03.zip" title="contains: app, praat script, manual, changelog">2025-03</a> - <font color="red">current</font> (<a href="changelog_2025-03.txt">changelog</a>, <a href="#old">old versions</a>)<br><br>    
+  <b> App (requires <a style="text-decoration: none; color: black;" href="https://cran.r-project.org/">R</a> and <a style="text-decoration: none; color: black;" href="https://www.rstudio.com">R-studio</a>):</b><br>
+    ~ <a href="contour_clustering.R" title="ui and server in a single script, open with 'Run App'">contour_clustering.R</a> - 2025-03<br><br>
     <b><a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/">Praat</a> script:</b><br>  
-    - <a href="time-series_f0.praat">time-series f0 measurements</a> - 2022-04<br><br>
+    - <a href="time-series_f0.praat">time-series_f0.praat</a> - 2025-03 (uses Praat's new <a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/manual/pitch_analysis_by_filtered_autocorrelation.html">filtered autocorrelation</a> f0 tracking method)<br><br>
     <b>Cite as:</b><br>
     <p style="margin-right: 25%">
   Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
   </p>    
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 90%;"	</p>
   
     <h2 id="old">Old versions</h2>
   <b>Complete file package as zip:</b><br>
+  - <a href="2024-08.zip">2024-08</a><br>  
   - <a href="2024-02.zip">2024-02</a><br>  
   - <a href="2023-06.zip">2023-06</a><br>   
   - <a href="2023-05.zip">2023-05</a><br>  
@@ -141,55 +181,58 @@ font-size:0.85vw;
   - <a href="2022-04.zip">2022-04</a><br>
   - <a href="2021-08.zip">2021-08</a><br>
   - <a href="2021-03.zip">2021-03</a><br><br>
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 90%;"	</p>
   
   <h2 id="documentation">Documentation</h2>
   <b>Manual:</b><br>
-    ~ <a href="manual.pdf">manual for Praat-script and R-script</a> (recommended)<br><br>  
-  <b>Additional learning material:</b><br>
-    - two-day workshop <a style="text-decoration: none; color: black;" href="https://www.ling.uni-konstanz.de/forschung/workshops/">Methods @ LingLab</a> [<a href="https://youtu.be/fAopN5LRaTs">Day 1</a>] [<a href="https://youtu.be/ZwlPkTwzJ44">Day 2</a>] [<a href="https://osf.io/mec6y/?view_only=286fec372bfd4e2b856a75e8a931f7cf">OSF repository</a>] - 11-2023<br>  
-    - <a href="tutorial.pdf">tutorial</a> - 03-2021<br>
-	 - <a href="pmy_scripted_noun_phrases.csv">Papuan Malay scripted noun phrases</a> (article section 2)<br>    
-    - <a href="pmy_spontaneous_phrases.csv">Papuan Malay spontaneous phrases</a> (article section 3) - datafile for tutorial<br>
-    - <a href="zag_scripted_tone_syllables.csv">Zhagawa scripted tone syllables</a> (article section 4)<br><br>
-    <b>R packages:</b><br>    
+    ~ <a href="manual.pdf">manual for Contour Clustering</a> (recommended)<br><br>  
+  <b>Learning materials:</b><br>
+    - video tutorials: read folder, <a href="tutorial_load_file.mp4">load file</a> - 03-2025<br>
+    - two-day workshop <a style="text-decoration: none; color: black;" href="https://www.ling.uni-konstanz.de/forschung/workshops/">Methods @ LingLab</a> [<a href="https://youtu.be/fAopN5LRaTs">Day 1</a>] [<a href="https://youtu.be/ZwlPkTwzJ44">Day 2</a>] [<a href="https://osf.io/mec6y/?view_only=286fec372bfd4e2b856a75e8a931f7cf">OSF repository</a>] - 11-2023<br><br>
+   <b>Training datasets:</b><br>   
+	 - <a href="pmy_scripted_noun_phrases.csv">Papuan Malay scripted noun phrases</a> (<a style="text-decoration: none; color: black;" href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">article</a> section 2)<br>    
+    - <a href="pmy_spontaneous_phrases.csv">Papuan Malay spontaneous phrases</a> (<a style="text-decoration: none; color: black;" href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">article</a> section 3)<br>
+    - <a href="zag_scripted_tone_syllables.csv">Zhagawa scripted tone syllables</a> (<a style="text-decoration: none; color: black;" href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">article</a> section 4)<br><br>
+    <b>R packages:</b><br>
+   <a href="https://cran.r-project.org/web/packages/cluster/index.html">cluster</a>,     
 	<a href="https://cran.r-project.org/web/packages/data.table/index.html">data.table</a>,
    <a href="https://cran.r-project.org/web/packages/dplyr/index.html">dplyr</a>,
    <a href="https://cran.r-project.org/web/packages/dtwclust/index.html">dtwclust</a>,
    <a href="https://cran.r-project.org/web/packages/fda/index.html">fda</a>,    
    <a href="https://cran.r-project.org/web/packages/ggdendro/index.html">ggdendro</a>, 
-   <a href="https://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a>,
-   <a href="https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/00Index.html">graphics</a>,
+   <a href="https://cran.r-project.org/web/packages/ggplot2/index.html">ggplot2</a>,   
    <a href="https://cran.r-project.org/web/packages/Hmisc/index.html">Hmisc</a>,
    <a href="https://cran.r-project.org/web/packages/Metrics/index.html">Metrics</a>,
    <a href="https://cran.r-project.org/web/packages/pracma/index.html">pracma</a>,
    <a href="https://cran.r-project.org/web/packages/proxy/index.html">proxy</a>,
-   <a href="https://cran.r-project.org/web/packages/purrr/index.html">purrr</a>, 
-   <a href="https://cran.r-project.org/web/packages/readr/index.html">readr</a>,<br> 
+   <a href="https://cran.r-project.org/web/packages/purrr/index.html">purrr</a>,<br> 
+   <a href="https://cran.r-project.org/web/packages/readr/index.html">readr</a>, 
    <a href="https://cran.r-project.org/web/packages/readtextgrid/index.html">readtextgrid</a>,
    <a href="https://cran.r-project.org/web/packages/scales/index.html">scales</a>, 
-   <a href="https://cran.r-project.org/web/packages/shiny/index.html">shiny</a>, 
+   <a href="https://cran.r-project.org/web/packages/shiny/index.html">shiny</a>,
+   <a href="https://cran.r-project.org/web/packages/sound/index.html">sound</a>,  
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/00Index.html">stats</a>, 
    <a href="https://cran.r-project.org/web/packages/stringr/index.html">stringr</a>,
    <a href="https://cran.r-project.org/web/packages/TSdist/index.html">TSdist</a>,
    <a href="https://cran.r-project.org/web/packages/usedist/index.html">usedist</a>, 
    <a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/00Index.html">utils</a>,
-   <a href="https://cran.r-project.org/web/packages/wrassp/index.html">wrassp</a>, 
+   <a href="https://cran.r-project.org/web/packages/wrassp/index.html">wrassp</a>,
+   <a href="https://cran.r-project.org/web/packages/zip/index.html">zip</a>, 
    <a href="https://cran.r-project.org/web/packages/zoo/index.html">zoo</a><br><br>              
     <b>Cite as:</b><br>
     <p style="margin-right: 25%">
   Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
   </p>
-  <p style="margin-bottom: 80%;"	</p></p>
+  <p style="margin-bottom: 90%;"	</p></p>
   
   <h2 id="languages">Languages</h2>
-  Contour clustering has been applied to the following languages:<br><br>
+  Contour Clustering has been applied to the following languages:<br><br>
 <table cellspacing="0" border="0" width="100%">
+	<colgroup width="15%"></colgroup>
+	<colgroup width="15%"></colgroup>
 	<colgroup width="20%"></colgroup>
 	<colgroup width="20%"></colgroup>
-	<colgroup width="20%"></colgroup>
-	<colgroup width="20%"></colgroup>
-	<colgroup width="20%"></colgroup>
+	<colgroup width="30%"></colgroup>
 	<tr>
 		<td height="17" align="left"><b>Language</b></td>
 		<td align="left"><b>Unit of analysis</b></td>
@@ -403,7 +446,7 @@ font-size:0.85vw;
 		<td align="left"><br></td>
 	</tr>
 </table> 
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 90%;"	</p>
     
   <h2 id="references">References</h2>
   <p style="margin-right: 25%">
@@ -433,10 +476,36 @@ font-size:0.85vw;
   Kaland, Constantijn; Peck, Naomi; Ellison, T. Mark & Reinöhl, Uta. 2021. An initial exploration of the interaction of tone and intonation in Kera'a. <i>Proceedings of the 1st International Conference on Tone and Intonation (TAI)</i> (pp. 132-136). Sønderborg, Denmark. <a href="https://doi.org/10.21437/TAI.2021-27">doi:10.21437/TAI.2021-27</a> [<a href="https://www.isca-archive.org/tai_2021/kaland21_tai.pdf">pdf</a>]<br><br>
   Kaland, Constantijn. 2020. Contour clustering: a tool for exploring prototypical f0 patterns. <i>Middag van de Fonetiek</i>, Nederlandse Vereniging voor Fonetiek. Online oral presentation. <a href="https://www.nvfw.org/content/contour-clustering-tool-exploring-prototypical-f0-patterns">abstract</a> [<a href="https://www.nvfw.org/sites/nvfw.org/files/Abstract_MvdF2020_Kaland.pdf">pdf</a>]<br><br>
   </p>
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 90%;"	</p>
+  
+	 <h2 id="credits">Credits</h2>
+	 <a style="text-decoration: none; color: black;" href="https://www.isfas.uni-kiel.de/de/linguistik/mitarbeitende/marlene-boettcher-m.a">Marlene Böttcher</a> (testing)<br>	   
+	 <a style="text-decoration: none; color: black;" href="https://ifl.phil-fak.uni-koeln.de/en/general-linguistics/people/t-mark-ellison">T. Mark Ellison</a> (coding MDL evaluation)<br>
+	 Max Hörl (statistical advice)<br>	 
+	 <a style="text-decoration: none; color: black;" href="https://www.uclan.ac.uk/academics/dr-hae-sung-jeon">Hae-Sung Jeon</a> (testing)<br> 
+	 <a style="text-decoration: none; color: black;" href="https://www.universiteitleiden.nl/en/staffmembers/m.-y.-priscilla-lam#tab-1">Priscilla Lam</a> (testing)<br>
+	 <a style="text-decoration: none; color: black;" href="https://gillymarchini.wordpress.com/">Gilly Marchini</a> (testing)<br>
+	 <a style="text-decoration: none; color: black;" href="https://idsl1.phil-fak.uni-koeln.de/personen/lehrende-a-z/dr-heiko-seeliger">Heiko Seeliger</a> (testing)<br>
+	 <a style="text-decoration: none; color: black;" href="http://lattes.cnpq.br/9365466339986519">Gustavo Silveira</a> (testing)<br>
+	 <a style="text-decoration: none; color: black;" href="https://jsteffman.github.io/">Jeremy Steffman</a> (testing)<br>
+	 <a style="text-decoration: none; color: black;" href="https://sfb1252.uni-koeln.de/en/">SFB-1252</a> (funding)<br>
+	<br>	 
+	 <b>Organizers and participants of:</b><br>
+	 <a style="text-decoration: none; color: black;" href="https://www.linguistik-in-frankfurt.de/category/allgemein/">Phonology Colloquium</a>, Institut für Linguistik, Goethe-Universität Frankfurt (December 2024)<br>
+	 <a style="text-decoration: none; color: black;" href="https://www.cl.uzh.ch/de/events/colloquia/colloquium-phonetics.html">Phonetics Lunch Meeting</a>, University of Zürich (November 2024)<br>
+	 <a style="text-decoration: none; color: black;" href="https://websites.umass.edu/afla31/">The 31st Annual Meeting of the Austronesian Formal Linguistics Association (AFLA 31)</a>, University of Massachusetts (June 2024)<br>
+	 <a style="text-decoration: none; color: black;" href="https://www.ling.uni-konstanz.de/forschung/workshops/">Methods @ LingLab</a>, University of Konstanz (November 2023)<br>
+	 <a style="text-decoration: none; color: black;" href="https://ccls.phil-fak.uni-koeln.de/vortragsreihen/lunch-linguistics">Lunch & Linguistics</a>, Institut für Linguistik, Universität zu Köln (November 2023)<br>
+	 <a style="text-decoration: none; color: black;" href="https://www.phonetik.uni-muenchen.de/Mampf/">Methoden und Ansätze moderner phonetischer Forschung</a>, Inst. Phonetics and Speech Processing, Ludwig-Maximilians-Universität München (June 2023)<br>
+	 <a style="text-decoration: none; color: black;" href="https://sites.google.com/view/speechunitsworkshop/home">Workshop Speech Units</a>, University of Zürich (April 2023)<br>
+	 <a style="text-decoration: none; color: black;" href="https://sfb1252.uni-koeln.de/veranstaltungen/sfb-interne-veranstaltungen">Klausurtagung Kloster Steinfeld</a>, SFB-1252, Universität zu Köln (October 2022)<br>
+	 <a style="text-decoration: none; color: black;" href="https://ifl.phil-fak.uni-koeln.de/phonetik/forschung/kolloquien/forschungskolloquium-ws-21-22">Forschungskolloquium</a>, IfL Phonetik, Universität zu Köln (November 2021)<br>	 
+	 <a style="text-decoration: none; color: black;" href="https://www.mmll.cam.ac.uk/dtal">Phonetics & Phonology Seminar, Dept. Theoretical & Applied Linguistics</a>, University of Cambridge (January 2021)<br>
+	 <a style="text-decoration: none; color: black;" href="https://www.nvfw.org/content/middag-van-de-fonetiek-2020">Middag van de Fonetiek 2020</a>, Nederlandse Vereniging voor Fonetische Wetenschappen (December 2020)<br>
+	 <p style="margin-bottom: 90%;"	</p>
   
     <h2 id="contact">Contact</h2>
- Contact <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/">author</a> for feedback, suggestions and requests for new versions:<br>
+ Contact <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/">me</a> for feedback, suggestions and requests for new versions:<br>
   <div id="myDIV">
   <form
   action="https://formspree.io/f/mzbkndbd"
@@ -451,7 +520,7 @@ font-size:0.85vw;
   <button type="submit">Send (via formspree.io)</button>
 </form>
     </div>
-  <p style="margin-bottom: 80%;"	</p>
+  <p style="margin-bottom: 90%;"	</p>
 </main>
 
 </body>
