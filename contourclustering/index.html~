@@ -96,7 +96,8 @@ img.l {
 <td
 <td align=center;width=45%>
 	<div style="transform: skewY(170deg);text-align: center;margin-top:10%;margin-bottom:10%;font-size: 130%;">
-	<a style="text-decoration: none; color: red;" href="https://labphon.org/content/summer-2025-workshop">Workshop soon!</a>
+	<a style="text-decoration: none; color: red;" href="https://labphon.org/content/summer-2025-workshop">Workshop soon!</a><br>
+	<a style="text-decoration: none; color: black;" href="#contact">register here</a>
 	</div>
 </td>
 </tr>
@@ -337,6 +338,13 @@ displayRandomImage();
 		<td align="left"><br></td>
 	</tr>
 	<tr>
+		<td height="17" align="left">Greek</td>
+		<td align="left">negations</td>
+		<td align="left"><a href="https://repositori.uib.es/xmlui/bitstream/handle/11201/170769/6th%20Phonetics%20and%20Phonology%20in%20Europe%20PaPE%202025%20Book%20of%20Abstracts-96-97.pdf?sequence=1&isAllowed=y">Gryllia & Arvaniti, 2025</a></td>
+		<td align="left"><br></td>
+		<td align="left"><br></td>
+	</tr>
+	<tr>
 		<td height="17" align="left">Gunnartpa</td>
 		<td align="left">phrases</td>
 		<td align="left"><a href="https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1555&amp;context=gsas_dissertations">Babinski, 2022</a></td>
@@ -498,6 +506,7 @@ displayRandomImage();
   Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
   <b>Also applied in:</b><br>
   Sabev, Mitko; Andreeva, Bistra; Gabriel, Christoph & Grünke, Jonas. 2025. Cluster Analysis of Bulgarian Judeo-Spanish Calling Contours. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">pdf</a>]<br><br>
+  Gryllia, Stella & Arvaniti, Amalia. 2025. Gender and individual variation in spontaneous speech intonation. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://repositori.uib.es/xmlui/bitstream/handle/11201/170769/6th%20Phonetics%20and%20Phonology%20in%20Europe%20PaPE%202025%20Book%20of%20Abstracts-96-97.pdf?sequence=1&isAllowed=y">pdf</a>]<br><br>
   Böttcher, Marlene & Zellers, Margaret. Structuring discourse with pitch contours – intonation contours of discourse particles in bilingual heritage speakers’ two languages. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">pdf</a>]<br><br>
   Möking, Eduardo; Wehrle, Simon; Kaland, Constantijn & Grice, Martine. 2025. Intonational dynamics of German backchannels across conversational contexts. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">pdf</a>]<br><br> 
   Sabev, Mitko; Andreeva, Bistra; Gabriel, Christoph & Grünke, Jonas. 2025. Bulgarian Judeo-Spanish Calling Contours: A Cluster Analysis. In <i>Proceedings of the 3rd International Conference on Tone and Intonation (TAI 2025)</i> (pp. XX-XX). Herrsching. <a href="https://doi.org/">doi</a> [<a href="https://www.tai2025.org/docs/TAI2025_abstract_book.pdf">pdf</a>]<br><br>
