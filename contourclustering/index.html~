@@ -85,6 +85,7 @@ img.l {
   <li><a href="#contact"><img class="l" src="li_cnt.png " alt="">Contact</a></li>
  </div>
 
+<!--
 <table align=center>
 <tr>
 <td align=center; width=45%>
@@ -102,7 +103,7 @@ img.l {
 </td>
 </tr>
 </table>
-
+-->
 
 <div style="position: absolute; bottom: 5%;">
 <figure style="text-align: center; width: 40%">
