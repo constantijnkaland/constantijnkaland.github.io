@@ -201,6 +201,7 @@ displayRandomImage();
     ~ <a href="manual.pdf">manual for Contour Clustering</a> (recommended)<br><br>  
   <b>Learning materials:</b><br>
     - video tutorials: <a href="tutorial_read_folder.mp4">read folder</a>, <a href="tutorial_load_file.mp4">load file</a> - 03-2025<br>
+    - general introduction and demonstration for <a style="text-decoration: none; color: black;" href="https://labphon.org/content/summer-2025-workshop">Programming on Prosody and Suprasegmentals (Association for Laboratory Phonology)</a> [<a href="https://www.dropbox.com/scl/fi/8fph41h0xay64m8c2n3nr/ALP_ConstantijnKaland_07-31-2025.mp4?rlkey=9zkrwhesyhbvvyupp3zqh72ab&e=1&st=cy9oug92&dl=1">video</a>] - 07-2025<br>
     - two-day workshop <a style="text-decoration: none; color: black;" href="https://www.ling.uni-konstanz.de/forschung/workshops/">Methods @ LingLab</a> [<a href="https://youtu.be/fAopN5LRaTs">Day 1</a>] [<a href="https://youtu.be/ZwlPkTwzJ44">Day 2</a>] [<a href="https://osf.io/mec6y/?view_only=286fec372bfd4e2b856a75e8a931f7cf">OSF repository</a>] - 11-2023<br><br>
    <b>Training datasets:</b><br>   
 	 - <a href="pmy_scripted_noun_phrases.csv">Papuan Malay scripted noun phrases</a> (<a style="text-decoration: none; color: black;" href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">article</a> section 2)<br>    
@@ -258,17 +259,22 @@ displayRandomImage();
 		<td align="left"><br></td>
 	</tr>
 	<tr>
-		<td rowspan="2" height="17" align="left">American English</td>
-		<td rowspan="2" align="left">phrases/words/fillers</td>		
+		<td rowspan="3" height="17" align="left">American English</td>
+		<td rowspan="3" align="left">phrases/words/fillers</td>		
+		<td align="left"><a href= "https://www.isca-archive.org/diss_2025/bottcher25_diss.pdf">Böttcher & Kaland, 2025</a></td>	
 		<td align="left"><a href= "https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">Böttcher & Zellers, 2025</a></td>
 		<td align="left"><a href="https://www.isca-archive.org/interspeech_2024/kaland24_interspeech.pdf">Kaland et al., 2024</a></td>		
-		<td align="left"><a href="https://www.isca-archive.org/speechprosody_2024/tatar24_speechprosody.pdf">Tatár et al., 2024</a></td>		
+		
 	</tr>
 	<tr>
+		<td align="left"><a href="https://www.isca-archive.org/speechprosody_2024/tatar24_speechprosody.pdf">Tatár et al., 2024</a></td>
 		<td align="left"><a href="https://labphon.org/sites/default/files/labphon19/Papers/corpusphon/albert%20et%20al.pdf">Albert et al., 2024</a></td>
-		<td align="left"><a href= "https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">Steffman et al., 2024</a></td>
+		<td align="left"><a href= "https://www.sciencedirect.com/science/article/pii/S0095447024000160/pdfft?md5=49424f67a5652d404f595fdd53d64c3b&pid=1-s2.0-S0095447024000160-main.pdf">Steffman et al., 2024</a></td>		
+	</tr>	
+	<tr>		
 		<td align="left"><a href="https://www.journal-labphon.org/article/9437/galley/23050/view/">Cole et al., 2023</a></td>			
-		
+		<td align="left"><br></td>
+		<td align="left"><br></td>
 	</tr>	
 	<tr>
 		<td height="17" align="left">Bardi</td>
@@ -321,15 +327,14 @@ displayRandomImage();
 	<tr>
 		<td rowspan="2" height="17" align="left">German</td>
 		<td rowspan="2" align="left">phrases/backchannels/fillers</td>
+		<td align="left"><a href= "https://www.isca-archive.org/diss_2025/bottcher25_diss.pdf">Böttcher & Kaland, 2025</a></td>		
 		<td align="left"><a href= "https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">Böttcher & Zellers, 2025</a></td>		
-		<td align="left"><a href= "https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">Möking et al., 2025</a></td>
-		<td align="left"><a href="https://www.tai2025.org/docs/TAI2025_abstract_book.pdf">Seeliger &amp; Kaland, 2025</a></td>	
-		<td align="left"><br></td>
+		<td align="left"><a href= "https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">Möking et al., 2025</a></td>		
 	</tr>
 		<tr>
+		<td align="left"><a href="https://www.tai2025.org/docs/TAI2025_abstract_book.pdf">Seeliger &amp; Kaland, 2025</a></td>
 		<td align="left"><a href="https://www.isca-archive.org/speechprosody_2022/seeliger22_speechprosody.pdf">Seeliger &amp; Kaland, 2022</a></td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>				
-		<td align="left"><br></td>
 	</tr>	
 	<tr>
 		<td height="17" align="left">Gija</td>
@@ -453,8 +458,8 @@ displayRandomImage();
 	<tr>
 		<td height="17" align="left">Russian</td>
 		<td align="left">fillers</td>
+		<td align="left"><a href= "https://www.isca-archive.org/diss_2025/bottcher25_diss.pdf">Böttcher & Kaland, 2025</a></td>
 		<td align="left"><a href= "https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">Böttcher & Zellers, 2025</a></td>
-		<td align="left"><br></td>
 		<td align="left"><br></td>
 	</tr>	
 	<tr>
@@ -506,8 +511,8 @@ displayRandomImage();
   <b>Cite as:</b><br>
   Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
   <b>Also applied in:</b><br>
-  Jeon, Hae-Sung; Kaland, Constantijn & Grice, Martine. 2024. Question intonation in conversational speech: Chungcheong
-and Gyeongsang varieties of Korean. <i>Journal of the Acoustical Society of America</i>, 158, 684-696. <a href="https://doi.org/10.1121/10.0037191">doi:10.1121/10.0037191</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/A01_A02_A03_Jeon_Kaland_Grice_2025__Question_intonation_in_conversational_speech.pdf">pdf</a>]<br><br>
+  Böttcher, Marlene & Kaland, Constantijn. 2025. Prosodic Prototypes of Filler Particles across Three Languages. <i>Proc. 12th edition of the Disfluency in Spontaneous Speech Workshop (DiSS 2025)</i>, 12-16. <a href="https://doi.org/10.21437/DiSS.2025-3">doi:10.21437/DiSS.2025-3</a> [<a href="https://www.isca-archive.org/diss_2025/bottcher25_diss.pdf">pdf</a>]<br><br>
+  Jeon, Hae-Sung; Kaland, Constantijn & Grice, Martine. 2024. Question intonation in conversational speech: Chungcheong and Gyeongsang varieties of Korean. <i>Journal of the Acoustical Society of America</i>, 158, 684-696. <a href="https://doi.org/10.1121/10.0037191">doi:10.1121/10.0037191</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/A01_A02_A03_Jeon_Kaland_Grice_2025__Question_intonation_in_conversational_speech.pdf">pdf</a>]<br><br>
   Sabev, Mitko; Andreeva, Bistra; Gabriel, Christoph & Grünke, Jonas. 2025. Cluster Analysis of Bulgarian Judeo-Spanish Calling Contours. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">pdf</a>]<br><br>
   Gryllia, Stella & Arvaniti, Amalia. 2025. Gender and individual variation in spontaneous speech intonation. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://repositori.uib.es/xmlui/bitstream/handle/11201/170769/6th%20Phonetics%20and%20Phonology%20in%20Europe%20PaPE%202025%20Book%20of%20Abstracts-96-97.pdf?sequence=1&isAllowed=y">pdf</a>]<br><br>
   Böttcher, Marlene & Zellers, Margaret. Structuring discourse with pitch contours – intonation contours of discourse particles in bilingual heritage speakers’ two languages. <i>Phonetics and Phonology in Europe (PaPE 2025)</i>. [<a href="https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">pdf</a>]<br><br>
