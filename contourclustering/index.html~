@@ -179,7 +179,10 @@ displayRandomImage();
     <b><a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/">Praat</a> script:</b><br>  
     - <a href="time-series_f0.praat">time-series_f0.praat</a> - 2025-03 (uses Praat's new <a style="text-decoration: none; color: black;" href="https://www.fon.hum.uva.nl/praat/manual/pitch_analysis_by_filtered_autocorrelation.html">filtered autocorrelation</a> f0 tracking method)<br><br>
     <b>Cite as:</b><br>
-    <p style="margin-right: 25%">
+  <p style="margin-right: 25%; text-indent: -25px; padding-left: 25px;">
+  Kaland, Constantijn. 2025. <i>Contour Clustering</i> (Version 2025-03) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a><br>
+  </p>
+  <p style="margin-right: 25%; text-indent: -25px; padding-left: 25px;">
   Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
   </p>    
   <p style="margin-bottom: 90%;"	</p>
@@ -234,9 +237,12 @@ displayRandomImage();
    <a href="https://cran.r-project.org/web/packages/zip/index.html">zip</a>, 
    <a href="https://cran.r-project.org/web/packages/zoo/index.html">zoo</a><br><br>              
     <b>Cite as:</b><br>
-    <p style="margin-right: 25%">
-  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
+  <p style="margin-right: 25%; text-indent: -25px; padding-left: 25px;">
+  Kaland, Constantijn. 2025. <i>Contour Clustering</i> (Version 2025-03) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a><br>
   </p>
+  <p style="margin-right: 25%; text-indent: -25px; padding-left: 25px;">
+  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
+  </p> 
   <p style="margin-bottom: 90%;"	</p></p>
   
   <h2 id="languages">Languages</h2>
@@ -264,7 +270,6 @@ displayRandomImage();
 		<td align="left"><a href= "https://www.isca-archive.org/diss_2025/bottcher25_diss.pdf">Böttcher & Kaland, 2025</a></td>	
 		<td align="left"><a href= "https://agenda.uib.es/getFiles/hash/Y3UmMjNDO2UTN5gjNwUWNllTYmBTZjZTMAjZ0AjNyMz:Qy9zMThlV0lpQVIxMkRwenIxSEhMK2ZzTFFaZGlUaTBSaHdIVjJxZFp6SGlsY0Y4YWszaFc5TUFVQ1FzK1hDYXhhb3Y1M3ZtbWJ5akdaSTNrL09wS2dQTmRNUCtXUVZqZEJIVUptVnJ5SFQzdS8wRXQvVDB6UndiK0ZWaUFaYXBKYjIrT3FvK1BFWTh2bHZaRURhSkRINUtSRGtNU0hPbUVJV2FxZ1ppdi9JQVlpaElyZkhRQ2lrQ1ladElIQXVjN3B3bGdRU1pWbEJTYktKY2pVRzBmVjRzWHBnSUFuV2ZTTGppU2hNaWVONzFBeVFoaDR0NWxYV0VVRXQwOTFYOA==">Böttcher & Zellers, 2025</a></td>
 		<td align="left"><a href="https://www.isca-archive.org/interspeech_2024/kaland24_interspeech.pdf">Kaland et al., 2024</a></td>		
-		
 	</tr>
 	<tr>
 		<td align="left"><a href="https://www.isca-archive.org/speechprosody_2024/tatar24_speechprosody.pdf">Tatár et al., 2024</a></td>
@@ -507,9 +512,13 @@ displayRandomImage();
   <p style="margin-bottom: 90%;"	</p>
     
   <h2 id="references">References</h2>
-  <p style="margin-right: 25%">
-  <b>Cite as:</b><br>
-  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>  
+     <b>Cite as:</b><br>
+  <p style="margin-right: 25%; text-indent: -25px; padding-left: 25px;">
+  Kaland, Constantijn. 2025. <i>Contour Clustering</i> (Version 2025-03) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a><br>
+  </p>
+  <p style="margin-right: 25%; text-indent: -25px; padding-left: 25px;">
+  Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]<br><br>
+  </p>   
   <b>Also applied in:</b><br>
   Böttcher, Marlene & Kaland, Constantijn. 2025. Prosodic Prototypes of Filler Particles across Three Languages. <i>Proc. 12th edition of the Disfluency in Spontaneous Speech Workshop (DiSS 2025)</i>, 12-16. <a href="https://doi.org/10.21437/DiSS.2025-3">doi:10.21437/DiSS.2025-3</a> [<a href="https://www.isca-archive.org/diss_2025/bottcher25_diss.pdf">pdf</a>]<br><br>
   Jeon, Hae-Sung; Kaland, Constantijn & Grice, Martine. 2024. Question intonation in conversational speech: Chungcheong and Gyeongsang varieties of Korean. <i>Journal of the Acoustical Society of America</i>, 158, 684-696. <a href="https://doi.org/10.1121/10.0037191">doi:10.1121/10.0037191</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/A01_A02_A03_Jeon_Kaland_Grice_2025__Question_intonation_in_conversational_speech.pdf">pdf</a>]<br><br>
