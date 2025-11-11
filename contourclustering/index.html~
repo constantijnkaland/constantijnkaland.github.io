@@ -323,6 +323,12 @@ displayRandomImage();
 		<td align="left"><a href="https://www.isca-archive.org/tai_2025/pharao25_tai.pdf">Pharao & Puggaard-Rode, 2025</a></td>
 		<td align="left"><br></td>
 	</tr>
+	<tr>
+		<td height="17" align="left">Dutch</td>
+		<td align="left">noun-phrases</td>		
+		<td align="left"><a href="https://www.sciencedirect.com/science/article/pii/S0095447025000658/pdfft?md5=270af9bd6adf205eaccb5260936ce29b&pid=1-s2.0-S0095447025000658-main.pdf">Kaland, 2025</a></td>
+		<td align="left"><br></td>
+	</tr>
 		<tr>
 		<td height="17" align="left">Ewe</td>
 		<td align="left">syllable rhymes</td>
@@ -443,7 +449,7 @@ displayRandomImage();
 	</tr>
 	<tr>
 		<td height="17" align="left">Papuan Malay</td>
-		<td align="left">(noun) phrases/words</td>
+		<td align="left">(noun-)phrases/words</td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Grice_2024_Exploring_explaining_variation.pdf">Kaland &amp; Grice, 2024</a></td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf">Kaland &amp; Ellison, 2023</a></td>
 		<td align="left"><a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">Kaland, 2023</a></td>		
