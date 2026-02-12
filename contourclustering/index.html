@@ -534,7 +534,7 @@ displayRandomImage();
     
   <h2 id="references">References</h2>
      <b>Cite as:</b><br>
-<p class="ref">Kaland, Constantijn. <cvY></cvY>. <i>Contour Clustering</i> (Version <cvY></cvY><cvM></cvM>) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a></p>
+  <p class="ref">Kaland, Constantijn. <cvY></cvY>. <i>Contour Clustering</i> (Version <cvY></cvY><cvM></cvM>) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a></p>
   <p class="ref">Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]</p><br> 
   <b>Also applied in:</b><br>
   <p class="ref">Möking, Eduardo. 2025. <i>Backchannels in spontaneous and task-oriented speech: Prosody and lexical form</i>. MA thesis, Universität zu Köln. [<a href="https://kups.ub.uni-koeln.de/78814/3/7335126_Moeking_Eduardo_10_03_2025_MA-Arbeit.pdf">pdf</a>]</p>
@@ -626,9 +626,15 @@ displayRandomImage();
 <p style="margin-bottom: 100%;"</p>
 
 <script>
-for( i = 0; i < 10; i++) {
+var i;
+var p = document.querySelectorAll('cvY');
+for( i = 0; i < p.length; i++) {
 document.getElementsByTagName("cvY")[i].innerHTML = "2026";
-document.getElementsByTagName("cvM")[i].innerHTML = "-02";
+}
+var j
+var q = document.querySelectorAll('cvM');
+for( j = 0; j < q.length; j++) {
+document.getElementsByTagName("cvM")[j].innerHTML = "-02";
 }
 </script>
   
