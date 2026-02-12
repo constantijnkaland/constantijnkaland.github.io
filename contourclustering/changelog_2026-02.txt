@@ -1,0 +1,71 @@
+Changelog to version 2026-02:
+------------------
+
+
+> Added option to compute and listen to prototypes for each cluster (Prototypes tab and right Y-axis in plot settings)
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added the option to plot median values and their coverage probability to summarize the clusters.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added automatic correction of interval boundaries that coincide with start or end of audio file.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added filename indicator to track progress when: reading textgrids, measuring f0, and measuring intensity.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added option to allow a maxmimum number of exceedings of the maximum rate of f0 change per contour. Cleaning summary changed accordingly.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Removed dependency on TSdist package and therefore also removed distance metric "autocorrelation"
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added line type and line color options for plotting in app settings.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Updated manual.pdf to account for the aforementioned changes.
+
+Applies to:
+- manual.pdf
