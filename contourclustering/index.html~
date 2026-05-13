@@ -90,7 +90,7 @@ p.ref {
   <li><a href="#contact"><img class="l" src="li_cnt.png " alt="">Contact</a></li>
  </div>
 
-
+<!--
 <table align=center>
 <tr>
 <td align=center; width=45%>
@@ -100,7 +100,7 @@ p.ref {
 </td>
 </tr>
 </table>
-<!--
+
 <td width=10%></td>
 <td
 <td align=center;width=45%>
