@@ -122,9 +122,9 @@ p.ref {
 </ul>
 
 <main>
-  <img align:"bottom" src="unclustered.png" width="50%" height=auto>
+  <img align:"bottom" src="unclustered.png" width="50%" height=auto title="cluttered">
   <p style="margin-top: 0%; margin-bottom: 0%; font-size: 500%; padding-left: 25%;">&#8595</p>
-  <img align:"bottom" src="clustered.png" width="50%" height=auto>
+  <img align:"bottom" src="clustered.png" width="50%" height=auto title="clustered">
   
   <p style="margin-bottom: 100%;"</p>
 
@@ -426,7 +426,7 @@ displayRandomImage();
 	</tr>
 	<tr>
 		<td height="17" align="left">Mandarin Chinese</td>
-		<td align="left">(loan)words</td>
+		<td align="left">(loan)words/syllables</td>
 		<td align="left"><a href="https://site.hanyang.ac.kr/documents/10980062/577907791/223.pdf">Zhou, 2026</a></td>
 		<td align="left"><a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309221143719?download=true">Hou & Laméris, 2026</a><br></td>
 		<td align="left"><a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309221143719?download=true">Laméris et al., 2023</a></td>
