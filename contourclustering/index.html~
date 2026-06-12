@@ -130,6 +130,12 @@ p.ref {
 
   <h2 id="what">What is this?</h2>
   <p style="width:85%"><img id="randomImage" style="float:right;width:17%;padding-left:5%;">
+  <!--
+  Speech varies and only some variation is meaningful. <a style="text-decoration: none; color: black;" href="#download">This</a> tool groups speech units such as sounds, syllables, words or phrases based on their acoustic similarity.  
+  Currently, measures of f0, intensity, duration and formants can be used (in combination) to explore commonly occurring or prototypical sound-meaning relationships. 
+  The grouping (clustering) may help to understand that fitting speech variation into clear-cut meaningful categories is impossible, 
+  but that inspecting the variation itself might be insightful to make claims about sound-meaning relationships.  
+  -->
   Learners of a spoken language acquire intonation mainly through the auditory speech signal, not so much through their nostrils, finger tips, or pupils. 
   For example, questions end with a high tone, statements end with a low tone, but they don't have to. How does this work? 
   We distinguish intonation patterns in a <a style="text-decoration: none; color: black;" href="#languages">language</a> based on their acoustic form and (para)linguistic meaning.
