@@ -122,10 +122,32 @@ p.ref {
 </ul>
 
 <main>
-  <img align:"bottom" src="unclustered.png" width="50%" height=auto title="cluttered">
-  <p style="margin-top: 0%; margin-bottom: 0%; font-size: 500%; padding-left: 25%;">&#8595</p>
-  <img align:"bottom" src="clustered.png" width="50%" height=auto title="clustered">
-  
+
+ <img id="randomImage1" title="cluttered" />
+ <p style="margin-top: 0%; margin-bottom: 0%; font-size: 500%; padding-left: 25%;">&#8595</p>
+  <img id="randomImage2" title="clustered" />
+
+  <script>
+    const imageSet1 = ["unclustered.png", "vcd_plot.png"];
+    const imageSet2 = ["clustered.png", "vcd_plot_c.png"];
+
+    const index = Math.floor(Math.random() * 2);
+
+    const img1 = document.getElementById("randomImage1");
+    const img2 = document.getElementById("randomImage2");
+
+    img1.src = imageSet1[index];
+    img2.src = imageSet2[index];
+    
+    [img1, img2].forEach(img => {
+      img.style.display = "block";
+      img.style.width = "100%";
+      img.style.maxWidth = "35vw";
+      img.style.height = "auto";
+      img.style.margin = "0 0";
+    });
+  </script>
+
   <p style="margin-bottom: 100%;"</p>
 
   <h2 id="what">What is this?</h2>
@@ -141,25 +163,6 @@ Speech varies and only some variation is meaningful. <a style="text-decoration: 
   Go ahead and contribute to the <a style="text-decoration: none; color: black;" href="#references">research</a> so that we can help each other understand. 
   It's not too late, we've only just <a style="text-decoration: none; color: black;" href="https://doi.org/10.1017/S0025100321000049">begun</a> :)</p><br>
 
-<script type="text/javascript">
-
-function getRandomImage() {
-
-var images = ['fig_mouth.png', 'fig_ear.png', 'fig_brain.png','fig_melodies.png'];
-var image = images[Math.floor(Math.random()*images.length)];
- 
-return image;
-
-}
- 
-function displayRandomImage() {
-
-var htmlImage = document.getElementById("randomImage");
-htmlImage.src = getRandomImage();
-
-}
-displayRandomImage();
-</script>
 
   <b>Contour Clustering gives you:</b><br>
 - a workflow for cluster analysis on (time-series) acoustic measures of speech<br>

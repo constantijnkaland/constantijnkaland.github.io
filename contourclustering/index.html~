@@ -131,7 +131,7 @@ p.ref {
   <h2 id="what">What is this?</h2>
   <p style="width:85%"><img id="randomImage" style="float:right;width:17%;padding-left:5%;">
   <!--
-Speech varies and only some variation is meaningful. <a style="text-decoration: none; color: black;" href="#download">This</a> tool groups speech units such as sounds, syllables, words or phrases based on their acoustic similarity.  Currently, measures of f0, intensity, duration and formants can be used (in combination) to explore commonly occurring or prototypical sound-meaning relationships. Somewhat ironically, clustering may help to understand that sound-meaning relationships do not come in clear-cut categories. They are much more variable. However, inspecting the grouped variation itself might be insightful to make claims about sound-meaning relationships, in particular if we have no pre-defined concept of which groups may be found in the data.   
+Speech varies and only some variation is meaningful. <a style="text-decoration: none; color: black;" href="#download">This tool</a> groups speech units such as phones, syllables, words or phrases based on their acoustic similarity. Acoustic measures of f0, intensity, duration and formants can be used (in combination) to explore commonly occurring, prototypical sound-meaning relationships. Somewhat ironically, clustering may help to understand that sound-meaning relationships do not come in clear-cut categories. They are much more variable and differ across <a style="text-decoration: none; color: black;" href="#languages">languages</a>. However, inspecting the grouped variation itself might be <a style="text-decoration: none; color: black;" href="#references">insightful</a> to make claims about (systematic) sound-meaning relationships, in particular if we have <a style="text-decoration: none; color: black;" href="https://doi.org/10.1017/S0025100321000049">no pre-defined concept</a> of which groups may be found in the data.   
   -->
   Learners of a spoken language acquire intonation mainly through the auditory speech signal, not so much through their nostrils, finger tips, or pupils. 
   For example, questions end with a high tone, statements end with a low tone, but they don't have to. How does this work? 
@@ -254,7 +254,7 @@ displayRandomImage();
   
   <h2 id="languages">Languages</h2>
   Contour Clustering has been applied to the following languages:<br><br>
-<table cellspacing="0" border="1px" width="100%" border-collapse="collapse">
+<table cellspacing="0" border="0" width="100%">
 	<colgroup width="20%"></colgroup>
 	<colgroup width="15%"></colgroup>
 	<colgroup width="20%"></colgroup>
