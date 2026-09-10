@@ -1,0 +1,69 @@
+Changelog to version 2026-09:
+------------------
+
+
+> Added option to calculate derivatives of intensity time-series.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added options to measure formants (as time-series or singleton measure) and sample them using spectrograms. 
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added clustering method for vowels based on centroids in acoustic space (using formant values).
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Added function to check R version.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Improved y-axis labels when using two axes.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+> Prototype calculation no longer limited to single variable
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+
+> Improved cutting audio files using tuneR package.
+
+Applies to:
+
+contour_clustering.R
+
+------------------
+
+> Updated manual.pdf to account for the aforementioned changes.
+
+Applies to:
+- manual.pdf

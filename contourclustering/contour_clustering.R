@@ -5,16 +5,18 @@
 # More information, detailed documentation and references can be found on: https://constantijnkaland.github.io/contourclustering/.
 #
 # Developed and tested using R/package versions:
-# R version 4.5.0 (2025-04-11)
-# RStudio 2025.5.0.496
-# cluster 2.1.8.1
+# R version 4.5.2 (2025-10-31)
+# RStudio 2025.9.2.418
+# av 0.9.6
+# cluster 2.1.6
 # data.table 1.18.2.1
-# dplyr 1.2.0
+# dplyr 1.1.4
 # dtwclust 6.0.0
 # fda 6.3.0
 # ggdendro 0.2.0
-# ggplot2 4.0.2
+# ggplot2 4.0.1
 # Hmisc 5.2.5
+# MASS 7.3.60.0.1
 # Metrics 0.1.4
 # pracma 2.4.6
 # proxy 0.4.29
@@ -23,22 +25,25 @@
 # readtextgrid 0.2.0
 # scales 1.4.0
 # shiny 1.12.1
-# sound 1.4.6
-# stats 4.5.0
+# stats 4.5.2
 # stringr 1.6.0
+# tuneR 1.4.7
 # usedist 0.4.0
-# utils 4.5.0
+# utils 4.5.2
 # wrassp 1.0.6
 # zip 2.3.3
 # zoo 1.8.15
 # 
-# Constantijn Kaland, February 2026.
+# Constantijn Kaland, September 2026.
 # https://constantijnkaland.github.io/contourclustering/
+#
+# Licensed: CC BY-NC-SA 4.0
+
 
 options(warn = -1, error = NULL)
 
-packages.initload <- c("data.table","dplyr","ggplot2","Hmisc","readr","shiny","stats","stringr","utils","zoo")
-packages.flyload <- c("cluster","dtwclust","fda","ggdendro","Metrics","pracma","proxy","purrr","readtextgrid","scales","sound","usedist","wrassp","zip")
+packages.initload <- c("data.table","dplyr","ggplot2","Hmisc","readr","scales","shiny","stats","stringr","utils","zoo")
+packages.flyload <- c("av","cluster","dtwclust","fda","ggdendro","MASS","Metrics","pracma","proxy","purrr","readtextgrid","tuneR","usedist","wrassp","zip")
 packages <- c(packages.initload,packages.flyload)
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == F)) {
@@ -183,6 +188,12 @@ ui <- tagList(
               "duration",
               tags$div(align = "center", title = "Include duration as measurement in seconds (s, can be converted later). Duration is taken be subtracting the end time from the start time of the interval. A single duration value is added per contour (at measurement point 1, rest shows as NA). At least one of the acoustic cues needs to be included.",checkboxInput("incl_dur", "include", value = F))
             ),
+            tabPanel(
+              "formants",
+              tags$div(align = "center", title = "Include formants (F1-F5) as measurement in Hertz (Hz, can be converted later). At least one of the acoustic cues needs to be included.",checkboxInput("incl_fX", "include", value = F)),
+              HTML('<p style="margin-bottom:10px;"></p>'),
+              uiOutput("fX_settings")
+            ),
           )
           ),
           tags$hr(),
@@ -226,6 +237,41 @@ ui <- tagList(
                               column(width = 11, plotOutput("cl.dendro")),
                               column(width = 1, div(align = "center", title = "Save plot as png file to disk",downloadButton("dl.dendro","Save"))),
                             )),
+                            tabPanel("Vowel centroids", fillPage(
+                              fluidRow(
+                                column(width = 2, 
+                                       align = "center", 
+                                       HTML("")
+                                ),
+                                column(width = 8, 
+                                       align = "center", 
+                                       plotOutput("vcore.draw")
+                                ),
+                                column(width = 1, 
+                                       align = "center", 
+                                       HTML("")
+                                ),
+                                column(width = 1, span(
+                                  div(title = "Save plot as png file to disk",downloadButton("dl.vcoreplot","Save"))
+                                ))),
+                              HTML('<br><br>'),
+                              fluidRow(
+                                column(width = 11, div(title = "Table listing the vowel centroid candidates.", align = "center", style = 'font-size: 1.5em', uiOutput("vcore.tabhead"))),
+                                column(width = 1, span(
+                                  div(title = "Save table as csv file to disk",downloadButton("dl.vcoretab","Save"))
+                                ))),
+                              fluidRow(
+                                column(width = 11, 
+                                       align = "center", 
+                                       tableOutput("vcore.tab")
+                                ),
+                                column(width = 1, 
+                                       align = "center", 
+                                       HTML("")
+                                )
+                              )
+                            )
+                            ),
                             tabPanel("Plot", fillPage(
                                        column(width = 11, plotOutput("cl.plot")),
                                        column(width = 1, span(
@@ -306,8 +352,8 @@ ui <- tagList(
                               fluidRow(
                                 uiOutput("proto.play")
                               )
-                            )),
-                )
+                            ))
+                            )
               )
             )),
   
@@ -323,6 +369,7 @@ ui <- tagList(
            style = "height:90vh; overflow-y: auto;",
            HTML('
            <div class="csl-bib-body" style="line-height: 2; margin-left: 3em; text-indent:-2em;">
+  <div class="csl-entry">Barrett, T., Dowle, M., Srinivasan, A., Gorecki, J., Chirico, M., Hocking, T., &amp; Schwendinger, B. (2006). <i>data.table: Extension of `data.frame`</i> (p. 1.16.4) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.data.table">https://doi.org/10.32614/CRAN.package.data.table</a></div>         
   <div class="csl-entry">Bittinger, K. (2017). <i>usedist: Distance Matrix Utilities</i> (p. 0.4.0) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.usedist" target="_blank">https://doi.org/10.32614/CRAN.package.usedist</a></div>
   <div class="csl-entry">Borchers, H. W. (2011). <i>pracma: Practical Numerical Math Functions</i> (p. 2.4.4) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.pracma" target="_blank">https://doi.org/10.32614/CRAN.package.pracma</a></div>
   <div class="csl-entry">Chang, W., Cheng, J., Allaire, J., Sievert, C., Schloerke, B., Xie, Y., Allen, J., McPherson, J., Dipert, A., &amp; Borges, B. (2012). <i>shiny: Web Application Framework for R</i> (p. 1.10.0) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.shiny" target="_blank">https://doi.org/10.32614/CRAN.package.shiny</a></div>
@@ -334,15 +381,18 @@ ui <- tagList(
   <div class="csl-entry">Hamner, B., &amp; Frasco, M. (2012). <i>Metrics: Evaluation Metrics for Machine Learning</i> (p. 0.1.4) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.Metrics" target="_blank">https://doi.org/10.32614/CRAN.package.Metrics</a></div>
   <div class="csl-entry">Harrell Jr, F. E. (2003). <i>Hmisc: Harrell Miscellaneous</i> (p. 5.2-2) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.Hmisc" target="_blank">https://doi.org/10.32614/CRAN.package.Hmisc</a></div>
   <div class="csl-entry">Hermes, D. J. (1998). Measuring the Perceptual Similarity of Pitch Contours. <i>Journal of Speech, Language, and Hearing Research</i>, <i>41</i>(1), 73–82. <a href="https://doi.org/10.1044/jslhr.4101.73" target="_blank">https://doi.org/10.1044/jslhr.4101.73</a></div>
-  <div class="csl-entry">Heymann, M. (2002). <i>sound: A Sound Interface for R</i> (p. 1.4.6) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.sound" target="_blank">https://doi.org/10.32614/CRAN.package.sound</a></div>
   <div class="csl-entry">Hyndman, R. J., &amp; Koehler, A. B. (2006). Another look at measures of forecast accuracy. <i>International Journal of Forecasting</i>, <i>22</i>(4), 679–688. <a href="https://doi.org/10.1016/j.ijforecast.2006.03.001" target="_blank">https://doi.org/10.1016/j.ijforecast.2006.03.001</a></div>
   <div class="csl-entry">Kaland, C., &amp; Ellison, T. M. (2023). Evaluating cluster analysis on f0 contours: An information theoretic approach on three languages. In R. Skarnitzl &amp; J. Volín (Eds.), <i>Proceedings of the 20th International Congress of Phonetic Sciences</i> (pp. 3448–3452). Guarant International. <a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf" target="_blank">https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_Ellison_2023_Evaluating_cluster_analysis.pdf</a></div>
   <div class="csl-entry">Kaufmann, L., &amp; Rousseeuw, P. (1987). Clustering by means of medoids. In Y. Dodge (Ed.), <i>Data Analysis based on the L1-Norm and Related Methods</i> (pp. 405–416). North Holland / Elsevier. <a href="https://www.researchgate.net/profile/Peter-Rousseeuw/publication/243777819_Clustering_by_Means_of_Medoids/links/00b7d531493fad342c000000/Clustering-by-Means-of-Medoids.pdf" target="_blank">https://www.researchgate.net/profile/Peter-Rousseeuw/publication/243777819_Clustering_by_Means_of_Medoids/links/00b7d531493fad342c000000/Clustering-by-Means-of-Medoids.pdf</a></div>
+  <div class="csl-entry">Lobanov, B. M. (1971). Classification of Russian Vowels Spoken by Different Speakers. <i>The Journal of the Acoustical Society of America</i>, <i>49</i>(2B), 606–608. <a href="https://doi.org/10.1121/1.1912396" target="_blank">https://doi.org/10.1121/1.1912396</a></div>
   <div class="csl-entry">Maechler, M., Rousseeuw, P., Struyf, A., &amp; Hubert, M. (1999). <i>cluster: “Finding Groups in Data”: Cluster Analysis Extended Rousseeuw et al.</i> (p. 2.1.8) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.cluster" target="_blank">https://doi.org/10.32614/CRAN.package.cluster</a></div>
   <div class="csl-entry">Mahr, T. (2020). <i>readtextgrid: Read in a “Praat” “TextGrid” File</i> (p. 0.1.2) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.readtextgrid" target="_blank">https://doi.org/10.32614/CRAN.package.readtextgrid</a></div>
   <div class="csl-entry">Meyer, D., &amp; Buchta, C. (2007). <i>proxy: Distance and Similarity Measures</i> (p. 0.4-27) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.proxy" target="_blank">https://doi.org/10.32614/CRAN.package.proxy</a></div>
+  <div class="csl-entry">Mori, U., Mendiburu, A., &amp; Lozano, J. A. (2014). <i>TSdist: Distance Measures for Time Series Data</i> (p. 3.7.1) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.TSdist">https://doi.org/10.32614/CRAN.package.TSdist</a></div>
+  <div class="csl-entry">Ooms, J. (2018). <i>av: Working with Audio and Video in R</i> (p. 0.9.6) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.av">https://doi.org/10.32614/CRAN.package.av</a></div>
   <div class="csl-entry">Ramsay, J. (2003). <i>fda: Functional Data Analysis</i> (p. 6.2.0) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.fda" target="_blank">https://doi.org/10.32614/CRAN.package.fda</a></div>
   <div class="csl-entry">Reynolds, A. P., Richards, G., De La Iglesia, B., &amp; Rayward-Smith, V. J. (2006). Clustering Rules: A Comparison of Partitioning and Hierarchical Clustering Algorithms. <i>Journal of Mathematical Modelling and Algorithms</i>, <i>5</i>(4), 475–504. <a href="https://doi.org/10.1007/s10852-005-9022-1" target="_blank">https://doi.org/10.1007/s10852-005-9022-1</a></div>
+  <div class="csl-entry">Ripley, B., &amp; Venables, B. (2009). <i>MASS: Support Functions and Datasets for Venables and Ripley’s MASS</i> (p. 7.3-65) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.MASS">https://doi.org/10.32614/CRAN.package.MASS</a></div>
   <div class="csl-entry">Sarda-Espinosa, A. (2015). <i>dtwclust: Time Series Clustering Along with Optimizations for the Dynamic Time Warping Distance</i> (p. 6.0.0) [Dataset]. <a href="https://doi.org/10.32614/CRAN.package.dtwclust" target="_blank">https://doi.org/10.32614/CRAN.package.dtwclust</a></div>
   <div class="csl-entry">Scheffers, M. T. M. (1983). Simulation of auditory analysis of pitch: An elaboration on the DWS pitch meter. <i>The Journal of the Acoustical Society of America</i>, <i>74</i>(6), 1716–1725. <a href="https://doi.org/10.1121/1.390280" target="_blank">https://doi.org/10.1121/1.390280</a></div>
   <div class="csl-entry">Schubert, E., &amp; Rousseeuw, P. J. (2019). Faster k-Medoids Clustering: Improving the PAM, CLARA, and CLARANS Algorithms. In G. Amato, C. Gennaro, V. Oria, &amp; M. Radovanović (Eds.), <i>Similarity Search and Applications</i> (Vol. 11807, pp. 171–187). Springer International Publishing. <a href="https://doi.org/10.1007/978-3-030-32047-8_16" target="_blank">https://doi.org/10.1007/978-3-030-32047-8_16</a></div>
@@ -367,12 +417,31 @@ ui <- tagList(
 
 # server ####
 server <- function(input, output, session) {
-  showNotification(id = "not.scr",paste0("For the best experience: use \"Actual size\" (Ctrl + 0) as zoom level and maximize this window."),type = "error",duration = NULL,closeButton = T)
+  version.check <- function(notif) {
+    "4.5.0" -> app.dev
+    paste(version$major,version$minor,sep = ".") -> cur.ver
+    if(any(as.vector(str_split(app.dev,"\\.",simplify = T)) > as.vector(str_split(cur.ver,"\\.",simplify = T)))){
+      showModal(modalDialog(title = "R version check",
+                            HTML("Current version: ",cur.ver,"<br>",
+                                 "App development version: ",app.dev,"<br>","<br>",
+                                 "Please update R.<br><a href='https://cran.r-project.org/' target='_blank'>https://cran.r-project.org/</a>",
+                            ),size = "s"))}
+    if(notif==T){
+                              observe({
+                                if(input$tabs_main=="Settings"){
+                                  showNotification(id = "not.vcheck",paste0("Current R version not older than app development version. Updating R not necessary."),type = "message",duration = 3,closeButton = T)
+                                }
+                                })
+                            }
+  }
+  version.check(F)
+  removeNotification("not.vcheck")
+  showNotification(id = "not.scr",paste0("For the best experience: use \"Actual size\" (Ctrl + 0) as zoom level and maximize this window. In Windows: set screen scaling to 100%."),type = "error",duration = NULL,closeButton = T)
   session$onSessionEnded(function() {
     suppressWarnings(unlink("www", recursive = T))
     cat("Stopped contour clustering app.\n")
     if (app.keep==0){
-      suppressWarnings(rm(list = c("df.l","df.g","df.e","logfile","app.keep"),envir = .GlobalEnv))
+      suppressWarnings(rm(list = c("df.l","df.g","df.e","df.v","logfile","app.keep"),envir = .GlobalEnv))
     } else{
       suppressWarnings(rm(list = c("app.keep"),envir = .GlobalEnv))
     }
@@ -391,6 +460,7 @@ server <- function(input, output, session) {
   hideTab(inputId = "tabs_cl", target = "Table")
   hideTab(inputId = "tabs_cl", target = "Evaluate")
   hideTab(inputId = "tabs_cl", target = "Prototypes")
+  hideTab(inputId = "tabs_cl", target = "Vowel centroids")
   hideTab(inputId = "tabset_data", target = "Data (TextGrids)")
   hideTab(inputId = "tabset_data", target = "Data (upload)")
   hideTab(inputId = "tabset_data", target = "Data (long)")
@@ -411,11 +481,15 @@ server <- function(input, output, session) {
   reactiveVal(50) -> disp_rows
   reactiveVal(20) -> npoints
   reactiveVal(NULL) -> m.rows
+  reactiveVal("ts") -> fX.single
+  reactiveVal(T) -> fX.dynwin
+  reactiveVal(2) -> vcore.ncores
+  reactiveVal(100) -> vcore.res
   reactiveVal(0) -> samplemode
   reactiveVal(0) -> clean.set
   reactiveVal() -> seps
-  reactiveVal(8) -> nclust
-  reactiveValues(c_plot = NULL, d_plot = NULL, s_tab = NULL, c_tab = NULL, e_plot = NULL, p_tab = NULL) -> savethis
+  reactiveVal(2) -> nclust
+  reactiveValues(c_plot = NULL, d_plot = NULL, s_tab = NULL, c_tab = NULL, e_plot = NULL, p_tab = NULL, v_plot = NULL, v_tab = NULL) -> savethis
   reactiveVal(300) -> height
   reactiveVal() -> cc.y1
   reactiveVal("solid") -> app.yL.type
@@ -433,54 +507,86 @@ server <- function(input, output, session) {
   })
   
   output$app.settings <- renderUI({
-    fillPage(
-      sidebarPanel(
-        width = 2,
-             tags$div(
-               title = "Limits the number of rows in datasets to display in app. This saves render time for large datasets. This is a display setting only, saving/processing is done on all data and is therefore not affected by this setting.",
-               radioButtons("app.disp_rows", "Number of rows to display:",choices = c("25" = 25,"50" = 50,"200" = 200,"all" = 0), selected = disp_rows(), inline = F, width = '100%')
-               )
-             ),
-      sidebarPanel(
-        width = 2,
-             tags$div(
-               title = "Sets the file upload limit in megabytes.",
-               radioButtons("app.upl_lim", "File upload limit (MB):",choices = c("5" = 5,"10" = 10,"20" = 20,"100" = 95.368), selected = app.fileinput(), inline = F, width = '100%')
-             )
-             ),
-      sidebarPanel(
-        width = 2,
-        span(
-         HTML('<b>Saving:</b><br><br>'),
-         splitLayout(
-          tags$div(title = "Specify dimensions in pixels for saving plots (directed to 'ggsave()').", numericInput("app.plot.w","Plot width:",min = 500,max = 10000,value = app.plot.w(),step = 500)),
-          tags$div(title = "Specify dimensions in pixels for saving plots (directed to 'ggsave()').", numericInput(inputId = "app.plot.h",label = "Plot height:",min = 500,max = 10000, value = app.plot.h(), step = 500))
-         ),
-         tags$div(title = "Applies to clicking 'Save this'. Either saves output files as individual files or together in a zip file with the date and number of clusters in the name for future reference.", checkboxInput("app.zip",HTML('<b>"Save this" to zip</b>'),value = zipfiles()))
-        )
+      fillPage(
+          column(width = 2, verticalLayout(
+            div(HTML('<b>Data</b><br><br>'), style = 'text-align: center; font-size: 1.5em'),
+              sidebarPanel(
+                width = 12,
+                HTML('<b>Audio converter:</b><br><br>'),
+                tags$div(
+                  title = "Specify file path to audio files that need conversion.",
+                  textInput("app.audiopath",label = "Path:",value = inDir())),
+                tags$div(
+                  title = "Specify the directory name in which to store the converted audio files. This directory will become a subdirectory of the path specified above. All files in that subdirectory are overwritten.",
+                  textInput("app.audiodir", label = "Directory:",value = "CC_convert")),
+                tags$div(
+                  title = "Convert audio files to: PCM wave, 16 kHz, 16 bit, mono.",
+                  actionButton("app.audioconv", "Convert")
+                )
+              ),
+            sidebarPanel(
+              width = 12,
+              tags$div(
+                title = "Sets the file upload limit in megabytes.",
+                radioButtons("app.upl_lim", "File upload limit (MB):",choices = c("5" = 5,"10" = 10,"20" = 20,"100" = 95.368), selected = app.fileinput(), inline = F, width = '100%')
+              )
+            ),
+            sidebarPanel(
+              width = 12,
+              tags$div(
+                title = "Limits the number of rows in datasets to display in app. This saves render time for large datasets. This is a display setting only, saving/processing is done on all data and is therefore not affected by this setting.",
+                radioButtons("app.disp_rows", "Number of rows to display:",choices = c("25" = 25,"50" = 50,"200" = 200,"all" = 0), selected = disp_rows(), inline = F, width = '100%')
+              )
+            )
+            )
         ),
-      sidebarPanel(
-        width = 2,
-        tags$div(
-          HTML('<b>Line aesthetics:</b><br><br>'),
-          title = "Specifies the linetypes and colors (as hex code) of the y variable(s) in the plot.",
-          radioButtons("app.yL.type", "Left y var:",choices = c("solid","dashed"), selected = app.yL.type(), inline = T, width = '100%'),
-          textInput("app.yL.col", NULL,value = app.yL.col(), width = '100%'),
-          tags$hr(),
-          tags$div(style="text-align: right",
-          radioButtons("app.yR.type", "Right y var:",choices = c("solid","dashed"), selected = app.yR.type(), inline = T, width = '100%'),
-          textInput("app.yR.col", NULL,value = app.yR.col(), width = '100%')
+        column(width = 2, verticalLayout(
+          div(HTML('<b>Clustering</b><br><br>'), style = 'text-align: center; font-size: 1.5em'),
+          sidebarPanel(
+            width = 12,
+            tags$div(
+              HTML('<b>Line aesthetics:</b><br><br>'),
+              title = "Specifies the linetypes and colors (as hex code) of the y variable(s) in the cluster plot.",
+              radioButtons("app.yL.type", "Left y var:",choices = c("solid","dashed"), selected = app.yL.type(), inline = T, width = '100%'),
+              textInput("app.yL.col", NULL,value = app.yL.col(), width = '100%'),
+              tags$hr(),
+              tags$div(style="text-align: right",
+                       radioButtons("app.yR.type", "Right y var:",choices = c("solid","dashed"), selected = app.yR.type(), inline = T, width = '100%'),
+                       textInput("app.yR.col", NULL,value = app.yR.col(), width = '100%')
+              )
+            )
+          ),
+          sidebarPanel(
+            width = 12,
+            span(
+              HTML('<b>Saving:</b><br><br>'),
+              splitLayout(
+                tags$div(title = "Specify dimensions in pixels for saving plots (directed to 'ggsave()').",
+                         style = 'margin-left: 2px; margin-right: 2px',
+                         numericInput("app.plot.w","Plot width:",min = 500,max = 10000,value = app.plot.w(),step = 500)),
+                tags$div(title = "Specify dimensions in pixels for saving plots (directed to 'ggsave()').",
+                         style = 'margin-left: 2px; margin-right: 2px',
+                         numericInput(inputId = "app.plot.h",label = "Plot height:",min = 500,max = 10000, value = app.plot.h(), step = 500))
+              ),
+              tags$div(title = "Applies to clicking 'Save this'. Either saves output files as individual files or together in a zip file with the date and number of clusters in the name for future reference.", checkboxInput("app.zip",HTML('<b>"Save this" to zip</b>'),value = zipfiles()))
+            )
           )
+        )),
+        column(width = 2, verticalLayout(
+          div(HTML('<b>R environment</b><br><br>'), style = 'text-align: center; font-size: 1.5em'),
+          sidebarPanel(
+            width = 12,
+            tags$div(HTML('<b>Garbage collection:</b><br><br>'),
+                     title = "Runs the garbage collection function of R: gc(). This happens automatically in R and should only be used if the app is slow, in which case the effects might be minimal.", actionButton("app.gc","Run gc()"))),
+          sidebarPanel(
+            width = 12,
+            tags$div(title = "Ticking the box keeps objects created by the app (data and log) in the Global Environment of R after closing the app. Useful for debugging and/or manual data processing outside the app in the same session.", span(HTML('<b>Global Environment:</b><br>'),checkboxInput("app.keep","Keep objects",value = app.keep)))),
+          sidebarPanel(
+            width = 12,
+            tags$div(title = "Check running R version against R version used for app development. In case the running version is older, updating R is strongly recommended to avoid crashes.", span(HTML('<b>R version check:</b><br>'),actionButton("app.vc","Check version"))))
+        ))
         )
-      ),
-      sidebarPanel(
-        width = 2,
-        tags$div(title = "Runs the garbage collection function 'gc()' of R. This happens automatically in R and should only be used if the app is slow, in which case the effects might be minimal.", actionButton("app.gc","Garbage collection"))),
-      sidebarPanel(
-        width = 2,
-                   tags$div(title = "Ticking the box keeps objects created by the app (data and log) in the Global Environment of R after closing the app. Useful for debugging and/or manual data processing outside the app in the same session.", span(HTML('<b>Global Environment:</b><br>'),checkboxInput("app.keep","Keep objects",value = app.keep))))
-      )
-  })
+    })
   
   output$manual <- renderUI({
     fluidPage(
@@ -796,7 +902,7 @@ server <- function(input, output, session) {
         HTML('<p style="margin-bottom:10px;"></p>'),
         splitLayout(
           tags$div(
-            title = "Package 'wrassp':  minimum quality value of f0 fit, defaults to 0.52. More accurate/less f0 candidates > 0.52 > less accurate/more f0 candidates.",
+            title = "Package 'wrassp':  minimum quality value of f0 fit, defaults to 0.52. More accurate/less f0 candidates > 0.52 > less accurate/more f0 candidates. Tracked f0 values are represented by a black line in the sample plot.",
             numericInput(
               "f0.fit",
               "f0 fit",
@@ -807,7 +913,7 @@ server <- function(input, output, session) {
             )
           ),
           tags$div(
-            title = "Smoothing bandwith for kernel smoothing. Snugger < smoother.",
+            title = "Smoothing bandwith for kernel smoothing. Snugger < smoother. The smoothed version of the tracked f0 values is represented by a dashed red line in the sample plot.",
             numericInput(
               "f0.smooth_bw",
               "Smoothing bandwith",
@@ -830,7 +936,6 @@ server <- function(input, output, session) {
           ),
           tags$div(
             title = "Number of measurement points to represent the smoothed contour. See hints in sidepanel on the maximum number of measurement points.",
-            isolate(
             numericInput(
               "npoints.f0",
               "N measurement pts",
@@ -838,19 +943,20 @@ server <- function(input, output, session) {
               min = 2,
               max = 100,
               step = 1
-            )))
+            ))
         ),
         tags$hr(),
         fluidRow(
           column(width = 4,
-                 tags$div(title = "Sample N random intervals from the TextGrids. Unless clicked, the same sample is used.",
+                 tags$div(title = "Sample N random intervals from the TextGrids. Unless clicked, the same sample is used for visualization.",
                  actionButton("do_sample", label = "Take sample"))),
-          column(width = 3,
+          column(width = 4,
                  tags$div(title = HTML("Number of random intervals to sample. Effectuated by 'Take sample'."),
+                          style = 'margin-left: 2px; margin-right: 2px',
                  numericInput("n_sample",  label = NULL, value = 5, min = 1, max = nrow(df.g), step = 1))),
-          column(width = 5,
+          column(width = 4,
                  tags$div(title = "Visualize the chosen sample to inspect the settings. Black line: tracked f0 (wrassp::mhsF0(); see Scheffers, 1983, doi:10.1121/1.390280); red dashed line: inter/extra-polated and smoothed f0 for clustering", 
-                 actionButton("disp_sample", "Visualize sample")))
+                 actionButton("disp_sample", "Show sample")))
         ),
         tags$hr(),
         renderText(paste0(
@@ -873,7 +979,7 @@ server <- function(input, output, session) {
       return(NULL)
     } else {
     tags$div(
-      title = "Number of measurement points to represent the intensity contour. Linked to the number of points for the f0 contour.",
+      title = "Number of measurement points to represent the intensity contour. Linked to the number of points for the f0/f1/f2 contour.",
       numericInput(
         "npoints.int",
         "N measurement pts",
@@ -884,6 +990,253 @@ server <- function(input, output, session) {
       ))
     }
   })
+  
+  output$fX.gensep <- renderUI({
+    if(is.null(input$fX.gencol)==F){
+      if(input$fX.gencol=="name_trim" | input$fX.gencol=="tier_name" | input$fX.gencol=="text"){
+        tags$div(
+          title = "String separator to split the filename or interval label into substrings. Performs regex search for punctuation marks using '[[:punct:]]'.",
+          selectInput(
+            "fX.gensep",
+            "Split by",
+            choices = c(" ",
+                        unique(
+                          as.vector(
+                            str_extract_all(
+                              as.vector(
+                                unlist(
+                                  subset(df.g, select = input$fX.gencol),
+                                )), '[[:punct:]]',simplify = T)))),
+            multiple = F,
+            width = '100%'
+          ))
+      }
+    }else{
+      return(NULL)
+    }
+  })
+  
+  output$fX.genstr <- renderUI({
+    if(is.null(input$fX.gensep)==F & is.null(input$fX.gencol)==F){
+      if(input$fX.gensep!=" " & input$fX.gencol!="u" & input$fX.gencol!="short" & input$fX.gencol!="long"){
+        tags$div(
+          title = "Substring to take as vocal tract length label. For selection, the string in the selected column in the first row of 'df.g' is taken. Selecting a substring applies to entire dataframe and only works if all strings have the same format.",
+          selectInput(
+            "fX.genstr",
+            "String",
+            choices = c(" ",as.vector(str_split(df.g[[input$fX.gencol]][1],input$fX.gensep,simplify = T))),
+            multiple = F,
+            width = '100%'
+          ))
+      }else{
+        if(is.null(input$fX.genstr)==F  & input$fX.gencol!="u" & input$fX.gencol!="short" & input$fX.gencol!="long"){
+          tags$div(
+            title = "Substring to take as vocal tract length label. For selection, the string in the selected column in the first row of 'df.g' is taken. Selecting a substring applies to entire dataframe and only works if all strings have the same format.",
+            selectInput(
+              "fX.genstr",
+              "String",
+              choices = c(" ",as.vector(str_split(df.g[[input$fX.gencol]][1],input$fX.gensep,simplify = T))),
+              multiple = F,
+              width = '100%'
+            ))
+        }
+      }
+    }else{
+      return(NULL)
+    }
+  })
+  
+  output$fX.genmaps <- renderUI({
+    if(is.null(input$fX.genstr)==F & is.null(input$fX.gensep)==F){
+      if(input$fX.genstr!=" " & input$fX.gencol!="u" & input$fX.gencol!="short" & input$fX.gencol!="long"){
+        fluidRow(
+          column(width = 4,
+                   tags$div(
+                     title = "Short vocal tract applies to the selected substring(s).",
+                     selectInput(
+                       "fX.genF",
+                       "Short:",
+                       choices = unique(str_split(df.g[[input$fX.gencol]],input$fX.gensep,simplify = T)[,which(as.vector(str_split(df.g[[input$fX.gencol]][1],input$fX.gensep,simplify = T))==input$fX.genstr)]),
+                       multiple = T,
+                       width = '100%'
+                     ))),
+          column(width = 4,
+                   tags$div(
+                     title = "Long vocal tract applies to the selected substring(s).",
+                     selectInput(
+                       "fX.genM",
+                       "Long:",
+                       choices = unique(str_split(df.g[[input$fX.gencol]],input$fX.gensep,simplify = T)[,which(as.vector(str_split(df.g[[input$fX.gencol]][1],input$fX.gensep,simplify = T))==input$fX.genstr)]),
+                       multiple = T,
+                       width = '100%'
+                     ))),
+          column(width = 4,
+                   tags$div(
+                     title = "Unknown vocal tract length applies to the selected substring(s).",
+                     selectInput(
+                       "fX.genU",
+                       "Unknown:",
+                       choices = unique(str_split(df.g[[input$fX.gencol]],input$fX.gensep,simplify = T)[,which(as.vector(str_split(df.g[[input$fX.gencol]][1],input$fX.gensep,simplify = T))==input$fX.genstr)]),
+                       multiple = T,
+                       width = '100%'
+                     )))
+            )
+      }else{
+            return(NULL)
+          }
+  }})
+  
+  output$fX.genmap <- renderUI({
+    if(input$fX.gencol!="u" & (is.null(input$fX.genF)==F | is.null(input$fX.genM)==F | input$fX.gencol=="short" | input$fX.gencol=="long")){
+      span(
+             br(),
+             HTML('<p style="margin-bottom:5px;"></p>'),
+             tags$div(
+               title = "Map vocal tract length in 'df.g' according to selection.",
+               actionButton(
+                 "fX.genmap",
+                 "Map",
+                 width = '100%'
+               ))
+      )
+    }
+  })
+  
+  output$fX_settings <- renderUI({
+    if (input$incl_fX == F) {
+      return(NULL)
+    } else {
+        span(
+          fluidRow(
+            column(width = 6,
+          tags$div(
+            title = "Estimate formants as time-series or singleton measures. Smoothing bandwidth, number of measurement points and maximum number of NA points (and dynamic window if selected) are used for all options. If singleton measure is selected, time-series is summarized using the selected metric. Maximum intensity takes the single formant value at the intensity peak, mean or median are taken for the entire time-series.",
+            selectInput(
+              "fX.single",
+              "Time-series / singleton",
+              choices = list(
+                "time-series" = "ts",
+                "max. intensity" = "maxint",
+                "mean" = "mean",
+                "median" = "median"
+              ),
+              selected = fX.single(),
+              multiple = F,
+              width = '100%'
+            ))),
+          column(width = 6,
+          tags$div(
+            title = "Number of formants to measure (1-5). Each tracked formant is represented by a white line in the sample plot.",
+            numericInput(
+              "fX.N",
+              "N formants",
+              value = 2,
+              min = 0,
+              max = 5,
+              step = 1
+            )
+          ))),
+          HTML('<p style="margin-bottom:10px;"></p>'),
+          fluidRow(
+            column(width = 6,
+            tags$div(
+              title = "Smoothing bandwith for kernel smoothing. Snugger < smoother. The smoothed version of each tracked formant is represented by a dashed red line in the sample plot.",
+              numericInput(
+                "fX.smooth_bw",
+                "Smoothing bandwith",
+                value = 10,
+                min = 0,
+                max = 100,
+                step = 1
+              )
+            )),
+            column(width = 6,
+            tags$div(
+              title = "Number of measurement points to represent the formant contours. Linked to the number of points for the f0/intensity contour.",
+              numericInput(
+                "npoints.fX",
+                "N measurement pts",
+                value = npoints(),
+                min = 1,
+                max = 100,
+                step = 1
+              )))
+          ),
+          HTML('<p style="margin-bottom:10px;"></p>'),
+          fluidRow(
+            column(width = 6,
+                   br(),
+                   HTML('<p style="margin-bottom:5px;"></p>'),
+            tags$div(
+              title = "Define formant tracking window dynamically based on intensity peaks found within the interval. If turned on, the smoothed intensity curve is represented by a yellow line in the plot for reference. If turned off, the entire interval as provided on the selected tier(s) is used for formant tracking.",
+              checkboxInput(
+                "fX.dynwin",
+                "Dynamic window",
+                value = fX.dynwin()
+              ))),
+            if(fX.dynwin() == T){
+              column(width = 6,
+            tags$div(
+              title = "Percentage of intensity drop allowed relative to intensity peak; defines formant tracking window per interval (lower = smaller window)",
+              numericInput(
+                "fX.intdrop",
+                "Max. drop (%)",
+                value = 4,
+                min = 1,
+                max = 50,
+                step = 1
+              )))}
+          ),
+          HTML('<p style="margin-bottom:10px;"></p>'),
+          fluidRow(
+            column(width = 6,
+            tags$div(
+              title = "Specify speaker vocal tract length (typically short for females and long for males) for more accurate formant estimation. If vocal tract length is known, select whether it is specified in the text string of the filename, tier name or the interval label.",
+              selectInput(
+                "fX.gencol",
+                "Vocal tract length:",
+                choices = list("unknown" = "u", "all short" = "short", "all long" = "long", "in filename" = "name_trim", "in tier name" = "tier_name", "in interval label" = "text"),
+                multiple = F,
+                width = '100%'
+              ))
+            ),
+            column(width = 3, uiOutput("fX.gensep")),
+            column(width = 3, uiOutput("fX.genstr"))
+          ),
+          fluidRow(
+            column(width = 9, uiOutput("fX.genmaps")),
+            column(width = 3, uiOutput("fX.genmap"))
+          ),
+          tags$hr(),
+          fluidRow(
+            column(width = 4,
+                   tags$div(title = "Sample N random intervals from the TextGrids. Unless clicked, the same sample is used.",
+                            actionButton("do_sample", label = "Take sample"))),
+            column(width = 4,
+                   tags$div(title = HTML("Number of random intervals to sample. Effectuated by 'Take sample'."),
+                            style = 'margin-left: 2px; margin-right: 2px',
+                            numericInput("n_sample",  label = NULL, value = 5, min = 1, max = nrow(df.g), step = 1))),
+            column(width = 4,
+                   tags$div(title = "Visualize the chosen sample to inspect the settings. Black line: tracked f0 (wrassp::mhsF0(); see Scheffers, 1983, doi:10.1121/1.390280); red dashed line: inter/extra-polated and smoothed f0 for clustering", 
+                            actionButton("disp_sample", "Show sample")))
+          ),
+          tags$hr(),
+          renderText(paste0(
+            "With a median interval duration of ",
+            round(median(df.g$xmax-df.g$xmin), 2),
+            " s (tier: ",
+            paste(input$sel_tier,collapse = ", "),
+            ") and ",
+            npoints(),
+            " measurement points, formants will be tracked with approximately ",
+            floor((median(df.g$xmax-df.g$xmin)*1000)/npoints()),
+            " ms time-step. Adjust number of measurement points or interval boundaries to obtain a different time-step. Time-step will be smaller if formants are tracked using a dynamic window."
+          ))
+        )
+      }
+  })
+  
+  
   
   output$sample_plots <- renderUI({
     if (samplemode()==1) {
@@ -929,10 +1282,15 @@ server <- function(input, output, session) {
     if(is.null(input$spk.sep)==F){
       if(input$spk.sep!=""){
         fluidRow(
-          column(width = 6, tags$div(title = "The selected column will become the column with speaker IDs in the long data.", selectInput("spk.sepcol","Select separated column for speaker ID:", 
+          column(width = 6, tags$div(title = "The selected column will become the column with speaker IDs in the long data.", selectInput("spk.sepcol","Select (separated) column for speaker ID:", 
                                                                                                                                           choices = c("",paste0("V", c(1:ncol(str_split(string = df.l[,get(input$spk.cols)],pattern = input$spk.sep,simplify = T))))),
                                                                                                                                           multiple = F))),
-          column(width = 6, HTML('<br>'),tags$div(align = "right", title = "Map the selected columns as speaker IDs in long data.", actionButton("spk.mapcol","Map as speaker IDs")))
+          column(width = 6, HTML('<br>'),
+                 tags$div(align = "right", title = "Map the selected columns as speaker IDs in long data.", actionButton("spk.mapcol","Map as speaker IDs")),
+                 if("vc.length" %in% colnames(df.g)){
+                 tags$div(align = "right", title = "Add vocal tract length label (s: short, l: long, u: unknown) to speaker IDs. Format: [spkID_vcLength].", checkboxInput("spk.gen","Add vocal tract length"))
+                 }
+                 )
         )
       }} else {
         NULL
@@ -980,7 +1338,7 @@ server <- function(input, output, session) {
       "standardize" = "std",
       "octave-median rescaling (Hz only)" = "oMe"
     )
-    f0.derivs.list <- list("none" = "n",
+    derivs.list <- list("none" = "n",
                            "velocity (d1)" = "d1",
                            "acceleration (d2)" = "d2",
                            "jerk (d3)" = "d3")
@@ -1005,12 +1363,12 @@ server <- function(input, output, session) {
       column(width = 2,
              tags$div(
                title = "Only apply when number of speakers is correctly detected. Standardize (z-score, applied to all chosen scales) = f0–mean(f0.spk) / sd(f0.spk), Octave-median rescaling (De Looze & Hirst, 2014, doi:10.21437/SpeechProsody.2014-171) = log2(f0.spk/median(f0.spk))",
-               selectInput("f0.corr","Speaker correction:", choices = spk.corr.list,width = '80%'))
+               selectInput("f0.corr","Speaker standardization:", choices = spk.corr.list,width = '80%'))
       ),
       column(width = 2,
              tags$div(
                title = "Derivatives are taken from the speaker corrected f0 values (if any).",
-               selectInput("f0.deriv", "Derivative:",choices = f0.derivs.list, width = '80%')),
+               selectInput("f0.deriv", "Derivative:",choices = derivs.list, width = '80%')),
       ),
       column(width = 2,
              tags$div(title = "Number of principal components to include in functional principal component analysis (fPCA, see Gubian et al., 2015, doi:10.1016/j.wocn.2014.10.001). Individual principal components (PCs) can be (de-)selected before adding them as representation. Per added PC, a single value is added per contour (at measurement point 1, rest shows as NA). Choose zero to not do fPCA. ",
@@ -1088,9 +1446,14 @@ server <- function(input, output, session) {
             fluidRow(
               column(width = 1, div(HTML('<br><b>intensity</b>'), style = 'display: inline-block; vertical-align: bottom; font-size: 1.5em')),
               column(width = 2,
-                     tags$div(title = "Apply intensity correction (standardize/z-score) per recording (filename) or per speaker.",
-                     selectInput("int.corr", "Intensity correction:", choices = c("none", "filename","speaker"), width = '80%'))),
-              column(width = 6),
+                     tags$div(title = "Apply intensity standardization (z-score) per recording (filename) or per speaker.",
+                     selectInput("int.corr", "Standardization:", choices = c("none" = "n", "filename" = "filename","speaker" = "speaker"), width = '80%'))),
+              column(width = 2,
+                     tags$div(
+                       title = "Derivatives are taken from the corrected intensity values (if any).",
+                       selectInput("int.deriv", "Derivative:",choices = derivs.list, width = '80%')),
+              ),
+              column(width = 4),
               column(width = 2,br(),
                      tags$div(title = "Add selected representation to data (column name starting with 'cc.')",
                               style = 'margin-top: 5px;',
@@ -1108,8 +1471,8 @@ server <- function(input, output, session) {
             fluidRow(
               column(width = 1, div(HTML('<br><b>duration</b>'), style = 'display: inline-block; vertical-align: bottom; font-size: 1.5em')),
               column(width = 2,
-                     tags$div(title = "Apply duration correction (standardize/z-score) per speaker.",
-                              selectInput("dur.corr", "Duration correction:", choices = c("none","speaker"), width = '80%'))),
+                     tags$div(title = "Apply duration standardization (z-score) per speaker.",
+                              selectInput("dur.corr", "Standardization:", choices = c("none","speaker"), width = '80%'))),
               column(width = 6),
               column(width = 2,br(),
                      tags$div(title = "Add selected representation to data (column name starting with 'cc.')",
@@ -1120,6 +1483,31 @@ server <- function(input, output, session) {
         }else{
           return(NULL)
         }
+      }),
+      renderUI({
+      if(any(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))){
+        span(
+          tags$hr(),
+          fluidRow(
+            column(width = 1, div(HTML('<br><b>formants</b>'), style = 'display: inline-block; vertical-align: bottom; font-size: 1.5em')),
+            column(width = 2,
+                   tags$div(
+                     title = "Choose formant scale. Hz is available by default. Conversion formula for f0 in Hz: Bark (Traunmüller, 1990): ((26.81*f)/(1960+f))-0.53",
+                     selectInput("fX.scale", "Scale:",choices = c("Hz" = "Hz", "Bark" = "Bk"), selected = "Hz", width = '80%'))
+            ),
+            column(width = 2,
+                   tags$div(title = "Apply formant standardization (z-score) per speaker, equals Lobanov-normalisation (Lobanov, 1971).",
+                            selectInput("fX.corr", "Standardization:", choices = c("none" = "n","speaker" = "speaker"), width = '80%'))),
+            column(width = 4),
+            column(width = 2,br(),
+                   tags$div(title = "Add selected representation to data (column name starting with 'cc.')",
+                            style = 'margin-top: 5px;',
+                            actionButton("do.fX.repr","Add formant representation")))
+          )
+        )
+      }else{
+        return(NULL)
+      }
       }),
       tags$hr(),
       HTML('<br>'),
@@ -1137,6 +1525,8 @@ server <- function(input, output, session) {
   })
   
   output$cc.Ncl <- renderUI({
+    tags$div(
+      title = "Set the number of clusters to be found in the data. This number cannot exceed the number of observations. When performing vowel centroid clustering: number of clusters =< number of candidates in the vowel centroid table.",
     sliderInput(
     "cc.Ncl",
     "Number of clusters:",
@@ -1144,7 +1534,7 @@ server <- function(input, output, session) {
     max = 30,
     value = nclust(),
     step = 1
-  )
+  ))
   })
   
   output$cl.settings <- renderUI({
@@ -1168,7 +1558,10 @@ server <- function(input, output, session) {
         )
       ),
       HTML('<p style="margin-bottom:10px;"></p>'),
-  tags$div(title = "Select clustering method. HAC provides a dendrogram. PAM is recommended for large datasets to reduce runtime.",selectInput("cc.method","Clustering method:",choices = list("Hierarchical Agglomerative (HAC)" = "hac", "K-medoids/PAM" = "pam"),selected = "")),
+  tags$div(title = "Select clustering method. HAC provides a dendrogram. PAM is recommended for large datasets to reduce runtime. Vowel centroid clustering only available when (standardized) Bark values are available for F1 and F2.",
+           selectInput("cc.method","Clustering method:",
+                       choices = list("Hierarchical Agglomerative (HAC)" = "hac", "K-medoids/PAM" = "pam", "Vowel centroids" ="vcd"),
+                       selected = "")),
   renderUI({
     if(is.null(input$cc.method)==F){
       if(input$cc.method=="hac"){span(
@@ -1194,6 +1587,12 @@ server <- function(input, output, session) {
           )
         ))
       }else{
+        return(NULL)
+      }
+      }}),
+  renderUI({
+    if(is.null(input$cc.method)==F){
+      if(input$cc.method=="pam"){
         span(
           HTML('<p style="margin-bottom:10px;"></p>'),
           tags$div(
@@ -1215,30 +1614,92 @@ server <- function(input, output, session) {
               width = "100%"
             )
           ))
-      }}else{
+      }else{
         return(NULL)
       }
-  }),
+      }}),
+  renderUI({
+    if(is.null(input$cc.method)==F){
+      if(input$cc.method=="vcd"){
+        if(any(grepl("f1.Bk",colnames(df.l))) & any(grepl("f2.Bk",colnames(df.l)))){
+          updateSelectInput(session,"cc.vars",selected = c(
+            gsub("cc.","",colnames(df.l)[which(grepl("f1.Bk",colnames(df.l))==T)][1]),
+            gsub("cc.","",colnames(df.l)[which(grepl("f2.Bk",colnames(df.l))==T)][1])
+            ))
+          updateSelectInput(session,"cc.distm", choices = list(
+            "euclidean (L2 norm = RMSE)" = "euclidean"), selected = "euclidean")
+          updateSliderInput(session,"cc.Ncl")
+          showTab(inputId = "tabs_cl", target = "Vowel centroids")
+          span(
+          fluidRow(
+            column(width = 6, align = "center",
+                   div(title = "Set the resolution of the density plot. The square of this number determines the size of the density matrix: number of rows = number of columns.",
+                       numericInput("vcore.res","Resolution:",min = 5,max = 250,value = isolate(vcore.res()),step = 5))),
+            column(width = 6, align = "center",
+                   div(title = "Proportion of lowest density values to exclude for centroid calculation. Maximum is 0.99 to avoid discarding all density values. Lower cut-off values lead to the inclusion of more low-density values, and a higher likelihood of finding vowel centroids with low density.",
+                       numericInput("vcore.cutoff","Cut-off:",min = 0,max = 0.99,value = 0.75,step = 0.01)))
+            ),
+          splitLayout(
+            div(style = 'width:100%; margin-right: 0px; margin-top: 10px; vertical-align: center; text-align: right',HTML('<b>Centroids:</b>')),
+            div(title = "Plot vowel centroids as overlay on the density plot",
+                style = 'vertical-align: center; margin-left: 0px; margin-right: 0px; margin-top: 0px; align-items: left;',
+                checkboxInput("vcore.coreplot",NULL,F)),
+            div(title = "Plot density of F1/F2 values using two-dimensional kernel density estimation and display vowel centroid candidates in a table.",
+                style = 'vertical-align: center; align-items: left; margin-left: 0px; ',
+                actionButton("vcore.densplot","Do density",disabled = ifelse(input$cc.vars!="",F,T))),
+            cellWidths = c("40%", "10%","50%")
+          ))
+        }else{
+          span(
+            HTML('<p style="margin-bottom:24px;"></p>'),
+            HTML('<p style="color:red;">Vowel centroids only available for (standardized) F1/F2 Bark values</p>'),
+            HTML('<p style="margin-bottom:24px;"></p>')
+          )
+        }
+      }else{
+        return(NULL)
+      }
+  }}),
   uiOutput("cc.Ncl"),
   renderUI({
     if(is.null(input$cc.vars)==F && is.null(input$cc.method)==F){
-      updateActionButton(session,"do.cc",disabled = F)
-      gsub("cc.","", colnames(df.l)[substr(colnames(df.l),1,3)=="cc." & str_detect(colnames(df.l),paste(c("PC","dur"),collapse = "|"))==F]) -> y.choices
+      if(input$cc.method!="vcd"){
+        updateActionButton(session,"do.cc",disabled = F)
+      }
+      gsub("cc.","", colnames(df.l)[which(sapply(1:ncol(df.l),function(x){dplyr::select(df.l,x) %>% is.na() %>% sum()})==0 & substr(colnames(df.l),1,3)=="cc.")]) -> y.choices
       span(
         tags$hr(),
       fluidRow(
+        tags$head(
+          tags$style(HTML("
+      .shiny-input-container:not(.shiny-input-container-inline) {
+        width:100%;
+      }"))
+        ),
           column(width = 12, splitLayout(HTML('<b>Summarize cluster:</b>'), tags$div(
             title = "Central tendency value to summarize each cluster in the plot. Does not affect clustering. Does affect prototype computation.",
             radioButtons("plot.vals",NULL,choices = c("mean","median"),inline = T,width = '100%')
-          ),cellWidths = c("55%","45%")))
+          ),cellWidths = c("50%","50%")))
         ),
       fluidRow(
+        tags$head(
+          tags$style(HTML("
+      .shiny-input-container:not(.shiny-input-container-inline) {
+        width:100%;
+      }"))
+        ),
         column(width = 12, splitLayout(HTML('<b>Plot columns:</b>'), tags$div(
           title = "Number of panels per row in the plot.",
           numericInput("plot.cols",NULL,value = 4,min = 1,max = 6,step = 1,width = '50%')
-          ),cellWidths = c("40%","60%")))
+          ),cellWidths = c("50%","50%")))
                ),
       fluidRow(
+        tags$head(
+          tags$style(HTML("
+      .shiny-input-container:not(.shiny-input-container-inline) {
+        width:100%;
+      }"))
+        ),
         column(width = 6, tags$div(
           title = "Variable to be displayed on the default (left) Y-axis in the plot. Only time-series variables are available.",
           selectInput("plot.y1",label = "Plot y-axis:",choices = y.choices,width = '100%'))),
@@ -1393,6 +1854,10 @@ server <- function(input, output, session) {
   observeEvent(input$app.gc, {
     print(gc(full = T)) -> gc.msg
     showNotification("Garbage collected, output written to console.")
+  })
+  
+  observeEvent(input$app.vc, {
+    version.check(T)
   })
   
   observeEvent(input$tabset_data, {
@@ -1644,11 +2109,11 @@ server <- function(input, output, session) {
     as.data.table(df.l) ->> df.l
     if(input$cols.f0.scale=="ERB"){
       round(as.numeric(df.l$f0), 3) ->> df.l$cc.f0.ERB
-      f0.conv(df.l$f0,"ERB","Hz") ->> df.l$cc.f0.Hz
+      f.conv(df.l$f0,"ERB","Hz") ->> df.l$cc.f0.Hz
     }
     if(input$cols.f0.scale=="ST"){
       round(as.numeric(df.l$f0), 3) ->> df.l$cc.f0.ST
-      f0.conv(df.l$f0,"ST","Hz") ->> df.l$cc.f0.Hz
+      f.conv(df.l$f0,"ST","Hz") ->> df.l$cc.f0.Hz
     }
     if(input$cols.f0.scale=="Hz"){
       round(as.numeric(df.l$f0), 3) ->> df.l$cc.f0.Hz
@@ -1747,6 +2212,23 @@ server <- function(input, output, session) {
         as.data.table(df.g) -> df.g
         substr(df.g$file, 1, nchar(df.g$file) - 9) -> df.g$name_trim
         df.g ->> df.g
+        load.quiet("tuneR")
+        tuneR::readWave(paste0(inDir(), df.g$name_trim[1], snd.ext()),header = T) -> snd
+        if(snd$bits>16 | snd$sample.rate>32000 | snd$channels==2){
+          showNotification(id = "nt.wav",HTML(paste0("A sampling rate of ",
+                                                       snd$sample.rate,
+                                                       " Hz and a bit depth of ",
+                                                       snd$bits,
+                                                       " bits was detected in file '",
+                                                     paste0(sapply(seq.default(1,nchar(df.g$name_trim[1]),by = 30),FUN = function(n){paste0(substr(df.g$name_trim[1],n,n+29))}),collapse = "<br>"),
+                                                       snd.ext(),
+                                                       "' (number of channels: ",
+                                                       snd$channels,
+                                                       ")."),
+                                              "<br><br>",
+                                              paste0("Consider converting audio (Settings tab).")),
+                           type = "warning", duration = NULL)
+        }
         showTab("tabset_data", "Data (TextGrids)")
         logging(paste0("Sound files and TextGrids read from folder: ", inDir()))
       })
@@ -1879,6 +2361,7 @@ server <- function(input, output, session) {
       if(length(input$sel_tier)>1){
         paste0(df.g$tier_name,"_",df.g$text) ->> df.g$text
       }
+      removeNotification(id = "nt.wav",session)
       logging(paste0("Tier(s) '",paste(input$sel_tier,collapse = ", "),
                      ifelse(is.null(input$sel_interval),"",paste0("' and interval(s) '",input$sel_interval)),
                      "' selected for analysis, from ",length(unique(df.g$name_trim)), " filename(s), totalling ",nrow(df.g)," intervals."))
@@ -1895,6 +2378,41 @@ server <- function(input, output, session) {
     npoints(input$npoints.int)
   })
   
+  obs.npoints.fX <- observeEvent(input$npoints.fX, {
+    npoints(input$npoints.fX)
+  })
+  
+  obs.fX.dynwin <- observeEvent(input$fX.dynwin, {
+    if(fX.dynwin()!=input$fX.dynwin){
+      fX.dynwin(input$fX.dynwin)
+    }
+    })
+  
+  obs.fX.single <- observeEvent(input$fX.single, {
+      fX.single(input$fX.single)
+  })
+
+  obs.fX.genmap <- observeEvent(input$fX.genmap, {
+    if(input$fX.gencol=="short" | input$fX.gencol=="long"){
+      rep(substr(input$fX.gencol,1,1),nrow(df.g)) -> vc.length
+    }else{
+    str_split(df.g[[input$fX.gencol]],input$fX.gensep,simplify = T)[,which(as.vector(str_split(df.g[[input$fX.gencol]][1],input$fX.gensep,simplify = T))==input$fX.genstr)] -> vc.length
+    for(r in 1:nrow(df.g)){
+      if(vc.length[r] %in% input$fX.genF){
+        "s" -> vc.length[r]
+      }
+      if(vc.length[r] %in% input$fX.genM){
+        "l" -> vc.length[r]
+      }
+      if(vc.length[r] %in% input$fX.genU){
+        "u" -> vc.length[r]
+      }
+    }
+    }
+    showNotification(paste0("Vocal tract length labels mapped"))
+    vc.length ->> df.g$vc.length
+  })
+  
   obs.do_sample <- observeEvent(input$do_sample, {
     m.rows(sort(sample(1:nrow(df.g), input$n_sample)))
     showNotification(paste0("New sample taken (n = ",input$n_sample,")"))
@@ -1902,34 +2420,69 @@ server <- function(input, output, session) {
   
   obs.disp_sample <- observeEvent(input$disp_sample, {
     showNotification(id = "nt.sample", "Sampling...",duration = NULL)
-    load.quiet("sound")
-    samplemode(0)
+    load.quiet("av")
+    samplemode(2)
     if (is.null(m.rows()) || length(m.rows())==nrow(df.g)) {
       m.rows(sort(sample(1:nrow(df.g), input$n_sample)))
     }
     if(dir.exists("www")==F){
       dir.create("www")
     }
+    c() ->> df.fft
     for(x in 1:length(m.rows())){
       if(df.g$xmin[isolate(m.rows()[x])]==df.g$tier_xmin[isolate(m.rows()[x])] && df.g$xmax[isolate(m.rows()[x])]==df.g$tier_xmax[isolate(m.rows()[x])]){
-        loadSample(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])], snd.ext())) -> snd  
+        tuneR::readWave(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])]),1,Inf,unit="samples") -> snd
       }else{
-        cutSample(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])], snd.ext()),
-                  df.g$xmin[isolate(m.rows()[x])],
-                  df.g$xmax[isolate(m.rows()[x])]) -> snd
+        tuneR::readWave(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])],
+                               snd.ext()),df.g$xmin[isolate(m.rows()[x])],
+                        df.g$xmax[isolate(m.rows()[x])],
+                        units = "seconds") -> snd
+        if(snd@bit>16){
+          tuneR::normalize(snd,unit="16",pcm = T,rescale = F) -> snd
+        }
+        if(snd@samp.rate>16000){
+        tuneR::downsample(snd,samp.rate = 16000) -> snd
+        }
       }
-      saveSample(snd,file.path("www",paste0("play",x,".wav")),overwrite = T)
+      tuneR::writeWave(snd,file.path("www",paste0("play",x,".wav")))
+      if(input$tabset_data=="Acoustics" & input$tabset_ac=="formants"){
+      read_audio_fft(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])], snd.ext()),
+                         start_time = df.g$xmin[isolate(m.rows()[x])],
+                         end_time = df.g$xmax[isolate(m.rows()[x])],
+                         window = hanning(256),
+                         sample_rate = as.numeric(tuneR::readWave(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])], snd.ext()),header = T)$sample.rate)) -> fft
+      cbind.data.frame(time=rep(attr(fft,"time"), each = nrow(fft)),
+                        frequency=rep(attr(fft,"frequency"), ncol(fft)),
+                        amplitude=unlist(lapply(1:ncol(fft),function(x){fft[,x]}))) -> dfft
+      dfft[dfft$frequency<5000,] -> dfft
+      dfft[dfft$time>=df.g$xmin[isolate(m.rows()[x])] & dfft$time<=df.g$xmax[isolate(m.rows()[x])],] -> dfft
+      x -> dfft$i
+      rbind.data.frame(df.fft,dfft) ->> df.fft
+      }
     }
     make.df.l()
-    tsf0()
+    if(input$tabset_data=="Acoustics" & input$tabset_ac=="f0"){
+      "f0" -> v_sample
+      rm(df.fft, envir = .GlobalEnv)
+      tsf0()
+      input$f0.min -> f.min
+      input$f0.max -> f.max
+    }
+    if(input$tabset_data=="Acoustics" & input$tabset_ac=="formants"){
+      paste0("f",1:input$fX.N) -> v_sample
+      tsfX()
+      0 -> f.min
+      5000 -> f.max
+    }
     plotServerList <- lapply(1:length(isolate(m.rows())), function(i) {
       plotServer(
         paste0("plot", i),
+        v_sample,
         df.g$name_trim[isolate(m.rows()[i])],
         round(df.g$xmin[isolate(m.rows()[i])], 3),
         isolate(npoints()),
-        input$f0.min,
-        input$f0.max
+        f.min,
+        f.max
       )
     })
     playServerList <- lapply(1:length(isolate(m.rows())), function(i) {
@@ -1942,14 +2495,15 @@ server <- function(input, output, session) {
   obs.do_measure <- observeEvent(input$do_measure, {
    samplemode(0)
     suppressWarnings(unlink("www", recursive = T))
-    if(any(input$incl_f0, input$incl_int, input$incl_dur)==F){
+    suppressWarnings(rm("df.fft",envir = .GlobalEnv))
+    if(any(input$incl_f0, input$incl_int, input$incl_dur, input$incl_fX)==F){
       showNotification("No acoustic cues selected.", type = "error")
     }else{
       m.rows(1:nrow(df.g))
       make.df.l()
         if(input$incl_f0==T){
           tsf0()
-          subset(df.l, select = -c(steptime, track)) ->> df.l
+          subset(df.l, select = -c(steptime, f0.track)) ->> df.l
           logging(paste0("F0 measures taken with the following settings: ",input$npoints.f0, " measurement points, ",input$f0.min,"-",input$f0.max," Hz range, timestep: ",input$f0.timestep," ms, f0 fit: ",input$f0.fit,", smoothing: ",input$f0.smooth_bw,"."))
         }
         if(input$incl_int==T){
@@ -1960,6 +2514,28 @@ server <- function(input, output, session) {
           df.l$end[df.l$stepnumber==1]-df.l$start[df.l$stepnumber==1] ->> df.l$cc.dur.s[df.l$stepnumber==1]
           logging("Duration measures taken in seconds.")
         }
+      if(input$incl_fX==T){
+        tsfX()
+        subset(df.l, select = -c(which(colnames(df.l) %in% c(paste0("f",1:input$fX.N,".track"),"steptime")))) ->> df.l
+        for(f in paste0("f",1:input$fX.N)){
+          if(fX.single()=="ts"){
+            subset(df.l, select = -c(grep(paste0(f,c(".maxint",".mean",".median"), collapse = "|"), colnames(df.l)))) ->> df.l
+          }
+          if(fX.single()=="maxint"){
+            df.l[[paste0(f,".maxint")]] ->> df.l[[paste0("cc.",f,".Hz")]]
+            subset(df.l, select = -c(grep(paste0(f,c(".maxint",".mean",".median"), collapse = "|"), colnames(df.l)))) ->> df.l
+          }
+          if(fX.single()=="mean"){
+            df.l[[paste0(f,".mean")]] ->> df.l[[paste0("cc.",f,".Hz")]]
+            subset(df.l, select = -c(grep(paste0(f,c(".maxint",".mean",".median"), collapse = "|"), colnames(df.l)))) ->> df.l
+          }
+          if(fX.single()=="median"){
+            df.l[[paste0(f,".median")]] ->> df.l[[paste0("cc.",f,".Hz")]]
+            subset(df.l, select = -c(grep(paste0(f,c(".maxint",".mean",".median"), collapse = "|"), colnames(df.l)))) ->> df.l
+          }
+        }
+        logging(paste0("Formant measures taken with the following settings: ",input$fX.N, " formants, ", input$npoints.fX, " measurement points, ", "dynamic window: ", fX.dynwin(), ifelse(fX.dynwin()==T,paste0(" threshold: ", input$fX.intdrop,"%"),""), ", smoothing: ",input$fX.smooth_bw))
+      }
       showTab("tabset_data", "Speakers")
       showTab("tabset_data", "Data (long)")
       updateNavbarPage(session, "tabset_data",selected = "Speakers")
@@ -1979,6 +2555,7 @@ server <- function(input, output, session) {
   })
   
   obs.spk.mapcol <- observeEvent(input$spk.mapcol, {
+    if(input$spk.sepcol!=""){
     as.vector(
       str_split(
         string = df.l[,get(input$spk.cols)],
@@ -1986,7 +2563,12 @@ server <- function(input, output, session) {
                                                                                       pattern = input$spk.sep,
                                                                                       simplify = T)))==input$spk.sepcol)
         ]
-    ) ->> df.l$speaker
+    ) -> speaker
+    if(is.null(input$spk.gen)==F){
+    if(input$spk.gen==T){
+      paste0(speaker,"_",rep(df.g$vc.length, each = npoints())) -> speaker
+    }}
+    speaker ->> df.l$speaker
     logging("Speaker column added.")
     showNotification("Speaker column mapped.")
     removeTab(inputId = "tabset_data", target = "Speakers")
@@ -1994,6 +2576,9 @@ server <- function(input, output, session) {
     updateNavbarPage(session, "tabset_data",selected = "Clean")
     obs.spk.cols$destroy()
     obs.spk.mapcol$destroy()
+    }else{
+      showNotification("Please select a column to map as speaker ID.",type = "warning")
+    }
   })
   
   obs.clean.set <- observeEvent(input$clean.set,{
@@ -2020,6 +2605,9 @@ server <- function(input, output, session) {
         }
         df.l[df.l$d.f0!=1,] ->> df.l
     }
+    if(any(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))){
+      df.l[df.l$d.fX!=1,] ->> df.l
+    }
     check.clean()$text -> clean.text
     logging(paste0("Cleaning applied:\n\t",gsub("\n","\n\t",clean.text)))
     output$clean.text <- renderText(clean.text)
@@ -2028,6 +2616,9 @@ server <- function(input, output, session) {
   obs.clean.cont <- observeEvent(input$clean.cont, {
     if("d.f0" %in% colnames(df.l)){
       subset(df.l, select = -d.f0) ->> df.l
+    }
+    if(any(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))){
+      subset(df.l, select = -d.fX) ->> df.l
     }
     removeNotification("not.scr",session)
     obs.scr$destroy()
@@ -2071,14 +2662,38 @@ observeEvent(input$do.f0.repr,{
   })
   
   observeEvent(input$do.int.repr,{
-    if(input$int.corr!="none"){
-      for (f in unique(df.l[[input$int.corr]])) {
-        round((df.l$cc.int.dB[df.l[[input$int.corr]] == f] - mean(df.l$cc.int.dB[df.l[[input$int.corr]] == f])) /
-          sd(df.l$cc.int.dB[df.l[[input$int.corr]] == f]),3) ->> df.l$cc.int.std[df.l[[input$int.corr]] == f]
+    if(input$int.corr!="n" | input$int.deriv!="n"){
+      paste("cc","int",ifelse(input$int.corr!="n","std",""),input$int.deriv,sep = ".") -> n.repr
+      gsub("\\.n","",n.repr) -> n.repr
+      if(input$int.corr!="n"){
+        for (f in unique(df.l[[input$int.corr]])) {
+          round((df.l$cc.int.dB[df.l[[input$int.corr]] == f] - mean(df.l$cc.int.dB[df.l[[input$int.corr]] == f])) /
+                  sd(df.l$cc.int.dB[df.l[[input$int.corr]] == f]),3) ->> df.l[[n.repr]][df.l[[input$int.corr]] == f]
+        }
+      }else{
+        df.l$cc.int.dB ->> df.l[[n.repr]]
       }
-    }
-    logging(paste0("Intensity representation added: 'cc.int.std' (",input$int.corr," based)."))
+      if(input$int.deriv!="n"){
+        load.quiet("pracma")
+      }
+      if(input$int.deriv=="d1"){
+        for (rws in 1:(nrow(df.l)/npoints())) {
+          pracma::gradient(df.l[[n.repr]][((rws*npoints())-(npoints()-1)):(rws*npoints())]) ->> df.l[[n.repr]][((rws*npoints())-(npoints()-1)):(rws*npoints())]
+        }
+      }
+      if(input$int.deriv=="d2"){
+        for (rws in 1:(nrow(df.l)/npoints())) {
+          pracma::gradient(gradient(df.l[[n.repr]][((rws*npoints())-(npoints()-1)):(rws*npoints())])) ->> df.l[[n.repr]][((rws*npoints())-(npoints()-1)):(rws*npoints())]
+        }
+      }
+      if(input$int.deriv=="d3"){
+        for (rws in 1:(nrow(df.l)/npoints())) {
+          pracma::gradient(gradient(gradient(df.l[[n.repr]][((rws*npoints())-(npoints()-1)):(rws*npoints())]))) ->> df.l[[n.repr]][((rws*npoints())-(npoints()-1)):(rws*npoints())]
+        }
+      }
+    logging(paste0("Intensity representation added: ", gsub("cc.","",n.repr), ifelse(input$int.corr!="n", paste0(" (standardization: ",input$int.corr," based)."),"")))
     output$cc.cols <- renderText({paste(gsub("cc.","",colnames(df.l)[which(substr(colnames(df.l),1,3)=="cc.")]),collapse = "\n")})
+    }
   })
   
   observeEvent(input$do.dur.repr,{
@@ -2087,8 +2702,32 @@ observeEvent(input$do.f0.repr,{
         round((df.l$cc.dur.s[df.l[[input$dur.corr]] == f & df.l$stepnumber==1] - mean(df.l$cc.dur.s[df.l[[input$dur.corr]] == f], na.rm = T)) /
           sd(df.l$cc.dur.s[df.l[[input$dur.corr]] == f], na.rm = T),3) ->> df.l$cc.dur.std[df.l[[input$dur.corr]] == f & df.l$stepnumber==1]
       }
-    }
     logging("Duration representation added: 'cc.dur.std' (speaker based).")
+    output$cc.cols <- renderText({paste(gsub("cc.","",colnames(df.l)[which(substr(colnames(df.l),1,3)=="cc.")]),collapse = "\n")})
+    }
+  })
+  
+  observeEvent(input$do.fX.repr,{
+    if(input$fX.scale!="Hz" | input$fX.corr!="n"){
+      for(f in paste0("f",1:5)[paste0("cc.f",1:5,".Hz") %in% colnames(df.l)]){
+        paste("cc",f,input$fX.scale,input$fX.corr,sep = ".") -> n.repr
+        gsub("\\.n","",n.repr) -> n.repr
+        gsub(".speaker",".std",n.repr) -> n.repr
+        if(input$fX.scale=="Bk"){
+          f.conv(df.l[[paste0("cc.",f,".Hz")]],"Hz","Bark") ->> df.l[[n.repr]]
+        }
+        if(input$fX.corr=="speaker"){
+          if(is.null(df.l[[n.repr]])){
+            df.l[[paste0("cc.",f,".Hz")]] ->> df.l[[n.repr]]
+          }
+          for (c in unique(df.l[[input$fX.corr]])) {
+            round((df.l[[n.repr]][df.l[[input$fX.corr]] == c] - mean(df.l[[n.repr]][df.l[[input$fX.corr]] == c], na.rm = T)) /
+                    sd(df.l[[n.repr]][df.l[[input$fX.corr]] == c], na.rm = T),3) ->> df.l[[n.repr]][df.l[[input$fX.corr]] == c]
+          }
+        }
+        logging(paste0("Formant representation added: '",n.repr, "'. Scale: ",ifelse(input$fX.scale=="Hz","Hz","Bark"),". Standardization: ",ifelse(input$fX.corr=="n","none","speaker-based")))
+      }
+    }
     output$cc.cols <- renderText({paste(gsub("cc.","",colnames(df.l)[which(substr(colnames(df.l),1,3)=="cc.")]),collapse = "\n")})
   })
   
@@ -2100,13 +2739,17 @@ observeEvent(input$do.f0.repr,{
     removeTab("tabset_data", "Acoustics")
     obs.npoints.f0$destroy()
     obs.npoints.int$destroy()
+    obs.npoints.fX$destroy()
+    obs.fX.dynwin$destroy()
+    obs.fX.single$destroy()
+    obs.fX.genmap$destroy()
     obs.do_sample$destroy()
     obs.disp_sample$destroy()
     obs.do_measure$destroy()
     showTab(inputId = "tabs_main", target = "Clustering")
     updateNavbarPage(session, "tabs_main", "Clustering")
     if(object.size(df.l)>1000000){
-    showNotification("Potentially large dataset detected. Consider running PAM clustering to reduce runtime on slow machines.", type = "warning")
+    showNotification("Potentially large dataset detected. Consider running PAM clustering to reduce runtime.", type = "warning")
     }
   })
   
@@ -2128,17 +2771,44 @@ observeEvent(input$do.f0.repr,{
                         ),
                         selected = "euclidean")
     }
+    if(all(grepl("f1.Bk|f2.Bk",input$cc.vars))==F | length(input$cc.vars)!=2){
+      hideTab(inputId = "tabs_cl", target = "Vowel centroids")
+      }
+  })
+  
+  observeEvent(input$cc.method, {
+    if(input$cc.method=="hac" | input$cc.method=="pam"){
+      hideTab(inputId = "tabs_cl", target = "Vowel centroids")
+      updateSelectInput(session,"cc.vars",selected = "")
+    }else{
+      hideTab(inputId = "tabs_cl", target = "Dendrogram")
+    }
+    hideTab(inputId = "tabs_cl", target = "Plot")
+    hideTab(inputId = "tabs_cl", target = "Table")
+    hideTab(inputId = "tabs_cl", target = "Evaluate")
+    hideTab(inputId = "tabs_cl", target = "Prototypes")
+    
   })
   
   observeEvent(input$cc.Ncl, {
     show.contab(0)
+    if(input$cc.method!="vcd"){
     if(input$cc.Ncl>(nrow(df.l)/max(df.l$stepnumber)))
       {
-      updateSliderInput(session,"cc.Ncl",value = nrow(df.l)/max(df.l$stepnumber))
+      updateSliderInput(session,"cc.Ncl",value = 2)
       showNotification("Maximum number of clusters should not exceed number of observations.",type = "error")
       }else{
         nclust(input$cc.Ncl)
-        }
+      }
+    }else{
+      if(input$cc.Ncl>vcore.ncores())
+      {
+        updateSliderInput(session,"cc.Ncl",value = 2)
+        showNotification("Maximum number of clusters (centroids) should not exceed number of centroid candidates in the table.",type = "error")
+      }else{
+        nclust(input$cc.Ncl)
+      }
+    }
   })
   
   observeEvent(input$plot.cols,{
@@ -2175,9 +2845,13 @@ observeEvent(input$do.f0.repr,{
                                               )})
     showTab(inputId = "tabs_cl", target = "Plot")
     showTab(inputId = "tabs_cl", target = "Table")
-    updateSelectInput(session, "cl.contab.colx",selected = "")
-    showTab(inputId = "tabs_cl", target = "Evaluate")
     showTab(inputId = "tabs_cl", target = "Prototypes")
+    updateSelectInput(session, "cl.contab.colx",selected = "")
+    if(input$cc.method!="vcd"){
+    showTab(inputId = "tabs_cl", target = "Evaluate")
+    }else{
+      showTab(inputId = "tabs_cl", target = "Plot",select = T)
+    }
   })
   
   observeEvent(input$cl.rem, {
@@ -2212,6 +2886,128 @@ observeEvent(input$do.f0.repr,{
     output$eval.tab <- renderTable(df.e, digits = 3)
   })
   
+  observeEvent(input$vcore.densplot, {
+    withProgress(message = paste0("Formant density estimation..."), {
+    updateActionButton(session,"do.cc",disabled = T)
+    incProgress(0.1)
+    vcore.res(as.numeric(input$vcore.res))
+    MASS::kde2d(x = na.omit(df.l[[paste0("cc.",input$cc.vars[which(grepl("f2.Bk",input$cc.vars)==T)])]]),
+                y = na.omit(df.l[[paste0("cc.",input$cc.vars[which(grepl("f1.Bk",input$cc.vars)==T)])]]),
+                n = vcore.res()) -> kde.v
+    incProgress(0.1)
+    c()->kde.vc
+    for(col in 1:ncol(kde.v$z)){
+      for(row in 1:nrow(kde.v$z)){
+        if(any(row-1<1,col-1<1,row+1>nrow(kde.v$z),col+1>ncol(kde.v$z))==F){
+          if(all(kde.v$z[row-1,col-1]<kde.v$z[row,col],
+              kde.v$z[row-1,col]<kde.v$z[row,col],
+              kde.v$z[row-1,col+1]<kde.v$z[row,col],
+              kde.v$z[row,col-1]<kde.v$z[row,col],
+              kde.v$z[row,col+1]<kde.v$z[row,col],
+              kde.v$z[row+1,col-1]<kde.v$z[row,col],
+              kde.v$z[row+1,col]<kde.v$z[row,col],
+              kde.v$z[row+1,col+1]<kde.v$z[row,col]
+          )==T){
+            rbind(kde.vc,cbind(row,col,kde.v$z[row,col],kde.v$x[row],kde.v$y[col]))->kde.vc
+          }
+        }
+      }
+    }
+    colnames(kde.vc) <- c("row","col","dens","f2","f1")
+    as.data.table(kde.vc) %>% arrange(-dens) %>% mutate_at(vars(row,col),as.integer) -> kde.vc
+    kde.vc[kde.vc$dens>quantile(kde.v$z,probs = input$vcore.cutoff)] -> kde.vc
+    vcore.ncores(nrow(kde.vc))
+    if(nrow(kde.vc)>1){
+      updateActionButton(session,"do.cc",disabled = F)
+    }
+    rep(NA,nrow(kde.vc)) -> kde.vc$dist
+    for(r in 1:nrow(kde.vc)){
+      mean(sapply(which(1:nrow(kde.vc)!=r),function(x){eucl(
+             c(kde.vc$f2[r],kde.vc$f1[r]),
+             c(kde.vc$f2[x],kde.vc$f1[x])
+           )})) -> kde.vc$dist[r]
+      if(r>1){
+        kde.vc$dist[r]+
+          mean(sapply(which(1:nrow(kde.vc)<r),function(x){eucl(
+            c(kde.vc$f2[r],kde.vc$f1[r]),
+            c(kde.vc$f2[x],kde.vc$f1[x])
+          )})) -> kde.vc$dist[r]
+      }else{
+        kde.vc$dist[r]+
+          mean(sapply(which(1:nrow(kde.vc)>r),function(x){eucl(
+            c(kde.vc$f2[r],kde.vc$f1[r]),
+            c(kde.vc$f2[x],kde.vc$f1[x])
+          )})) -> kde.vc$dist[r]
+      }
+    }
+    rescale(kde.vc$dens,c(0,1))+rescale(kde.vc$dist,c(0,1)) -> kde.vc$index
+    kde.vc %>% arrange(-index) -> kde.vc
+    kde.vc ->> df.v
+    if(length(kde.vc!=0)){
+    ggplot(df.l, aes(x = df.l[[paste0("cc.",isolate(input$cc.vars[which(grepl("f2",input$cc.vars))]))]],
+                     y = df.l[[paste0("cc.",isolate(input$cc.vars[which(grepl("f1",input$cc.vars))]))]])) +
+      stat_density_2d(aes(fill = after_stat(density)), geom = "raster", contour = FALSE,n = vcore.res()) +
+      scale_fill_gradient(high="black",low = "white",guide = "none") +
+      scale_x_reverse(expand = c(0,0)) +
+      scale_y_reverse(expand = c(0,0)) +
+      labs(x= ifelse(all(grepl(".std",input$cc.vars)),"F2 (Bark std.)","F2 (Bark)"), y=ifelse(all(grepl(".std",input$cc.vars)),"F1 (Bark std.)","F1 (Bark)")) -> p
+    if(input$vcore.coreplot==T){
+      p +
+      annotate(geom = "point",x=kde.vc$f2[1:nclust()],y=kde.vc$f1[1:nclust()],colour = "white",size = 5) +
+      annotate(geom = "text",x=kde.vc$f2[1:nclust()],y=kde.vc$f1[1:nclust()],colour = "black", size = 4, label=as.character(1:nclust())) -> p
+    }
+    p + theme(text = element_text(size = 20)) -> p}
+    incProgress(0.2)
+    })
+    output$dl.vcoreplot <- downloadHandler(
+      filename = function() {paste("vcd_plot.png")},
+      content = function(file) {suppressMessages(ggsave(file, p, width = app.plot.w(),height = app.plot.h(),units = "px"))}
+    )
+    output$vcore.draw <- renderPlot({p})
+    savethis$v_plot <- p
+    output$dl.vcoretab <- downloadHandler(
+      filename = function() {paste("df_v.csv")},
+      content = function(file) {suppressMessages(fwrite(df.v, file))}
+    )
+    output$vcore.tab <- renderTable({df.v},rownames = T)
+    savethis$v_tab <- df.v
+    output$vcore.tabhead <- renderUI({HTML('<b>Vowel centroid table</b>')})
+    updateNavbarPage(session, "tabs_cl",selected = "Vowel centroids")
+    logging(paste0("Vowel density computed and plotted with resolution: ",input$vcore.res,", density cut-off: ", input$vcore.cutoff,", resulting in ",nrow(kde.vc), " centroid candidates."))
+  })
+  
+  observeEvent(input$app.audioconv, {
+    withProgress(message = paste0("Converting audio..."), {
+    paste0(input$app.audiopath,.Platform$file.sep) -> audio.path
+    while(grepl(paste0(.Platform$file.sep,.Platform$file.sep),audio.path)){
+      gsub(paste0(.Platform$file.sep,.Platform$file.sep),.Platform$file.sep,audio.path) -> audio.path
+    }
+    paste0(audio.path,input$app.audiodir,.Platform$file.sep) -> conv.path
+    while(grepl(paste0(.Platform$file.sep,.Platform$file.sep),conv.path)){
+      gsub(paste0(.Platform$file.sep,.Platform$file.sep),.Platform$file.sep,conv.path) -> conv.path
+    }
+    if(dir.exists(conv.path)==F){
+      dir.create(conv.path,showWarnings = T)
+    }
+    incProgress(0.2)
+    load.quiet("tuneR")
+     for(f in list.files(audio.path,"*.wav|*.mp3")){
+       incProgress((length(list.files(audio.path,"*.wav|*.mp3"))/80))
+       if(substr(f,nchar(f)-3,nchar(f))==".mp3"){
+         tuneR::readMP3(paste0(audio.path,f)) -> snd
+       }else{
+         tuneR::readWave(paste0(audio.path,f)) -> snd
+       }
+       tuneR::normalize(snd,unit = "16", pcm = T,rescale = F) -> snd
+       tuneR::downsample(snd,samp.rate = 16000) -> snd
+       if(tuneR::nchannel(snd)==2){
+         tuneR::mono(snd,which = "both") -> snd
+       }
+       tuneR::writeWave(snd,paste0(conv.path,f))
+     }
+    })
+  })
+  
 # functions ####
   
   load.quiet <- function(p) {
@@ -2238,20 +3034,28 @@ observeEvent(input$do.f0.repr,{
   })
   }
   
-  f0.conv <- function(f0,from,to){
+  f.conv <- function(f,from,to){
     if(from=="Hz" && to=="ST"){
-      return(log10((f0 / 50)) * 39.87)
+      return(log10((f / 50)) * 39.87)
     }
     if(from=="ST" && to=="Hz"){
-      return(50*(2 ^ (f0/12)))
+      return(50*(2 ^ (f/12)))
     }
     if(from=="Hz" && to=="ERB"){
-      return(16.7*log10((0.006046*f0)+1))
+      return(16.7*log10((0.006046*f)+1))
     }
     if(from=="ERB" && to=="Hz"){
-      return(165.4 * (10^(0.06*f0)-1))
+      return(165.4 * (10^(0.06*f)-1))
+    }
+    if(from=="Hz" && to=="Bark"){
+      return(((26.81*f)/(1960+f))-0.53)
+    }
+    if(from=="Bark" && to=="Hz"){
+      return((1960*(f+0.53))/(26.81-f))
     }
   }
+  
+  eucl <- function(a, b) sqrt(sum((a - b)^2))
   
   make.df.l <- function() {
     c() -> dfl
@@ -2323,12 +3127,15 @@ observeEvent(input$do.f0.repr,{
           )$y -> f0.values
           round(f0.values,3) -> f0.values
         }
+      }else{
+        rep(NA, npoints()) -> f0.values
+        rep(NA, npoints()) -> f0.track
       }
       append(f0, f0.values) -> f0
       append(track, f0.track) -> track
     }
     })
-    cbind(df.l, "track" = as.numeric(track)) -> df.l
+    cbind(df.l, "f0.track" = as.numeric(track)) -> df.l
     cbind(df.l, "cc.f0.Hz" = as.numeric(f0)) -> df.l
     df.l ->> df.l
   }
@@ -2350,15 +3157,150 @@ observeEvent(input$do.f0.repr,{
     if(ncol(int.values)>1){
       rowMeans(int.values) -> int.values
     }
-    na.approx(int.values, na.rm = F) -> int.values
-    approx(int.values, n = npoints())$y -> int.values
+    if(sum(is.na(int.values))>=(length(int.values)-1)){
+      rep(NA,npoints()) -> int.values
+    }else{
+      na.approx(int.values, na.rm = F) -> int.values
+      approx(int.values, n = npoints())$y -> int.values
+    }
     append(int, int.values) -> int
     }
     })
-    cbind(df.l, "cc.int.dB" = round(as.numeric(int),3)) -> df.l
-    df.l ->> df.l
+    if("cc.int.dB" %in% colnames(df.l)){
+      round(as.numeric(int),3) ->> df.l$cc.int.dB
+    }else{
+      cbind(df.l, "cc.int.dB" = round(as.numeric(int),3)) -> df.l
+      df.l ->> df.l
+    }
   }
   
+  tsfX <- function() {
+    load.quiet("wrassp")
+    tsint()
+    (100-input$fX.intdrop)/100 -> fX.intdrop
+    for(f in 1:input$fX.N){
+      assign(paste0("f",f,".values"),c())
+      assign(paste0("f",f,".track"),c())
+      assign(paste0("f",f,".maxint"),c())
+      assign(paste0("f",f,".mean"),c())
+      assign(paste0("f",f,".median"),c())
+    }
+    for (r in m.rows()) {
+      incProgress(1 / ((length(
+        m.rows()
+      ) * 1.1)),detail = df.g$name_trim[r])
+      c() -> int.values
+    df.l$cc.int.dB[df.l$filename==df.g$name_trim[r] & df.l$start==round(df.g$xmin[r],3)] -> int.values
+    if(any(is.na(int.values))==F & length(int.values)==max(df.l$stepnumber)){
+    which.max(int.values) -> int.min
+    for(v in int.min:1){
+      if(int.values[v] < int.values[which.max(int.values)]*fX.intdrop){
+        v -> int.min
+        break
+      }else{
+        v -> int.min
+      }
+    }
+    which.max(int.values) -> int.max
+    for(v in int.max:length(int.values)){
+      if(int.values[v] < int.values[which.max(int.values)]*fX.intdrop){
+        v -> int.max
+        break
+      }else{
+        v -> int.max
+      }
+    }
+    seq(df.g$xmin[r],df.g$xmax[r],(df.g$xmax[r]-df.g$xmin[r])/(length(int.values)-1)) -> int.time
+    if(fX.dynwin()==T){
+      round(int.time[int.min],3) -> t.start
+      round(int.time[int.max],3) -> t.end
+    }else{
+      int.time[which.max(int.values)] -> t.max
+      round(df.g$xmin[r],3) -> t.start
+      round(df.g$xmax[r],3) -> t.end
+      (t.max-t.start)/(t.end-t.start) -> p.max
+    }
+    
+    if((t.end-t.start)*1000 < npoints()){
+      for(f in 1:input$fX.N){
+        assign(paste0("f",f,".values"),append(get(paste0("f",f,".values")),rep(NA,npoints())))
+        assign(paste0("f",f,".track"),append(get(paste0("f",f,".track")),rep(NA,npoints())))
+        assign(paste0("f",f,".maxint"),append(get(paste0("f",f,".maxint")),rep(NA,npoints())))
+        assign(paste0("f",f,".mean"),append(get(paste0("f",f,".mean")),rep(NA,npoints())))
+        assign(paste0("f",f,".median"),append(get(paste0("f",f,".median")),rep(NA,npoints())))
+      }
+    }else{
+      forest(
+        paste0(inDir(), df.g$name_trim[r], snd.ext()),
+        beginTime = t.start,
+        endTime = t.end,
+        gender = ifelse("vc.length" %in% colnames(df.g),str_replace_all(df.g$vc.length,c("[^sl]"="u", "s"="f","l"="m"))[r],"u"),
+        windowShift = ((t.end-t.start)*1000)/npoints(),
+        numFormants = input$fX.N,
+        toFile = F
+      ) -> fX.object
+      for(f in 1:input$fX.N){
+        as.vector(ifelse(fX.object$fm[,f]==0, NA, fX.object$fm[,f])) -> fX
+        if(sum(is.na(fX)) > length(fX)-2){
+          rep(NA,npoints()) -> fX
+          fX -> fX.track
+        } else{
+          if(length(fX)!=npoints()){
+            approx(fX, n = npoints(), na.rm = F)$y -> fX
+          }
+            round(fX,3) -> fX.track
+            na.approx(fX, na.rm = F) -> fX
+            approxExtrap(
+              1:npoints(),
+              fX,
+              xout = 1:npoints(),
+              method = "constant"
+            )$y -> fX
+            ksmooth(
+              1:npoints(),
+              fX,
+              kernel = "normal",
+              bandwidth = input$fX.smooth_bw,
+              n.points = npoints()
+            )$y -> fX
+            round(fX,3) -> fX
+        }
+        if(samplemode()==2 & fX.dynwin()==T){
+          c(
+            rep(NA,int.min-1),
+            if(sum(is.na(fX))>=length(fX)-1){rep(NA,int.max-int.min+1)}else{approx(fX,n = int.max-int.min+1,na.rm = F)$y},
+            rep(NA,npoints()-int.max)
+          ) -> fX
+          c(rep(NA,int.min-1),
+            if(sum(is.na(fX.track))>=length(fX.track)-1){rep(NA,int.max-int.min+1)}else{approx(fX.track,n = int.max-int.min+1,na.rm = F)$y},
+            rep(NA,npoints()-int.max)
+          ) -> fX.track
+        }
+        assign(paste0("f",f,".values"),append(get(paste0("f",f,".values")),fX))
+        assign(paste0("f",f,".maxint"),append(get(paste0("f",f,".maxint")),c(fX[which.max(int.values)[1]],rep(NA,(npoints()-1)))))
+        assign(paste0("f",f,".mean"),append(get(paste0("f",f,".mean")),c(ifelse(is.nan(mean(fX,na.rm = T)),NA,mean(fX,na.rm = T)),rep(NA,npoints()-1))))
+        assign(paste0("f",f,".median"),append(get(paste0("f",f,".median")),c(ifelse(is.nan(median(fX,na.rm = T)),NA,median(fX,na.rm = T)),rep(NA,npoints()-1))))
+        assign(paste0("f",f,".track"),append(get(paste0("f",f,".track")),fX.track))
+      }
+    }}else{
+      for(f in 1:input$fX.N){
+        assign(paste0("f",f,".values"),append(get(paste0("f",f,".values")),rep(NA,npoints())))
+        assign(paste0("f",f,".track"),append(get(paste0("f",f,".track")),rep(NA,npoints())))
+        assign(paste0("f",f,".maxint"),append(get(paste0("f",f,".maxint")),rep(NA,npoints())))
+        assign(paste0("f",f,".mean"),append(get(paste0("f",f,".mean")),rep(NA,npoints())))
+        assign(paste0("f",f,".median"),append(get(paste0("f",f,".median")),rep(NA,npoints())))
+      }
+    }
+    }
+    for(f in 1:input$fX.N){
+      as.numeric(get(paste0("f",f,".track"))) ->> df.l[[paste0("f",f,".track")]]
+      as.numeric(get(paste0("f",f,".values"))) ->> df.l[[paste0("cc.f",f,".Hz")]]
+      as.numeric(get(paste0("f",f,".maxint"))) ->> df.l[[paste0("f",f,".maxint")]]
+      as.numeric(get(paste0("f",f,".mean"))) ->> df.l[[paste0("f",f,".mean")]]
+      as.numeric(get(paste0("f",f,".median"))) ->> df.l[[paste0("f",f,".median")]]
+    }
+  }
+    
   plotUI <- function(id) {
     ns <- NS(id)
       div(align = "center",
@@ -2379,40 +3321,72 @@ observeEvent(input$do.f0.repr,{
     })
   }
   
-  plotServer <- function(id, f, t, n, i, a) {
+  plotServer <- function(id, v, f, t, n, i, a) {
     moduleServer(id, function(input, output, session) {
       output$plot <- renderPlot({
-        ggplot(mapping = aes(x = df.l$steptime[df.l$filename == f &
-                                                 df.l$start == t])) +
-          geom_line(mapping = aes(y = df.l$track[df.l$filename == f &
-                                                   df.l$start == t]), na.rm = TRUE) +
+          if(any(v %in% paste0("f",1:5))){
+            ggplot() +
+              geom_raster(data = df.fft[df.fft$i==substr(id,5,nchar(id)),], mapping = aes(x = time, y = frequency, fill = rescale(amplitude,c(0,1))), interpolate = TRUE) +
+              scale_fill_gradientn(colors = c("black","white"),guide = F) -> p
+            if(isolate(fX.dynwin())==TRUE){
+              p +
+                scale_x_continuous(expand = c(0, 0)) +
+                scale_y_continuous(expand = c(0, 0), sec.axis = sec_axis(~.*(max(df.l[["cc.int.dB"]])/a),name = "Smoothed intensity (dB)")) +
+                geom_smooth(
+                  mapping = aes(df.l$steptime[df.l$filename == f &
+                                                df.l$start == t],
+                                y = rescale(df.l[["cc.int.dB"]],c(i,a))[df.l$filename == f & df.l$start == t]),
+                  colour = "yellow",
+                  formula = y ~ x,
+                  method = "loess",
+                  span = 0.3,
+                  alpha = 0,
+                ) -> p
+            }else{
+              p +
+                scale_y_continuous(expand = c(0, 0)) +
+                scale_x_continuous(expand = c(0, 0)) -> p
+            }
+            }
+        else{
+                ggplot(mapping = aes(x = df.l$steptime[df.l$filename == f &
+                                                         df.l$start == t])) -> p
+              }
+          p +
+          {lapply(v, function(l){
+          geom_line(mapping = aes(x = df.l$steptime[df.l$filename == f &
+                                                      df.l$start == t],
+                                  y = df.l[[paste0(l,".track")]][df.l$filename == f &
+                                                   df.l$start == t]), colour = ifelse(any(v %in% paste0("f",1:5)),"white","black"), linewidth = 1, na.rm = TRUE)})} +
+          {lapply(v, function(l){
+            if(sum(is.na(df.l[[paste0("cc.",l,".Hz")]][df.l$filename == f & df.l$start == t])) == n){
+                annotate(
+                  "text",
+                  x = df.l$steptime[df.l$filename == f &
+                                    df.l$start == t][floor(n / 2)],
+                  y = mean(c(i, a)),
+                  label = "No reliable frequency detected.",
+                  colour = "#FF0000",
+                  size = 7
+                ) -> p
+            }else{
           geom_line(
-            mapping = aes(y = df.l$cc.f0.Hz[df.l$filename == f & df.l$start == t]),
+            mapping = aes(x = df.l$steptime[df.l$filename == f &
+                                              df.l$start == t],
+                          y = df.l[[paste0("cc.",l,".Hz")]][df.l$filename == f & df.l$start == t]),
             linetype = "dashed",
+            linewidth = 1,
             colour = "#FF0000",
             na.rm = TRUE
-          ) +
+          )} } )} +
           coord_cartesian(ylim = c(i, a)) +
           labs(
             title = paste0("filename: ", f),
             subtitle = paste0("interval label: ", df.l$interval_label[df.l$filename ==
                                                                         f & df.l$start == t][1]),
             x = "Interval time (s)",
-            y = "f0 (Hz)"
+            y = paste0(paste0(v, collapse = ", ")," (Hz)")
           ) -> p
-        if (sum(is.na(df.l$cc.f0.Hz[df.l$filename == f &
-                                    df.l$start == t])) == n) {
-          p +
-            annotate(
-              "text",
-              x = df.l$steptime[df.l$filename == f &
-                                  df.l$start == t][floor(n / 2)],
-              y = mean(c(i, a)),
-              label = "No reliable f0 detected.",
-              colour = "#FF0000",
-              size = 7
-            ) -> p
-        }
         p + theme(text = element_text(size = 20)) -> p
         p
       })
@@ -2458,10 +3432,52 @@ observeEvent(input$do.f0.repr,{
       0 -> na.f0
       0 -> neg.f0
       paste0(
-       "0 problems found in f0 values (none in data)","\n"
+       "0 problems found in f0 values (or none in data)","\n"
       ) -> f0.prb
     }
-    if(sum(na.f,na.s,na.f0,neg.f0,na.i,d.f0)==0){
+    if(any(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))){
+      0 ->> df.l$d.fX
+      c() -> na.fX
+      c() -> neg.fX
+      for(f in paste0("cc.f",1:5,".Hz")[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))]){
+        if(fX.single()=="ts"){
+        append(na.fX,length(unique(interaction(df.l$filename,df.l$start)[is.na(df.l[[f]])]))) -> na.fX
+        append(neg.fX,length(which(is.na(as.vector(unique(interaction(df.l$filename,df.l$start)[df.l[[f]] < 0])))==F))) -> neg.fX
+        }else{
+          append(na.fX,sum(is.na(df.l[[f]][df.l$stepnumber==1]))) -> na.fX
+          append(neg.fX,sum(na.omit(df.l[[f]][df.l$stepnumber==1])<0)) -> neg.fX
+        }
+      }
+      for(r in 1:nrow(df.l)){
+        if(df.l$stepnumber[r]==1){
+          if(fX.single()=="ts" & (
+             any(is.na(dplyr::select(df.l[r:(r+max(df.l$stepnumber)-1),], paste0("cc.f",1:5,".Hz")[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))]))) |
+             any(na.omit(dplyr::select(df.l[r:(r+max(df.l$stepnumber)-1),], paste0("cc.f",1:5,".Hz")[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))]))<0)
+             )
+             ){
+            1 ->> df.l$d.fX[r:(r+max(df.l$stepnumber)-1)]
+          }
+          if(fX.single()!="ts" & (
+             any(is.na(dplyr::select(df.l[r,], paste0("cc.f",1:5,".Hz")[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))]))) |
+             any(na.omit(dplyr::select(df.l[r,], paste0("cc.f",1:5,".Hz")[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))]))<0)
+          )
+             ){
+            1 ->> df.l$d.fX[r:(r+max(df.l$stepnumber)-1)]
+          }
+        }
+      }
+      paste0(
+        paste0(na.fX, collapse = ", ")," intervals have missing values for: ",paste0(paste0("f",1:5)[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))], collapse = ", "),"\n",
+        paste0(neg.fX, collapse = ", ")," intervals have negative formant values for: ",paste0(paste0("f",1:5)[which(paste0("cc.f",1:5,".Hz") %in% colnames(df.l))], collapse = ", "),"\n"
+      ) -> fX.prb
+    }else{
+      0 -> na.fX
+      0 -> neg.fX
+      paste0(
+        "0 problems found in formant values (or none in data)","\n"
+      ) -> fX.prb
+    }
+    if(sum(na.f,na.s,na.f0,neg.f0,na.i,d.f0,na.fX,neg.fX)==0){
       output$clean.set <- renderUI({div(title = "Maximum number of cases per contour for which the f0 velocity between two measurement points is allowed to be beyond the maximum rates are taken from Xu & Sun (2002, Table X; 72 ST/s for rises and 96 ST/s for falls, doi:10.1121/1.1445789).",
                                         isolate(numericInput("clean.set","Max N velocity exceedings",value = 0,min = 0,max = max(df.l$stepnumber,na.rm = T)-1,step = 1)))})
       output$clean.recheck <- renderUI({div(title = "Performs cleaning and checking of data for: missing filenames, speaker IDs or interval labels. If included, f0 is checked for missing or negative values and for rising/falling rates. Maximum rates are taken from Xu & Sun (2002, Table X; 72 ST/s for rises and 96 ST/s for falls, doi:10.1121/1.1445789).",
@@ -2475,7 +3491,7 @@ observeEvent(input$do.f0.repr,{
                                             actionButton("clean.recheck","Clean and re-check"))})
       output$clean.cont <- renderUI({actionButton("clean.cont", "Continue with cleaned data",disabled = T)})
       output$clean.ign <- renderUI({
-        div(title = "This enables to continue without cleaning and is likely to produce errors and app crashes. Not recommend.",
+        div(title = "This enables to continue without cleaning and is likely to produce errors and app crashes. Not recommended.",
             checkboxInput("clean.ign","Ignore problems",F))
       })
     }
@@ -2494,9 +3510,10 @@ observeEvent(input$do.f0.repr,{
         na.f," intervals have missing filenames","\n",
         na.s," intervals have missing speaker IDs","\n",
         na.i, " intervals have ' ' (space) as interval label","\n",
-        f0.prb
+        f0.prb, "\n",
+        fX.prb
       ),
-      n = sum(na.f,na.s,na.f0,neg.f0,na.i,d.f0)
+      n = sum(na.f,na.s,na.f0,neg.f0,na.i,d.f0,na.fX,neg.fX)
       ))
   }
   
@@ -2539,9 +3556,9 @@ observeEvent(input$do.f0.repr,{
   
   do.repr <- function(m){
     paste(m,"f0",input$f0.scale,input$f0.corr,input$f0.deriv,sep = ".") -> n.repr
-    gsub(".n","",n.repr) -> n.repr
+    gsub("\\.n","",n.repr) -> n.repr
     if(input$f0.scale!="Hz"){
-      f0.conv(df.l$cc.f0.Hz,"Hz",input$f0.scale) ->> df.l[[n.repr]]
+      f.conv(df.l$cc.f0.Hz,"Hz",input$f0.scale) ->> df.l[[n.repr]]
     }else{
       df.l$cc.f0.Hz ->> df.l[[n.repr]]
     }
@@ -2598,9 +3615,12 @@ observeEvent(input$do.f0.repr,{
       input$cc.vars -> vars
     }
    npoints(max(df.l$stepnumber))
+   if(input$cc.method!="vcd"){
    cc.d <- dist(matrix(data = 0,nrow = nrow(df.l)/npoints()))
    for(var in vars){
-     matrix(na.omit(df.l[[paste0("cc.",var)]]),ncol = ifelse(str_detect(var,paste(c("PC","dur"),collapse = "|")),1,npoints()), byrow = T) -> m
+     matrix(na.omit(df.l[[paste0("cc.",var)]]),
+            ncol = ifelse(sum(is.na(df.l[[paste0("cc.",var)]]))==nrow(df.l)-(nrow(df.l)/npoints()),1,npoints()),
+            byrow = T) -> m
      if (input$cc.distm == "euclidean") {
        stats::dist(m, method = "euclidean") -> d
      }
@@ -2652,6 +3672,23 @@ observeEvent(input$do.f0.repr,{
     removeNotification("nt.cc",session)
     return(as.data.frame(cbind(m,cluster)))
   }
+   }else{
+     c() -> cluster
+     for(r in 1:nrow(df.l)){
+       if(df.l$stepnumber[r]==1){
+         append(cluster,
+         which.min(sapply(1:nclust(),function(x){
+                eucl(c(
+                  do.call(input$plot.vals,list(na.omit(df.l$cc.f2.Bk[r:(r+npoints()-1)]))),
+                  do.call(input$plot.vals,list(na.omit(df.l$cc.f1.Bk[r:(r+npoints()-1)])))
+                  ),
+                  c(df.v$f2[x],
+                    df.v$f1[x])
+                  )}
+                ))) -> cluster
+       }
+     }
+   }
   rep(cluster, each = npoints()) ->> df.l$cluster
   do.proto()
   paste0(1:n,
@@ -2662,6 +3699,16 @@ observeEvent(input$do.f0.repr,{
                 pattern = "\\)",
                 replacement = paste0(", d=",round(as.vector(unlist((df.l %>% group_by(cluster) %>% summarise(mean=mean(cc.dur.s,na.rm=T),median=median(cc.dur.s,na.rm=T)))[input$plot.vals])),2),")")
                 ) -> labs
+  }
+  if(any(grepl(paste(paste0("f",1:5),collapse = "|"),vars))){
+    for(v in vars[grepl(paste(paste0("f",1:5),collapse = "|"),vars)]){
+      if(sum(is.na(df.l[[paste0("cc.",v)]]))>0){
+      str_replace_all(labs,
+                    pattern = "\\)",
+                    replacement = paste0(", ",substr(v,1,2),"=",round(as.vector(unlist((df.l %>% group_by(cluster) %>% summarise(mean=mean(get(paste0("cc.",v)),na.rm=T),median=median(get(paste0("cc.",v)),na.rm=T)))[input$plot.vals])),2),")")
+    ) -> labs
+      }
+    }
   }
   attributes(labs)$names <- 1:n
   ggplot(df.l, aes(x = stepnumber, y = df.l[[paste0("cc.",cc.y1())]])) +
@@ -2713,15 +3760,48 @@ observeEvent(input$do.f0.repr,{
                 linewidth = 1,
                 show.legend = F
       ) -> p
-    }else{
-    load.quiet("scales")
+    }
+    if(any(grepl(paste0("f",1:5,collapse = "|"), input$plot.y1)) & any(grepl(paste0("f",1:5,collapse = "|"), input$plot.y2))){
+      p +
+        scale_y_continuous(paste0(cc.y1()," (",input$plot.vals,")"), sec.axis = dup_axis(name = paste0(input$plot.y2," (",input$plot.vals,")"))) + 
+        stat_summary(mapping = aes(y = df.l[[paste0("cc.",input$plot.y2)]]),
+                     data = df.l,
+                     fun = input$plot.vals,
+                     group = "cluster",
+                     geom = "line", 
+                     colour = app.yR.col(),
+                     linetype = app.yR.type(),
+                     linewidth = 1,
+                     show.legend = F) +
+        {if(input$plot.vals=="mean")
+          stat_summary(
+            mapping = aes(y = df.l[[paste0("cc.",input$plot.y2)]]), 
+            data = df.l,
+            fun.data = mean_sdl,
+            fun.args = list(mult = 1),
+            group = "cluster",
+            geom = 'ribbon',
+            alpha = .2,
+            show.legend = F
+          )} +
+        {if(input$plot.vals=="median")
+          stat_summary(
+            mapping = aes(y = df.l[[paste0("cc.",input$plot.y2)]]), 
+            data = df.l,
+            fun.data = median_hilow,
+            group = "cluster",
+            geom = 'ribbon',
+            alpha = .2,
+            show.legend = F
+          )} -> p
+      }else{
     rescale(x = df.l[[paste0("cc.",input$plot.y2)]], to =  c(min(df.l[[paste0("cc.",cc.y1())]]), max(df.l[[paste0("cc.",cc.y1())]]))) -> y2
     a.diff <- max(df.l[[paste0("cc.",cc.y1())]]) - min(df.l[[paste0("cc.",cc.y1())]])
     b.diff <- max(df.l[[paste0("cc.",input$plot.y2)]]) - min(df.l[[paste0("cc.",input$plot.y2)]])
     a.min <- min(df.l[[paste0("cc.",cc.y1())]])
     b.min <- min(df.l[[paste0("cc.",input$plot.y2)]])
     p + 
-      scale_y_continuous(cc.y1(), sec.axis = sec_axis(~((. -a.min) * b.diff / a.diff) + b.min,name = input$plot.y2)) +
+      scale_y_continuous(paste0(cc.y1()," (",input$plot.vals,")"), sec.axis = sec_axis(~((. -a.min) * b.diff / a.diff) + b.min,name = paste0(input$plot.y2," (",input$plot.vals,")"))) +
       stat_summary(mapping = aes(y = y2), 
                    data = df.l,
                    fun = input$plot.vals,
@@ -2787,7 +3867,7 @@ observeEvent(input$do.f0.repr,{
   removeNotification("nt.cc",session)
   updateActionButton(session,"savethis",disabled = F)
   show.contab(1)
-  logging(paste0("Clustering performed: ",n," clusters; ",nrow(df.l)/npoints()," observations, variables: ",paste0(vars,collapse = ", "),ifelse(input$cc.method=="hac",paste0("; method: HAC; linkage: ",input$cc.link),paste0("; method: PAM (optimizer: 'pamonce=",input$cc.opt,"')")),"; distance metric: ",input$cc.distm))
+  logging(paste0("Clustering performed: ",n," clusters; ",nrow(df.l)/npoints()," observations, variables: ",paste0(vars,collapse = ", "),ifelse(input$cc.method=="hac",paste0("; method: HAC; linkage: ",input$cc.link), ifelse(input$cc.method=="pam",paste0("; method: PAM (optimizer: 'pamonce=",input$cc.opt,"')"),"; method: vowel centroids")),"; distance metric: ",input$cc.distm))
   }
   
 show.contab <- function(do) {
@@ -2950,7 +4030,6 @@ do.eval <- function() {
       theme_bw(base_size = 20) -> p
  }
   if (isolate(input$eval.method) == 2) {
-    load.quiet("scales")
     within <- c()
     between <- c()
     for (r in isolate(input$eval.rg[1]):isolate(input$eval.rg[2])) {
@@ -3006,32 +4085,46 @@ do.eval <- function() {
 
 do.proto <- function() {
   "" ->> df.l$proto
-  for(c in 1:length(unique(df.l$cluster))){
-   for(cntr in which(df.l$cluster==c & df.l$stepnumber==1)){
-     sqrt(mean((
-       as.vector(unlist(lapply(split(na.omit(df.l[[paste0("cc.",cc.y1())]][df.l$cluster==c]),
-                                     f = df.l$stepnumber[df.l$cluster==c &
-                                                           is.na(df.l[[paste0("cc.",cc.y1())]])==F]), FUN = input$plot.vals)))-
-         df.l[[paste0("cc.",cc.y1())]][cntr:(cntr+max(df.l$stepnumber[is.na(df.l[[paste0("cc.",cc.y1())]])==F])-1)]
-       )^2)) ->> df.l$proto[cntr]
-   }
-     "x" ->> df.l$proto[df.l$cluster==c][which.min(df.l$proto[df.l$cluster==c]):(which.min(df.l$proto[df.l$cluster==c])+max(df.l$stepnumber)-1)]
-     "" ->> df.l$proto[df.l$cluster==c & df.l$proto!="x"]
+  d.mcl <- matrix(0,nrow=length(which(df.l$stepnumber==1)),ncol=length(unique(df.l$cluster)))
+  for(v in input$cc.vars){
+      lapply(sort(unique(df.l$cluster)), FUN = function(c){
+        sapply(unique(df.l$stepnumber),FUN = function(s){do.call(input$plot.vals,list(df.l[[paste0("cc.",v)]][df.l$stepnumber==s & df.l$cluster==c]))})
+        }) -> mcl
+    sapply(which(df.l$stepnumber==1), FUN = function(r){
+      sapply(sort(unique(df.l$cluster)), function(c){
+        eucl(
+          na.omit(df.l[[paste0("cc.",v)]][r:(r+max(df.l$stepnumber)-1)]),
+          mcl[[c]][complete.cases(mcl[[c]])]
+        )
+      })
+    }) %>% as.vector() %>% matrix(.,ncol=length(unique(df.l$cluster)),byrow=T) -> d.mclv
+    d.mcl + sapply(sort(unique(df.l$cluster)),FUN = function(c){rescale(d.mclv[,c])}) -> d.mcl
   }
+  cbind(d.mcl,df.l$cluster[df.l$stepnumber==1],1:length(df.l$cluster[df.l$stepnumber==1])) -> d.mcl
+  "x" -> df.l$proto[sapply(
+      (sapply(sort(unique(df.l$cluster)), FUN = function(c){
+    as.data.table(d.mcl) %>% filter(get(paste0("V",length(unique(df.l$cluster))+1))==c) %>% arrange(get(paste0("V",c))) %>% dplyr::select(paste0("V",ncol(d.mcl))) %>% slice(1) %>% unlist() %>% as.vector()
+  })-1)*20+1,FUN = function(r){seq(r,by=1,length.out = max(df.l$stepnumber))}) %>% as.vector()]
   savethis$p_tab <- df.l[df.l$proto=="x" & df.l$stepnumber==1] %>% sort_by(.,.$cluster) %>% dplyr::select(cluster,filename,start,end,interval_label)
   if(exists("df.g")){
     m.rows(NULL)
     for(r in 1:nrow(savethis$p_tab)){
       m.rows(append(m.rows(),which(df.g$name_trim==savethis$p_tab$filename[r] & df.g$text==savethis$p_tab$interval_label[r] & round(df.g$xmin,3)==savethis$p_tab$start[r])))
     }
-    load.quiet("sound")
     suppressWarnings(unlink("www", recursive = T))
     dir.create("www")
     for(x in 1:length(m.rows())){
-        cutSample(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])], snd.ext()),
-                  df.g$xmin[isolate(m.rows()[x])],
-                  df.g$xmax[isolate(m.rows()[x])]) -> snd
-      saveSample(snd,file.path("www",paste0("play",x,".wav")),overwrite = T)
+      tuneR::readWave(paste0(inDir(), df.g$name_trim[isolate(m.rows()[x])],
+                      snd.ext()),df.g$xmin[isolate(m.rows()[x])],
+                      df.g$xmax[isolate(m.rows()[x])],
+                      units = "seconds") -> snd
+      if(snd@bit>16){
+        tuneR::normalize(snd,unit="16",pcm = T,rescale = F) -> snd
+      }
+      if(snd@samp.rate>16000){
+        tuneR::downsample(snd,samp.rate = 16000) -> snd
+      }
+      tuneR::writeWave(snd,file.path("www",paste0("play",x,".wav")))
     }
     playServerList <- lapply(1:length(isolate(m.rows())), function(i) {
       playServer(paste0("play", i))
@@ -3050,6 +4143,7 @@ do.proto <- function() {
     output$proto.play <-renderTable(savethis$p_tab)
   }
 }
+
 
 }
 
