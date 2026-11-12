@@ -410,8 +410,8 @@ displayRandomImage();
 		<tr>
 		<td height="17" align="left">Hungarian</td>
 		<td align="left">phrases</td>
+		<td align="left"><a href="https://deepblue.lib.umich.edu/bitstreams/35bf4c28-b509-439f-ab37-7bc671689b20/download">Tatár, 2026</a></td>
 		<td align="left"><a href="https://www.isca-archive.org/speechprosody_2026/tatar26_speechprosody.pdf">Tatár et al., 2026</a></td>
-		<td align="left"><br></td>
 		<td align="left"><br></td>
 	</tr>
 	<tr>
@@ -576,6 +576,7 @@ displayRandomImage();
   <p class="ref">Kaland, Constantijn. <cvY></cvY>. <i>Contour Clustering</i> (Version <cvY></cvY><cvM></cvM>) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a></p>
   <p class="ref">Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]</p><br> 
   <b>Also applied in:</b><br>
+  <p class="ref">Tatár, Csilla. 2026. <i>The Prosodic and Information Structural Underpinnings of Speech and Co-Speech Gesture Alignment in Hungarian</i>. PhD thesis, University of Michigan. [<a href="https://deepblue.lib.umich.edu/bitstreams/35bf4c28-b509-439f-ab37-7bc671689b20/download">pdf</a>]</p>
   <p class="ref">Marchini, Gilly. 2026. <i>Phrasal F0 in two Mexican Spanish ethnolects</i>. PhD thesis, University of Edinburgh. [<a href="https://era.ed.ac.uk/bitstreams/502de975-80b5-49f5-ba0c-b3eafe5a3590/download">pdf</a>]</p>
   <p class="ref">Zhou, Wangqian. 2026. Early production of boundary tones in Mandarin declaratives: Contour clustering of monolingual and bilingual child speech. <i>Proc. Hanyang International Symposium on Phonetics and Cognitive Sciences of Language 2026</i>. Seoul, Korea. [<a href="https://site.hanyang.ac.kr/documents/10980062/577907791/223.pdf">pdf</a>]</p>
   <p class="ref">Hou, Jueyu & Laméris, Tim. 2026. Tonal adaptation of recent Japanese phonemic loanwords in Mandarin Chinese. <i>Proc. Speech Prosody 2026</i> (48-52). Philadelphia, USA. <a href="https://doi.org/10.21437/SpeechProsody.2026-10">doi:10.21437/SpeechProsody.2026-10</a> [<a href="https://www.isca-archive.org/speechprosody_2026/hou26_speechprosody.pdf">pdf</a>]</p>
