@@ -95,7 +95,8 @@ p.ref {
 <tr>
 <td align=center; width=45%>
 <div style="transform: skewY(170deg);text-align: center;margin-top:10%;margin-bottom:10%;font-size: 130%;">
-	<a style="text-decoration: none; display:inline; color: red;" href="#download">New version!</a>
+	<a style="text-decoration: none; display:inline; color: red;" href="#download">New version!</a><br>
+	<a style="text-decoration: none; color: red;"href="https://eppro01.ativ.me/web/page.php?page=IntHtml&project=ASAFALL2026&id=4171101">Presentation soon!</a>
 	</div>
 </td>
 </tr>
@@ -106,7 +107,7 @@ p.ref {
 <td
 <td align=center;width=45%>
 	<div style="transform: skewY(170deg);text-align: center;margin-top:10%;margin-bottom:10%;font-size: 130%;">
-	<a style="text-decoration: none; color: red;" href="https://labphon.org/content/summer-2025-workshop">Workshop soon!</a><br>
+	<a style="text-decoration: none; color: red;" https://eppro01.ativ.me/web/page.php?page=IntHtml&project=ASAFALL2026&id=4171101">Presentation soon!</a><br>
 	<a style="text-decoration: none; color: black;" href="https://ubc.zoom.us/meeting/register/0mxFBVg7SvKgfll1giq9Rw#/registration">register here</a>
 	</div>
 </td>
@@ -289,7 +290,8 @@ displayRandomImage();
 		</tr>
 	<tr>
 		<td height="17" align="left">Afro-Mexican Spanish</td>
-		<td align="left">words</td>		
+		<td align="left">words</td>
+		<td align="left"><a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309261505466?download=true">Marchini et al., 2026</a></td>		
 		<td align="left"><a href="https://era.ed.ac.uk/bitstreams/502de975-80b5-49f5-ba0c-b3eafe5a3590/download">Marchini, 2026</a></td>
 		<td align="left"><a href="https://www.isca-archive.org/tai_2025/marchini25_tai.pdf">Marchini et al., 2025</a></td>		
 	</tr>
@@ -576,6 +578,7 @@ displayRandomImage();
   <p class="ref">Kaland, Constantijn. <cvY></cvY>. <i>Contour Clustering</i> (Version <cvY></cvY><cvM></cvM>) [Computer software]. <a style="text-decoration: none; color: black;" href="https://constantijnkaland.github.io/contourclustering/">https://constantijnkaland.github.io/contourclustering/</a></p>
   <p class="ref">Kaland, Constantijn. 2023. Contour clustering: A field-data-driven approach for documenting and analysing prototypical f0 contours. <i>Journal of the International Phonetic Association</i> 53(1), 159-188. <a href="https://doi.org/10.1017/S0025100321000049">doi:10.1017/S0025100321000049</a> [<a href="https://sfb1252.uni-koeln.de/sites/sfb_1252/user_upload/Pdfs_Publikationen/Kaland_2021_Contour_clustering_field-data-driven.pdf">pdf</a>]</p><br> 
   <b>Also applied in:</b><br>
+  <p class="ref">Marchini, Gilly; Steffman, Jeremy & Kaland, Constantijn. 2026. Cluster Analysis of Focus Marking in Afro-Mexican Spanish: Methodological and Descriptive Contributions. <i>Language and Speech</i>, 0, 1-37. <a href="https://doi.org/10.1177/00238309261505466">doi:10.1177/00238309261505466</a> [<a href="https://journals.sagepub.com/doi/pdf/10.1177/00238309261505466?download=true">pdf</a>]</p>
   <p class="ref">Tatár, Csilla. 2026. <i>The Prosodic and Information Structural Underpinnings of Speech and Co-Speech Gesture Alignment in Hungarian</i>. PhD thesis, University of Michigan. [<a href="https://csillatatar.com/wp-content/uploads/2026/10/tatar_2026_dissertation.pdf">pdf</a>]</p>
   <p class="ref">Marchini, Gilly. 2026. <i>Phrasal F0 in two Mexican Spanish ethnolects</i>. PhD thesis, University of Edinburgh. [<a href="https://era.ed.ac.uk/bitstreams/502de975-80b5-49f5-ba0c-b3eafe5a3590/download">pdf</a>]</p>
   <p class="ref">Zhou, Wangqian. 2026. Early production of boundary tones in Mandarin declaratives: Contour clustering of monolingual and bilingual child speech. <i>Proc. Hanyang International Symposium on Phonetics and Cognitive Sciences of Language 2026</i>. Seoul, Korea. [<a href="https://site.hanyang.ac.kr/documents/10980062/577907791/223.pdf">pdf</a>]</p>
